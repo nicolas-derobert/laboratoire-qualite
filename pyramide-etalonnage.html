@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pyramide de traçabilité métrologique — Labo qualité</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --paper: #ffffff;
+      --ink: #14213d;
+      --muted: #5d6b82;
+      --line: #d9e2ef;
+      --blue: #173b74;
+      --blue-2: #2563eb;
+      --cyan: #0ea5e9;
+      --gold: #c9972b;
+      --green: #0f9f6e;
+      --red: #dc2626;
+      --orange: #ea580c;
+      --shadow: 0 18px 45px rgba(20, 33, 61, .12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, .18), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(201, 151, 43, .14), transparent 28rem),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 26px;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #0b1738 0%, #173b74 55%, #2563eb 100%);
+      color: white;
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      padding: 34px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -110px auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .08);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 7px 12px;
+      border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.12);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 62px);
+      line-height: 1.02;
+      margin: 18px 0 12px;
+      max-width: 960px;
+    }
+
+    .hero p {
+      max-width: 1060px;
+      margin: 0;
+      color: rgba(255,255,255,.86);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .hero-note {
+      margin-top: 22px;
+      max-width: 1060px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 14px 16px;
+      color: rgba(255,255,255,.88);
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-note strong { color: #fff; }
+
+    nav.tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 24px 0;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 12px;
+      background: rgba(244, 247, 251, .86);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(217,226,239,.75);
+      border-radius: 20px;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: .2s;
+    }
+
+    .tab:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(20,33,61,.08); }
+    .tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+    main section { display: none; }
+    main section.active { display: block; animation: fade .25s ease-out; }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel h2, .panel h3 { margin: 0 0 12px; }
+    .panel p { color: var(--muted); line-height: 1.58; }
+
+    .reliability-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .reliability-card {
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .reliability-card strong { display: block; margin-bottom: 5px; }
+    .reliability-card span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .pyramid-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 650px;
+      padding: 18px;
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(37,99,235,.06), rgba(201,151,43,.04)),
+        #fbfdff;
+      border: 1px solid #e7eef8;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pyramid {
+      width: min(760px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      user-select: none;
+    }
+
+    .level {
+      --w: 88%;
+      width: var(--w);
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 72px 1fr 142px;
+      gap: 13px;
+      align-items: center;
+      color: white;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 16px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 12px 24px rgba(20,33,61,.16);
+      transition: transform .18s ease, filter .18s ease, outline .18s ease;
+      clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+      position: relative;
+    }
+
+    .level:hover { transform: translateY(-2px) scale(1.006); filter: saturate(1.08); }
+    .level.selected { outline: 4px solid rgba(201,151,43,.48); transform: scale(1.01); }
+    .level:nth-child(1) { --w: 38%; background: linear-gradient(135deg, #0f172a, #173b74); }
+    .level:nth-child(2) { --w: 51%; background: linear-gradient(135deg, #173b74, #1d4ed8); }
+    .level:nth-child(3) { --w: 64%; background: linear-gradient(135deg, #1d4ed8, #0ea5e9); }
+    .level:nth-child(4) { --w: 77%; background: linear-gradient(135deg, #0f9f6e, #12b981); }
+    .level:nth-child(5) { --w: 90%; background: linear-gradient(135deg, #c9972b, #ea580c); }
+
+    .level-num {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.25);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .level-title { font-size: 18px; font-weight: 900; margin-bottom: 3px; }
+    .level-sub { font-size: 13px; color: rgba(255,255,255,.82); }
+
+    .uncertainty-pill {
+      justify-self: end;
+      border-radius: 999px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.24);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .detail-card {
+      min-height: 650px;
+      position: sticky;
+      top: 96px;
+    }
+
+    .detail-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #eef5ff;
+      color: #173b74;
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .detail-title { font-size: 27px; margin: 8px 0 4px; }
+    .detail-subtitle { color: var(--muted); margin: 0 0 18px; line-height: 1.5; }
+
+    .info-grid { display: grid; gap: 12px; }
+
+    .info-box {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .info-box strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .info-box span { color: var(--muted); line-height: 1.48; }
+
+    .uncertainty-scale {
+      margin-top: 18px;
+      border: 1px dashed #c9d6ea;
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg, #fff, #f8fbff);
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 125px 1fr 84px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 12px;
+      background: #e6eef9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--gold), var(--orange));
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .concept-card {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      min-height: 230px;
+    }
+
+    .concept-card .icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: #eef5ff;
+      color: var(--blue);
+      font-size: 25px;
+      margin-bottom: 12px;
+    }
+
+    .concept-card h3 { margin: 0 0 8px; }
+    .concept-card p { color: var(--muted); line-height: 1.55; }
+
+    .mini-certificate {
+      border: 1px solid #ccd8ea;
+      background: linear-gradient(180deg, #fff, #f8fbff);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-certificate::before {
+      content: "CERTIFICAT";
+      position: absolute;
+      right: -14px;
+      top: 16px;
+      transform: rotate(18deg);
+      color: rgba(23,59,116,.08);
+      font-size: 54px;
+      font-weight: 950;
+    }
+
+    .cert-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 2px solid #e2eaf5;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cert-head strong { font-size: 18px; }
+    .cert-head span { color: var(--muted); font-size: 13px; }
+
+    .cert-table {
+      width: 100%;
+      border-collapse: collapse;
+      position: relative;
+      z-index: 1;
+      font-size: 13px;
+    }
+
+    .cert-table th, .cert-table td {
+      border: 1px solid #dce6f3;
+      padding: 9px;
+      text-align: left;
+    }
+    .cert-table th { background: #eef5ff; }
+
+    .callout {
+      border-left: 5px solid var(--gold);
+      background: #fff8e8;
+      border-radius: 16px;
+      padding: 15px;
+      color: #6f4e06;
+      line-height: 1.5;
+    }
+
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .side-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .side-panel h3 { margin: 0 0 10px; }
+    .side-panel p { color: var(--muted); line-height: 1.5; }
+
+    .tile-list { display: grid; gap: 10px; }
+
+    .tile {
+      border: 1px solid #cfdced;
+      background: #fbfdff;
+      border-radius: 16px;
+      padding: 13px;
+      cursor: grab;
+      transition: .2s;
+      box-shadow: 0 5px 14px rgba(20,33,61,.06);
+    }
+
+    .tile:active { cursor: grabbing; }
+    .tile:hover { transform: translateY(-1px); }
+    .tile strong { display: block; margin-bottom: 4px; }
+    .tile span { display: block; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .tile.dragging { opacity: .45; }
+
+    .chain {
+      display: grid;
+      gap: 12px;
+    }
+
+    .dropzone {
+      min-height: 88px;
+      border: 2px dashed #c7d4e7;
+      border-radius: 20px;
+      background: rgba(255,255,255,.88);
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      position: relative;
+      transition: .2s;
+    }
+
+    .dropzone.over { border-color: var(--blue-2); background: #eef5ff; }
+    .dropzone.correct { border-color: rgba(15,159,110,.65); background: rgba(15,159,110,.08); }
+    .dropzone.wrong { border-color: rgba(220,38,38,.65); background: rgba(220,38,38,.07); }
+
+    .slot-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: #edf3fc;
+      color: #173b74;
+      font-weight: 900;
+    }
+
+    .slot-title { font-weight: 900; }
+    .slot-hint { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .dropzone .tile { cursor: grab; margin: 0; }
+
+    .sim-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 850;
+      color: white;
+      background: var(--blue);
+      box-shadow: 0 10px 18px rgba(23,59,116,.18);
+      transition: .2s;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+    .btn.secondary { background: #637083; }
+    .btn.ghost { background: #eef5ff; color: var(--blue); box-shadow: none; border: 1px solid #c7d4e7; }
+    .btn.good { background: var(--green); }
+
+    .feedback {
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      padding: 14px;
+      min-height: 80px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .feedback.success { border-color: rgba(15,159,110,.4); background: rgba(15,159,110,.08); color: #126247; }
+    .feedback.error { border-color: rgba(220,38,38,.35); background: rgba(220,38,38,.07); color: #7f1d1d; }
+
+    .doc-list { display: grid; gap: 10px; margin-top: 10px; }
+
+    .doc-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fbfdff;
+    }
+
+    .doc-item i {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      background: #eef5ff;
+      font-style: normal;
+    }
+
+    .doc-item strong { display: block; }
+    .doc-item span { display: block; color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+    .audit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .audit-case {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .audit-case h3 { margin: 0 0 10px; }
+    .audit-case label { display: block; font-weight: 750; margin: 12px 0 6px; }
+    .audit-case select, .audit-case input {
+      width: 100%;
+      border: 1px solid #cfdced;
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: white;
+      color: var(--ink);
+    }
+
+    .audit-result {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #fbfdff;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .audit-result.ok { background: rgba(15,159,110,.08); border-color: rgba(15,159,110,.4); color: #126247; }
+    .audit-result.ko { background: rgba(220,38,38,.07); border-color: rgba(220,38,38,.35); color: #7f1d1d; }
+
+    footer {
+      margin: 28px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+      .layout, .sim-grid, .audit-grid, .reliability-strip { grid-template-columns: 1fr; }
+      .detail-card { position: static; min-height: unset; }
+      .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 720px) {
+      .app { padding: 14px; }
+      header.hero { padding: 24px; border-radius: 22px; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .level { grid-template-columns: 48px 1fr; clip-path: none; width: 100% !important; }
+      .uncertainty-pill { grid-column: 1 / -1; justify-self: start; }
+      .bar-row { grid-template-columns: 1fr; }
+      nav.tabs { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <span class="eyebrow">CPH_HO_08 · Labo qualité · Métrologie</span>
+      <h1>Pyramide de traçabilité métrologique</h1>
+      <p>
+        Une application pédagogique pour comprendre comment une mesure réalisée en atelier peut être reliée à une référence reconnue par une chaîne documentée :
+        définitions SI et coordination internationale → METAS → laboratoire accrédité → laboratoire interne → atelier.
+      </p>
+      <div class="hero-note">
+        <strong>Point de vigilance :</strong> le SI est une référence de définition. L’incertitude apparaît lors de la réalisation pratique, des comparaisons et des transferts. En descendant vers l’atelier, des contributions d’incertitude s’ajoutent généralement.
+      </div>
+    </header>
+
+    <nav class="tabs" aria-label="Navigation de l'application">
+      <button class="tab active" data-tab="pyramide">1. Pyramide interactive</button>
+      <button class="tab" data-tab="principes">2. Principes clés</button>
+      <button class="tab" data-tab="simulation">3. Simulation micromètre</button>
+      <button class="tab" data-tab="audit">4. Audit express</button>
+    </nav>
+
+    <main>
+      <section id="pyramide" class="active">
+        <div class="panel" style="margin-bottom:18px;">
+          <div class="reliability-strip">
+            <div class="reliability-card"><strong>Chaîne documentée</strong><span>Chaque maillon doit être identifiable par une preuve : certificat, constat, fiche de vie ou enregistrement.</span></div>
+            <div class="reliability-card"><strong>Compétence démontrée</strong><span>L’accréditation ISO/CEI 17025 doit concerner le domaine d’étalonnage visé.</span></div>
+            <div class="reliability-card"><strong>Incertitude maîtrisée</strong><span>L’incertitude n’est pas seulement un nombre : elle permet de décider si la mesure est exploitable.</span></div>
+          </div>
+        </div>
+        <div class="layout">
+          <div class="panel">
+            <h2>Explorer la chaîne de traçabilité</h2>
+            <p>Cliquez sur un niveau de la pyramide pour afficher sa définition, un exemple d’étalon, son rôle, le document associé et son effet sur l’incertitude.</p>
+            <div class="pyramid-wrap">
+              <div class="pyramid" id="pyramid"></div>
+            </div>
+          </div>
+          <aside class="panel detail-card" id="detailCard" aria-live="polite"></aside>
+        </div>
+      </section>
+
+      <section id="principes">
+        <div class="cards-grid">
+          <article class="concept-card">
+            <div class="icon">🔗</div>
+            <h3>Traçabilité métrologique</h3>
+            <p>Un résultat de mesure est traçable lorsqu’il peut être relié à une référence reconnue par une chaîne ininterrompue et documentée d’étalonnages.</p>
+          </article>
+          <article class="concept-card">
+            <div class="icon">📄</div>
+            <h3>Preuve documentaire</h3>
+            <p>La confiance ne repose pas seulement sur l’instrument. Elle repose sur les certificats, les dates de validité, les références des étalons et les incertitudes.</p>
+          </article>
+          <article class="concept-card">
+            <div class="icon">±</div>
+            <h3>Incertitude de transfert</h3>
+            <p>À chaque transfert de référence, une contribution d’incertitude peut s’ajouter. En pratique, l’incertitude associée à l’usage atelier est généralement plus élevée que celle des références supérieures.</p>
+          </article>
+          <article class="concept-card">
+            <div class="icon">🏛️</div>
+            <h3>Institut national</h3>
+            <p>Le METAS est l’Institut fédéral de métrologie suisse. Il développe les bases de mesure nationales et assure la reconnaissance des unités de mesure en Suisse.</p>
+          </article>
+          <article class="concept-card">
+            <div class="icon">✅</div>
+            <h3>Laboratoire accrédité</h3>
+            <p>Un laboratoire accrédité ISO/CEI 17025 démontre sa compétence technique dans le domaine concerné et produit des certificats utiles à la traçabilité des étalons industriels.</p>
+          </article>
+          <article class="concept-card">
+            <div class="icon">🧭</div>
+            <h3>Atelier</h3>
+            <p>Le micromètre utilisé à l’établi est au niveau d’usage. Il doit rester identifié, propre, adapté à la tolérance et associé à une preuve de validité métrologique.</p>
+          </article>
+        </div>
+
+        <div class="panel" style="margin-top:20px;">
+          <h2>Exemple de certificat simplifié</h2>
+          <p>Ce certificat fictif montre les informations à rechercher pour comprendre la traçabilité d’un micromètre.</p>
+          <div class="mini-certificate">
+            <div class="cert-head">
+              <div><strong>Certificat d’étalonnage</strong><br><span>Micromètre extérieur 0–25 mm · ID : MIC-AT-014</span></div>
+              <div><strong>N° CE-2026-0418</strong><br><span>Émis le 14.05.2026</span></div>
+            </div>
+            <table class="cert-table">
+              <thead><tr><th>Point</th><th>Référence</th><th>Indication</th><th>Erreur</th><th>Incertitude U</th></tr></thead>
+              <tbody>
+                <tr><td>5 mm</td><td>Cale 5,000 mm</td><td>5,001 mm</td><td>+0,001 mm</td><td>±0,002 mm</td></tr>
+                <tr><td>10 mm</td><td>Cale 10,000 mm</td><td>10,001 mm</td><td>+0,001 mm</td><td>±0,002 mm</td></tr>
+                <tr><td>20 mm</td><td>Cale 20,000 mm</td><td>20,003 mm</td><td>+0,003 mm</td><td>±0,002 mm</td></tr>
+              </tbody>
+            </table>
+            <div class="callout" style="margin-top:14px;">
+              Traçabilité déclarée : cales étalons internes raccordées à un laboratoire accrédité, lui-même raccordé aux références nationales. Valeurs pédagogiques fictives.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="simulation">
+        <div class="sim-grid">
+          <aside class="side-panel">
+            <h3>Maillons disponibles</h3>
+            <p>Glissez les cartes dans la chaîne centrale, du sommet vers l’atelier.</p>
+            <div id="tileSource" class="tile-list"></div>
+            <div class="sim-actions">
+              <button class="btn ghost" id="shuffleBtn">Mélanger</button>
+              <button class="btn secondary" id="resetBtn">Réinitialiser</button>
+            </div>
+          </aside>
+
+          <div class="side-panel">
+            <h3>Chaîne à reconstituer : micromètre 0–25 mm</h3>
+            <p>But : vérifier que le micromètre utilisé en atelier est relié à une référence reconnue, sans rupture documentaire.</p>
+            <div class="chain" id="chain"></div>
+            <div class="sim-actions">
+              <button class="btn good" id="checkBtn">Vérifier la chaîne</button>
+              <button class="btn" id="solveBtn">Afficher la correction</button>
+            </div>
+            <div class="feedback" id="feedback">Placez les 5 maillons dans le bon ordre, puis lancez la vérification.</div>
+          </div>
+
+          <aside class="side-panel">
+            <h3>Critères de validité</h3>
+            <div class="doc-list">
+              <div class="doc-item"><i>1</i><div><strong>Continuité</strong><span>Aucun maillon documentaire ne doit manquer.</span></div></div>
+              <div class="doc-item"><i>2</i><div><strong>Compétence</strong><span>Les étalonnages critiques doivent être réalisés par des moyens compétents et reconnus.</span></div></div>
+              <div class="doc-item"><i>3</i><div><strong>Validité</strong><span>Les certificats doivent être à jour et associés au bon numéro d’identification.</span></div></div>
+              <div class="doc-item"><i>4</i><div><strong>Incertitude</strong><span>L’incertitude doit rester compatible avec l’usage prévu.</span></div></div>
+              <div class="doc-item"><i>5</i><div><strong>Usage atelier</strong><span>L’instrument doit être propre, en bon état et adapté à la tolérance contrôlée.</span></div></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="audit">
+        <div class="audit-grid">
+          <article class="audit-case">
+            <h3>Cas 1 — Peut-on utiliser l’instrument ?</h3>
+            <p>Un horloger veut contrôler un axe avec un micromètre 0–25 mm.</p>
+            <label for="certDate">Date du prochain étalonnage</label>
+            <select id="certDate">
+              <option value="valid">30.09.2026</option>
+              <option value="expired">30.04.2026</option>
+              <option value="none">Aucune date visible</option>
+            </select>
+            <label for="certNumber">N° de certificat présent sur l’étiquette</label>
+            <select id="certNumber">
+              <option value="yes">Oui, CE-2026-0418</option>
+              <option value="no">Non</option>
+            </select>
+            <label for="condition">État apparent</label>
+            <select id="condition">
+              <option value="ok">Propre, touches non marquées</option>
+              <option value="dirty">Touches sales</option>
+              <option value="damaged">Choc visible sur l’étrier</option>
+            </select>
+            <button class="btn" style="margin-top:14px" id="auditBtn">Décider</button>
+            <div class="audit-result" id="auditResult">Sélectionnez les éléments puis cliquez sur “Décider”.</div>
+          </article>
+
+          <article class="audit-case">
+            <h3>Cas 2 — Rupture de traçabilité</h3>
+            <p>Choisissez le maillon manquant dans la chaîne. L’application explique pourquoi la mesure devient fragile.</p>
+            <label for="missingLink">Maillon manquant</label>
+            <select id="missingLink">
+              <option value="none">Aucun maillon manquant</option>
+              <option value="internal">Certificat de la cale étalon interne absent</option>
+              <option value="accredited">Laboratoire accrédité non identifié</option>
+              <option value="si">Référence SI non déclarée</option>
+            </select>
+            <button class="btn" style="margin-top:14px" id="riskBtn">Analyser le risque</button>
+            <div class="audit-result" id="riskResult">Choisissez une situation puis lancez l’analyse.</div>
+            <div class="callout" style="margin-top:14px;">
+              En audit, la question essentielle est : “Comment savez-vous que cette mesure est fiable ?” La réponse doit s’appuyer sur une chaîne documentée, pas sur la réputation de l’instrument.
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>Application pédagogique — CPH_HO_08 Labo qualité · Pyramide de traçabilité métrologique</footer>
+  </div>
+
+  <script>
+    const levels = [
+      {
+        id: 'si',
+        num: 0,
+        title: 'SI / BIPM',
+        subtitle: 'Définitions SI et coordination internationale',
+        uncertainty: 'Référence de définition',
+        definition: 'Sommet conceptuel de la chaîne : les unités du Système international sont définies au niveau international. Le BIPM et les organes de la Convention du Mètre contribuent à l’uniformité mondiale des mesures.',
+        example: 'Définition du mètre à partir de la vitesse de la lumière dans le vide.',
+        role: 'Fournir une base commune pour que les réalisations nationales des unités soient comparables entre pays.',
+        document: 'Brochure SI, publications du BIPM et résultats de comparaisons internationales.',
+        effect: 'Le SI est une référence de définition. L’incertitude apparaît lors de la réalisation pratique, de la comparaison et du transfert de cette référence.'
+      },
+      {
+        id: 'metas',
+        num: 1,
+        title: 'METAS',
+        subtitle: 'Institut fédéral de métrologie suisse',
+        uncertainty: 'Très faible',
+        definition: 'Niveau national : METAS réalise, maintient, compare et diffuse les bases de mesure nationales en Suisse.',
+        example: 'Référence nationale de longueur ou équipement de référence maintenu par METAS.',
+        role: 'Assurer la cohérence des mesures en Suisse et leur reconnaissance internationale par comparaison avec d’autres instituts nationaux.',
+        document: 'Certificat, rapport ou preuve de raccordement à une référence nationale selon la prestation réalisée.',
+        effect: 'Incertitude généralement très faible, associée à la réalisation pratique de la référence et aux comparaisons documentées.'
+      },
+      {
+        id: 'lab-accredite',
+        num: 2,
+        title: 'Laboratoire accrédité',
+        subtitle: 'Relais compétent accrédité ISO/CEI 17025',
+        uncertainty: 'Faible',
+        definition: 'Laboratoire dont la compétence technique est évaluée pour un domaine d’étalonnage donné, par exemple le dimensionnel.',
+        example: 'Laboratoire externe qui étalonne des cales étalons, un micromètre ou un comparateur.',
+        role: 'Raccorder les étalons industriels aux références nationales avec une preuve documentaire reconnue.',
+        document: 'Certificat d’étalonnage accrédité avec méthode, résultats, incertitudes, références des étalons et numéro d’accréditation.',
+        effect: 'Une contribution d’incertitude supplémentaire est introduite lors du transfert depuis le niveau national.'
+      },
+      {
+        id: 'lab-interne',
+        num: 3,
+        title: 'Laboratoire interne',
+        subtitle: 'Étalons de travail de l’entreprise',
+        uncertainty: 'Maîtrisée',
+        definition: 'Niveau entreprise : gestion des moyens de mesure, surveillance périodique, vérifications internes et exploitation des certificats.',
+        example: 'Cale étalon 10 mm ou 20 mm raccordée, utilisée pour vérifier des micromètres en atelier.',
+        role: 'Maintenir le parc de moyens de mesure sous contrôle et conserver les preuves associées aux instruments critiques.',
+        document: 'Fiche de vie, procédure de vérification, constat interne, certificat de la cale étalon et enregistrement des contrôles.',
+        effect: 'L’incertitude cumulée doit être connue ou estimée et rester compatible avec les tolérances des pièces mesurées.'
+      },
+      {
+        id: 'atelier',
+        num: 4,
+        title: 'Atelier',
+        subtitle: 'Instrument utilisé en production',
+        uncertainty: 'La plus élevée en usage',
+        definition: 'Base de la pyramide : le moyen de mesure est utilisé au poste pour accepter, refuser ou ajuster une pièce.',
+        example: 'Micromètre extérieur 0–25 mm utilisé pour contrôler une épaisseur ou un diamètre.',
+        role: 'Produire une mesure exploitable pour décider de la conformité d’un composant horloger.',
+        document: 'Étiquette d’identification, validité métrologique, certificat associé et enregistrement de mesure.',
+        effect: 'Incertitude généralement la plus élevée dans l’usage réel : elle inclut les contributions précédentes, l’instrument, la méthode, l’opérateur, la pièce et l’environnement.'
+      }
+    ];
+
+    const chainItems = [
+      { id: 'si', title: 'Référence SI', desc: 'Définition internationale du mètre.' },
+      { id: 'metas', title: 'Institut national', desc: 'METAS réalise et diffuse les bases nationales suisses.' },
+      { id: 'lab-accredite', title: 'Laboratoire accrédité', desc: 'Étalonne les étalons industriels avec certificat reconnu.' },
+      { id: 'cale', title: 'Étalon interne', desc: 'Cale étalon raccordée utilisée par le laboratoire qualité.' },
+      { id: 'micro', title: 'Instrument atelier', desc: 'Micromètre 0–25 mm utilisé au poste de contrôle.' }
+    ];
+
+    const expectedOrder = ['si', 'metas', 'lab-accredite', 'cale', 'micro'];
+
+    const pyramid = document.getElementById('pyramid');
+    const detailCard = document.getElementById('detailCard');
+
+    function renderPyramid() {
+      pyramid.innerHTML = '';
+      levels.forEach((level, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'level' + (index === 0 ? ' selected' : '');
+        btn.dataset.id = level.id;
+        btn.innerHTML = `
+          <div class="level-num">${level.num}</div>
+          <div>
+            <div class="level-title">${level.title}</div>
+            <div class="level-sub">${level.subtitle}</div>
+          </div>
+          <div class="uncertainty-pill">Contribution<br>${level.uncertainty}</div>
+        `;
+        btn.addEventListener('click', () => selectLevel(level.id));
+        pyramid.appendChild(btn);
+      });
+      renderDetail(levels[0]);
+    }
+
+    function selectLevel(id) {
+      document.querySelectorAll('.level').forEach(el => el.classList.toggle('selected', el.dataset.id === id));
+      const level = levels.find(l => l.id === id);
+      renderDetail(level);
+    }
+
+    function renderDetail(level) {
+      detailCard.innerHTML = `
+        <div class="detail-top">
+          <span class="badge">Niveau ${level.num}</span>
+          <span class="badge">${level.uncertainty}</span>
+        </div>
+        <h2 class="detail-title">${level.title}</h2>
+        <p class="detail-subtitle">${level.subtitle}</p>
+        <div class="info-grid">
+          <div class="info-box"><strong>Définition du niveau</strong><span>${level.definition}</span></div>
+          <div class="info-box"><strong>Exemple d’étalon ou de moyen</strong><span>${level.example}</span></div>
+          <div class="info-box"><strong>Rôle dans la chaîne de traçabilité</strong><span>${level.role}</span></div>
+          <div class="info-box"><strong>Document associé</strong><span>${level.document}</span></div>
+          <div class="info-box"><strong>Effet sur l’incertitude</strong><span>${level.effect}</span></div>
+        </div>
+        <div class="uncertainty-scale">
+          <strong>Visualisation pédagogique de la contribution d’incertitude</strong>
+          <div class="bar-row"><span>SI / BIPM</span><div class="bar"><span style="width:8%"></span></div><span>définition</span></div>
+          <div class="bar-row"><span>METAS</span><div class="bar"><span style="width:18%"></span></div><span>très faible</span></div>
+          <div class="bar-row"><span>Lab accrédité</span><div class="bar"><span style="width:34%"></span></div><span>faible</span></div>
+          <div class="bar-row"><span>Lab interne</span><div class="bar"><span style="width:56%"></span></div><span>maîtrisée</span></div>
+          <div class="bar-row"><span>Atelier</span><div class="bar"><span style="width:82%"></span></div><span>usage</span></div>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    const tileSource = document.getElementById('tileSource');
+    const chain = document.getElementById('chain');
+    const feedback = document.getElementById('feedback');
+
+    function shuffle(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function makeTile(item) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.draggable = true;
+      tile.dataset.id = item.id;
+      tile.innerHTML = `<strong>${item.title}</strong><span>${item.desc}</span>`;
+      tile.addEventListener('dragstart', e => {
+        tile.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', item.id);
+      });
+      tile.addEventListener('dragend', () => tile.classList.remove('dragging'));
+      return tile;
+    }
+
+    function renderTiles(items = shuffle(chainItems)) {
+      tileSource.innerHTML = '';
+      items.forEach(item => tileSource.appendChild(makeTile(item)));
+    }
+
+    function renderChain() {
+      chain.innerHTML = '';
+      const hints = [
+        'Définition internationale de l’unité',
+        'Réalisation et diffusion nationale',
+        'Transfert par certificat accrédité',
+        'Étalon de travail de l’entreprise',
+        'Moyen de mesure en production'
+      ];
+      for (let i = 0; i < 5; i++) {
+        const zone = document.createElement('div');
+        zone.className = 'dropzone';
+        zone.dataset.index = i;
+        zone.innerHTML = `<div class="slot-num">${i + 1}</div><div class="slot-content"><div class="slot-title">Maillon ${i + 1}</div><div class="slot-hint">${hints[i]}</div></div>`;
+        addDropEvents(zone);
+        chain.appendChild(zone);
+      }
+    }
+
+    function addDropEvents(zone) {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('over');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('over', 'correct', 'wrong');
+        const id = e.dataTransfer.getData('text/plain');
+        const dragged = document.querySelector(`.tile[data-id="${id}"]`);
+        if (!dragged) return;
+        
+        // Return existing tile to source if any
+        const existing = zone.querySelector('.tile');
+        if (existing) tileSource.appendChild(existing);
+        
+        // Clean slot content before adding tile
+        const slotContent = zone.querySelector('.slot-content');
+        if (slotContent) slotContent.remove();
+        
+        zone.appendChild(dragged);
+      });
+    }
+
+    tileSource.addEventListener('dragover', e => e.preventDefault());
+    tileSource.addEventListener('drop', e => {
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain');
+      const dragged = document.querySelector(`.tile[data-id="${id}"]`);
+      if (dragged) tileSource.appendChild(dragged);
+    });
+
+    function getCurrentOrder() {
+      return [...document.querySelectorAll('.dropzone')].map(zone => {
+        const tile = zone.querySelector('.tile');
+        return tile ? tile.dataset.id : null;
+      });
+    }
+
+    function checkChain() {
+      const order = getCurrentOrder();
+      let correct = 0;
+      document.querySelectorAll('.dropzone').forEach((zone, index) => {
+        zone.classList.remove('correct', 'wrong');
+        if (!order[index]) return;
+        if (order[index] === expectedOrder[index]) {
+          zone.classList.add('correct');
+          correct++;
+        } else {
+          zone.classList.add('wrong');
+        }
+      });
+      
+      if (order.includes(null)) {
+        feedback.className = 'feedback error';
+        feedback.innerHTML = `Chaîne incomplète : ${order.filter(Boolean).length}/5 maillons placés. Une chaîne de traçabilité doit être continue et documentée.`;
+        return;
+      }
+      
+      if (correct === 5) {
+        feedback.className = 'feedback success';
+        feedback.innerHTML = 'Chaîne correcte. Le micromètre peut être relié à une référence SI via une suite cohérente et documentée : définitions SI / BIPM → METAS → laboratoire accrédité → cale étalon interne → micromètre atelier.';
+      } else {
+        feedback.className = 'feedback error';
+        feedback.innerHTML = `${correct}/5 maillons sont correctement placés. Une erreur d’ordre crée une rupture logique : un instrument d’atelier ne peut pas être considéré comme raccordé à une référence nationale sans preuve documentaire ni étalon intermédiaire adapté.`;
+      }
+    }
+
+    function solveChain() {
+      renderTiles([]);
+      renderChain();
+      expectedOrder.forEach((id, index) => {
+        const item = chainItems.find(i => i.id === id);
+        const tile = makeTile(item);
+        const zone = document.querySelector(`.dropzone[data-index="${index}"]`);
+        const slotContent = zone.querySelector('.slot-content');
+        if (slotContent) slotContent.remove();
+        zone.appendChild(tile);
+      });
+      checkChain();
+    }
+
+    function resetSimulation() {
+      renderChain();
+      renderTiles();
+      feedback.className = 'feedback';
+      feedback.innerHTML = 'Placez les 5 maillons dans le bon ordre, puis lancez la vérification.';
+    }
+
+    // Association des événements pour les boutons de simulation
+    document.getElementById('checkBtn').addEventListener('click', checkChain);
+    document.getElementById('solveBtn').addEventListener('click', solveChain);
+    document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+    document.getElementById('shuffleBtn').addEventListener('click', () => {
+      // Pour mélanger, on réinitialise simplement la source
+      resetSimulation();
+    });
+
+    // Audit Cas 1
+    document.getElementById('auditBtn').addEventListener('click', () => {
+      const dateVal = document.getElementById('certDate').value;
+      const numVal = document.getElementById('certNumber').value;
+      const condVal = document.getElementById('condition').value;
+      const res = document.getElementById('auditResult');
+
+      if (dateVal === 'valid' && numVal === 'yes' && condVal === 'ok') {
+        res.className = 'audit-result ok';
+        res.innerHTML = '<strong>Instrument conforme.</strong> La traçabilité est assurée : le certificat est valide, le lien avec le numéro est avéré et l’instrument est en bon état.';
+      } else {
+        res.className = 'audit-result ko';
+        let causes = [];
+        if (dateVal !== 'valid') causes.push('date de validité expirée ou absente');
+        if (numVal !== 'yes') causes.push('impossibilité de lier l\'instrument à son certificat');
+        if (condVal !== 'ok') causes.push('état physique compromettant la mesure');
+        
+        res.innerHTML = `<strong>Instrument non conforme.</strong> Risque élevé d'erreur de mesure.
+                         <br><em>Cause(s) :</em> ${causes.join(', ')}. 
+                         <br>L'instrument doit être écarté pour réparation ou réétalonnage.`;
+      }
+    });
+
+    // Audit Cas 2
+    document.getElementById('riskBtn').addEventListener('click', () => {
+      const val = document.getElementById('missingLink').value;
+      const res = document.getElementById('riskResult');
+      
+      if (val === 'none') {
+        res.className = 'audit-result ok';
+        res.innerHTML = '<strong>Traçabilité validée.</strong> La confiance s’étend de manière ininterrompue du SI jusqu’à la pièce mesurée dans l’atelier.';
+      } else if (val === 'internal') {
+        res.className = 'audit-result ko';
+        res.innerHTML = '<strong>Rupture de traçabilité en interne.</strong> Impossible de prouver que la cale de référence utilisée par le labo qualité était juste lors de la vérification du micromètre. Toutes les mesures d\'atelier liées deviennent douteuses.';
+      } else if (val === 'accredited') {
+        res.className = 'audit-result ko';
+        res.innerHTML = '<strong>Manque de reconnaissance de la compétence.</strong> La cale de référence a été étalonnée, mais par un laboratoire dont la compétence (ISO/CEI 17025) n\'est pas démontrée officiellement. Les valeurs annoncées manquent de fiabilité objective.';
+      } else if (val === 'si') {
+        res.className = 'audit-result ko';
+        res.innerHTML = '<strong>Rupture fondamentale.</strong> (Très rare) L’institut national n’est pas raccordé au BIPM. Conséquence : le mètre suisse serait potentiellement différent du mètre français, rendant les pièces incompatibles à l\'international.';
+      }
+    });
+
+    // Initialisation au chargement de la page
+    renderPyramid();
+    resetSimulation();
+
+  </script>
+</body>
+</html>

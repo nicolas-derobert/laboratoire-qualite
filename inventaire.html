@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventaire ECME — Labo qualité horloger</title>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --navy: #0e2841;
+      --navy-2: #143b5d;
+      --gold: #b18b47;
+      --green: #15803d;
+      --green-bg: #dcfce7;
+      --yellow: #a16207;
+      --yellow-bg: #fef9c3;
+      --red: #b91c1c;
+      --red-bg: #fee2e2;
+      --blue: #1d4ed8;
+      --blue-bg: #dbeafe;
+      --gray-bg: #f1f5f9;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2f7 0%, #f8fafc 55%, #f3efe7 100%);
+      color: var(--ink);
+    }
+
+    header {
+      background: radial-gradient(circle at 15% 20%, rgba(177, 139, 71, 0.28), transparent 28%), linear-gradient(135deg, var(--navy), #071827);
+      color: white;
+      padding: 28px 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.24);
+    }
+
+    .header-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: #facc15;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: #dbeafe;
+      max-width: 850px;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, .file-label {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+      white-space: nowrap;
+    }
+
+    button:hover, .file-label:hover { transform: translateY(-1px); }
+    button:active, .file-label:active { transform: translateY(0); }
+    button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .btn-primary { background: var(--gold); color: #111827; box-shadow: 0 12px 24px rgba(177, 139, 71, .28); }
+    .btn-secondary { background: rgba(255,255,255,.12); color: white; border: 1px solid rgba(255,255,255,.22); }
+    .btn-light { background: #fff; color: var(--navy); border: 1px solid var(--line); }
+    .btn-danger { background: var(--red-bg); color: var(--red); }
+    .btn-green { background: var(--green-bg); color: var(--green); }
+    .btn-blue { background: var(--blue-bg); color: var(--blue); }
+    .btn-gray { background: var(--gray-bg); color: #334155; }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 22px 24px 54px;
+    }
+
+    .grid { display: grid; gap: 18px; }
+    .stats { grid-template-columns: repeat(6, minmax(150px, 1fr)); margin-top: 4px; }
+
+    .card {
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(226, 232, 240, .9);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+    }
+
+    .stat {
+      padding: 18px;
+      min-height: 108px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat::after {
+      content: "";
+      position: absolute;
+      width: 90px;
+      height: 90px;
+      border-radius: 999px;
+      background: rgba(177,139,71,.10);
+      right: -26px;
+      top: -26px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .stat-value {
+      margin-top: 10px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-note {
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 420px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .panel-title {
+      padding: 18px 18px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    h2, h3 { margin: 0; letter-spacing: -0.02em; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 16px; }
+
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 8px 0 0; }
+
+    form { padding: 16px 18px 18px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    label { font-size: 12px; color: #334155; font-weight: 900; letter-spacing: .02em; }
+    
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 11px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border .15s ease, box-shadow .15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(177,139,71,.15);
+    }
+    textarea { min-height: 70px; resize: vertical; }
+
+    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .toolbar { padding: 16px 18px; display: grid; grid-template-columns: minmax(180px, 1fr) 170px 170px 170px auto; gap: 10px; align-items: center; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 18px 16px; border-bottom: 1px solid var(--line); }
+    .tab { background: #f8fafc; color: #334155; border: 1px solid var(--line); }
+    .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: 0 10px 20px rgba(14,40,65,.18); }
+
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+    .table-wrap { overflow: auto; border-radius: 0 0 var(--radius) var(--radius); }
+    
+    table { width: 100%; border-collapse: collapse; min-width: 980px; background: white; }
+    th, td { padding: 12px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 13px; }
+    th { position: sticky; top: 0; z-index: 1; background: #f8fafc; color: #334155; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; }
+    tr:hover td { background: #fcfcfd; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 900; white-space: nowrap; }
+    .b-conforme { background: var(--green-bg); color: var(--green); }
+    .b-verifier { background: var(--yellow-bg); color: var(--yellow); }
+    .b-perime { background: var(--red-bg); color: var(--red); }
+    .b-service { background: #e5e7eb; color: #374151; }
+    .b-info { background: var(--blue-bg); color: var(--blue); }
+    .b-danger { background: var(--red-bg); color: var(--red); }
+
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .icon-btn { padding: 7px 9px; border-radius: 10px; font-size: 12px; }
+
+    .alerts-list { padding: 0 18px 18px; display: grid; gap: 10px; }
+    .alert-card { border: 1px solid var(--line); border-left-width: 6px; border-radius: 15px; padding: 13px 14px; background: white; display: grid; gap: 6px; }
+    .alert-card.critical { border-left-color: var(--red); background: #fff7f7; }
+    .alert-card.warning { border-left-color: #eab308; background: #fffdf0; }
+    .alert-card.info { border-left-color: var(--blue); background: #f8fbff; }
+
+    .alert-title { font-weight: 900; }
+    .alert-meta { color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .learning { padding: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .learning-card { border: 1px solid var(--line); border-radius: 16px; padding: 15px; background: #fff; }
+    .learning-card strong { display: block; margin-bottom: 8px; }
+    .learning-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .56); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+    .modal.open { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-dialog { background: white; border-radius: 22px; box-shadow: var(--shadow); width: min(820px, 100%); max-height: 90vh; overflow: auto; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
+
+    .modal-head { padding: 20px 22px; display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); align-items: flex-start; background: #f8fafc; border-radius: 22px 22px 0 0; }
+    .modal-body { padding: 20px 22px 24px; }
+
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; }
+    .detail-item.full { grid-column: 1 / -1; }
+    .detail-item .k { color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .detail-item .v { font-weight: 700; }
+
+    .timeline { margin-top: 16px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+    .timeline h3 { padding: 13px 14px; margin: 0; background: #f8fafc; border-bottom: 1px solid var(--line); }
+    .timeline-entry { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .timeline-entry:last-child { border-bottom: 0; }
+    .timeline-entry small { display: block; color: var(--muted); margin-top: 4px; }
+
+    .empty { padding: 34px 18px; text-align: center; color: var(--muted); }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    
+    .progress-bar { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #facc15); width: 0%; transition: width .25s ease; }
+    
+    .file-input { display: none; }
+
+    /* Custom Toast system */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+    .toast { background: var(--navy); color: #fff; padding: 14px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+    /* Responsive Queries */
+    @media (max-width: 1180px) {
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .layout { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .learning { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      header { position: static; }
+      .header-inner { grid-template-columns: 1fr; }
+      .header-actions { justify-content: flex-start; }
+      main { padding: 16px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .form-grid, .detail-grid { grid-template-columns: 1fr; }
+      .toolbar { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      header, .left-panel, .toolbar, .tabs, .row-actions, .header-actions { display: none !important; }
+      body { background: white; }
+      main { max-width: none; padding: 0; }
+      .layout { display: block; }
+      .card { box-shadow: none; border: 0; }
+      table { min-width: 0; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="eyebrow">CPH_HO_08 · Labo qualité</div>
+        <h1>Inventaire des moyens de mesure</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" id="btnSeed">Recharger les exemples</button>
+        <button class="btn-secondary" id="btnExportCsv">Exporter CSV</button>
+        <button class="btn-secondary" id="btnExportJson">Exporter JSON</button>
+        <label class="file-label btn-secondary" for="importFile">Importer JSON</label>
+        <input class="file-input" id="importFile" type="file" accept="application/json" />
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid stats" aria-label="Indicateurs du parc d'instruments">
+      <div class="card stat">
+        <div class="stat-label">Parc total</div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-note">instruments enregistrés</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Conformes</div>
+        <div class="stat-value" id="statConforme">0</div>
+        <div class="stat-note">utilisables sans alerte majeure</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">À vérifier</div>
+        <div class="stat-value" id="statVerifier">0</div>
+        <div class="stat-note">contrôle ou décision nécessaire</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Périmés</div>
+        <div class="stat-value" id="statPerime">0</div>
+        <div class="stat-note">certificat ou échéance dépassée</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Hors service</div>
+        <div class="stat-value" id="statHs">0</div>
+        <div class="stat-note">à isoler ou à réformer</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-label">Alertes</div>
+        <div class="stat-value" id="statAlerts">0</div>
+        <div class="stat-note">écarts de traçabilité détectés</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="card left-panel">
+        <div class="panel-title">
+          <div>
+            <h2 id="formTitle">Créer une fiche instrument</h2>
+            <p class="hint">Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
+          </div>
+        </div>
+        <form id="instrumentForm">
+          <input type="hidden" id="instrumentId" />
+          <div class="form-grid">
+            <div class="field full">
+              <label for="name">Nom de l’instrument *</label>
+              <input id="name" required placeholder="Ex. Micromètre extérieur 0–25 mm" />
+            </div>
+            <div class="field">
+              <label for="type">Type de moyen</label>
+              <select id="type">
+                <option>Instrument de mesure</option>
+                <option>Moyen de contrôle</option>
+                <option>Étalon de travail</option>
+                <option>Équipement d’essai</option>
+                <option>Accessoire métrologique</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="brand">Marque</label>
+              <input id="brand" placeholder="Ex. Mitutoyo" />
+            </div>
+            <div class="field">
+              <label for="reference">Référence</label>
+              <input id="reference" placeholder="Ex. 103-137" />
+            </div>
+            <div class="field">
+              <label for="serial">N° de série</label>
+              <input id="serial" placeholder="Ex. SN-23891" />
+            </div>
+            <div class="field">
+              <label for="inventory">N° d’inventaire *</label>
+              <input id="inventory" placeholder="Ex. ECME-0007" />
+            </div>
+            <div class="field">
+              <label for="location">Emplacement *</label>
+              <input id="location" placeholder="Ex. Labo qualité · armoire A" />
+            </div>
+            <div class="field">
+              <label for="condition">État</label>
+              <select id="condition">
+                <option>Conforme</option>
+                <option>Non conforme</option>
+                <option>À surveiller</option>
+                <option>Endommagé</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="lastCalibration">Dernier étalonnage</label>
+              <input id="lastCalibration" type="date" />
+            </div>
+            <div class="field">
+              <label for="nextCalibration">Prochain étalonnage *</label>
+              <input id="nextCalibration" type="date" />
+            </div>
+            <div class="field">
+              <label for="certificate">N° de certificat</label>
+              <input id="certificate" placeholder="Ex. CERT-2026-041" />
+            </div>
+            <div class="field">
+              <label for="status">Statut</label>
+              <select id="status">
+                <option>conforme</option>
+                <option>à vérifier</option>
+                <option>périmé</option>
+                <option>hors service</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label for="comments">Commentaires sur l’état du moyen</label>
+              <textarea id="comments" placeholder="Ex. touches propres, mouvement fluide, vérifier pile avant séance."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-primary" type="submit" id="saveBtn">Enregistrer</button>
+            <button class="btn-light" type="button" id="resetBtn">Nouveau</button>
+            <button class="btn-danger" type="button" id="deleteAllBtn">Réinitialiser</button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="card">
+        <div class="panel-title">
+          <div>
+            <h2>Registre ECME</h2>
+            <p class="hint">Filtrer le parc, repérer les instruments à risque et ouvrir la fiche de vie de chaque moyen.</p>
+          </div>
+          <div class="pill-row">
+            <span class="badge b-info" id="todayBadge"></span>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input id="search" placeholder="Rechercher : nom, marque, n° inventaire, certificat…" />
+          <select id="filterStatus">
+            <option value="all">Tous les statuts</option>
+            <option value="conforme">Conforme</option>
+            <option value="à vérifier">À vérifier</option>
+            <option value="périmé">Périmé</option>
+            <option value="hors service">Hors service</option>
+          </select>
+          <select id="filterAlert">
+            <option value="all">Toutes alertes</option>
+            <option value="critical">Alertes critiques</option>
+            <option value="warning">Alertes vigilance</option>
+            <option value="none">Sans alerte</option>
+          </select>
+          <select id="sortBy">
+            <option value="nextCalibration">Tri : prochaine échéance</option>
+            <option value="name">Tri : nom</option>
+            <option value="status">Tri : statut</option>
+            <option value="location">Tri : emplacement</option>
+          </select>
+          <button class="btn-light" id="printBtn">Imprimer</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" data-tab="tableSection">1. Registre</button>
+          <button class="tab" data-tab="alertsSection">2. Alertes</button>
+          <button class="tab" data-tab="learningSection">3. Rappel métier</button>
+        </div>
+
+        <div id="tableSection" class="content-section active">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Instrument</th>
+                  <th>Identification</th>
+                  <th>Localisation</th>
+                  <th>Métrologie</th>
+                  <th>État / statut</th>
+                  <th>Alertes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty" id="emptyTable">Aucun instrument ne correspond aux filtres.</div>
+          </div>
+        </div>
+
+        <div id="alertsSection" class="content-section">
+          <div class="alerts-list" id="alertsList"></div>
+          <div class="empty" id="emptyAlerts">Aucune alerte détectée. Le parc est correctement renseigné selon les règles de simulation.</div>
+        </div>
+
+        <div id="learningSection" class="content-section">
+          <div class="learning">
+            <div class="learning-card">
+              <strong>Pourquoi inventorier ?</strong>
+              <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
+            </div>
+            <div class="learning-card">
+              <strong>Traçabilité</strong>
+              <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
+            </div>
+            <div class="learning-card">
+              <strong>Décision d’usage</strong>
+              <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
+            </div>
+            <div class="learning-card">
+              <strong>Risque qualité</strong>
+              <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
+            </div>
+            <div class="learning-card">
+              <strong>Audit</strong>
+              <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
+            </div>
+            <div class="learning-card">
+              <strong>Simulation proposée</strong>
+              <p>Le bouton “Charger un scénario” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">Fiche instrument</h2>
+          <p class="hint" id="modalSub"></p>
+        </div>
+        <button class="btn-gray" id="closeModal">Fermer</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="customConfirmModal" role="dialog" aria-modal="true">
+    <div class="modal-dialog" style="width: 480px;">
+      <div class="modal-head">
+        <h2 id="confirmTitle">Confirmation</h2>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage" style="margin: 0 0 20px 0; line-height: 1.5; color: var(--ink);"></p>
+        <div class="row-actions" style="justify-content: flex-end;">
+          <button class="btn-light" id="btnConfirmNo">Annuler</button>
+          <button class="btn-primary" id="btnConfirmYes">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    const STORAGE_KEY = "ecme_labo_qualite_v3_exemples_auto";
+    const $ = id => document.getElementById(id);
+    let activeTab = "tableSection";
+    let instruments = loadData();
+
+    function todayIso(){ const d = new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
+    function parseDate(v){ if(!v) return null; const d = new Date(v + "T00:00:00"); return Number.isNaN(d.getTime()) ? null : d; }
+    function addMonths(dateIso, months){ const d = parseDate(dateIso) || new Date(); d.setMonth(d.getMonth() + months); return d.toISOString().slice(0,10); }
+    function daysUntil(v){ const d = parseDate(v); if(!d) return null; return Math.round((d - parseDate(todayIso())) / 86400000); }
+    function formatDate(v){ const d = parseDate(v); return d ? d.toLocaleDateString("fr-CH") : "—"; }
+    function uid(){ return "ecme-" + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
+    function normalize(v){ return String(v ?? "").trim().toLowerCase(); }
+    function escapeHtml(v){ return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+
+    function showToast(message, type = "info") {
+      const container = $("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      
+      let icon = "ℹ️";
+      if(type === "success") icon = "✅";
+      if(type === "error") icon = "⚠️";
+      
+      toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.animation = "toastOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    let pendingConfirmAction = null;
+    function showConfirm(title, message, onYes, onNo = () => {}) {
+      $("confirmTitle").textContent = title;
+      $("confirmMessage").textContent = message;
+      pendingConfirmAction = onYes;
+      
+      // Override handlers
+      const btnYes = $("btnConfirmYes");
+      const btnNo = $("btnConfirmNo");
+      
+      btnYes.onclick = () => {
+        $("customConfirmModal").classList.remove("open");
+        if(pendingConfirmAction) pendingConfirmAction();
+        pendingConfirmAction = null;
+      };
+      
+      btnNo.onclick = () => {
+        $("customConfirmModal").classList.remove("open");
+        onNo();
+        pendingConfirmAction = null;
+      };
+      
+      $("customConfirmModal").classList.add("open");
+    }
+
+    function starterExamples(){
+      const today = todayIso();
+      const now = new Date().toISOString();
+      return [
+        { id:uid(), name:"Micromètre extérieur 0–25 mm", type:"Instrument de mesure", brand:"Mitutoyo", reference:"103-137", serial:"M-23891", inventory:"ECME-0001", location:"Labo qualité · armoire A", condition:"Conforme", lastCalibration:addMonths(today,-6), nextCalibration:addMonths(today,6), certificate:"CERT-2026-001", status:"conforme", comments:"Exemple conforme : instrument identifié, localisé et certificat valide.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Comparateur vertical 0,001 mm", type:"Instrument de mesure", brand:"TESA", reference:"Compac", serial:"C-77821", inventory:"ECME-0002", location:"Atelier · poste contrôle", condition:"Conforme", lastCalibration:addMonths(today,-11), nextCalibration:addMonths(today,1), certificate:"CERT-2025-118", status:"à vérifier", comments:"Exemple vigilance : échéance proche, décision de vérification à planifier.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Pied à coulisse numérique 0–150 mm", type:"Instrument de mesure", brand:"Sylvac", reference:"S_Cal", serial:"SY-22190", inventory:"", location:"Atelier · tiroir 3", condition:"Conforme", lastCalibration:addMonths(today,-15), nextCalibration:addMonths(today,-3), certificate:"CERT-2024-219", status:"périmé", comments:"Exemple critique : certificat expiré et numéro d’inventaire manquant.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Jeu de cales étalon", type:"Étalon de travail", brand:"Mahr", reference:"Grade 1", serial:"GCE-4412", inventory:"ECME-0004", location:"Labo qualité · coffre étalons", condition:"Conforme", lastCalibration:addMonths(today,-2), nextCalibration:addMonths(today,10), certificate:"SAS-2026-046", status:"conforme", comments:"Exemple étalon de travail : manipulation avec gants, conservation au sec.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Tampon lisse Ø1,50 mm", type:"Moyen de contrôle", brand:"Meyer", reference:"TL-1.50", serial:"TL-150-55", inventory:"ECME-0005", location:"", condition:"Conforme", lastCalibration:addMonths(today,-4), nextCalibration:addMonths(today,8), certificate:"CERT-2026-017", status:"conforme", comments:"Exemple incomplet : localisation à renseigner.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Micromètre intérieur 3 touches", type:"Instrument de mesure", brand:"Bowers", reference:"XT3", serial:"BI-331", inventory:"ECME-0006", location:"Atelier · poste contrôle", condition:"Non conforme", lastCalibration:addMonths(today,-9), nextCalibration:addMonths(today,3), certificate:"CERT-2025-287", status:"hors service", comments:"Exemple critique : instrument non conforme encore présent dans l’atelier. À isoler immédiatement.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Rugosimètre portatif", type:"Équipement d’essai", brand:"Mahr", reference:"MarSurf PS10", serial:"RUG-8842", inventory:"ECME-0007", location:"Labo qualité · armoire B", condition:"À surveiller", lastCalibration:addMonths(today,-10), nextCalibration:addMonths(today,2), certificate:"CERT-2025-310", status:"conforme", comments:"Exemple équipement d’essai : vérifier la pointe et l’état de charge avant usage.", createdAt:now, updatedAt:now },
+        { id:uid(), name:"Projecteur de profil", type:"Équipement d’essai", brand:"Nikon", reference:"V-12B", serial:"PROJ-1204", inventory:"ECME-0008", location:"Labo qualité · zone optique", condition:"Conforme", lastCalibration:addMonths(today,-3), nextCalibration:addMonths(today,9), certificate:"CERT-2026-072", status:"conforme", comments:"Exemple appareil optique : nettoyer l’objectif et vérifier la lumière avant contrôle.", createdAt:now, updatedAt:now }
+      ];
+    }
+
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){ const saved = JSON.parse(raw); if(Array.isArray(saved) && saved.length) return saved; }
+      }catch(e){ console.warn(e); }
+      const examples = starterExamples();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(examples));
+      return examples;
+    }
+    function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(instruments)); }
+
+    function statusBadge(status){
+      const s = normalize(status);
+      if(s === "conforme") return `<span class="badge b-conforme">Conforme</span>`;
+      if(s === "à vérifier") return `<span class="badge b-verifier">À vérifier</span>`;
+      if(s === "périmé") return `<span class="badge b-perime">Périmé</span>`;
+      if(s === "hors service") return `<span class="badge b-service">Hors service</span>`;
+      return `<span class="badge b-info">${escapeHtml(status || "—")}</span>`;
+    }
+
+    function computeAlerts(item){
+      const alerts = [];
+      const due = daysUntil(item.nextCalibration);
+      const status = normalize(item.status);
+      const condition = normalize(item.condition);
+      const location = normalize(item.location);
+      const hasWorkshopLocation = location.includes("atelier") || location.includes("poste") || location.includes("production");
+      const isolated = location.includes("quarantaine") || location.includes("isol") || location.includes("réforme") || location.includes("reforme") || location.includes("hors service") || location.includes("externe");
+      
+      if(!normalize(item.inventory)) alerts.push({level:"critical", title:"Instrument sans numéro d’inventaire", detail:"Impossible de relier clairement le moyen à sa fiche de vie et à son certificat."});
+      if(!normalize(item.location)) alerts.push({level:"critical", title:"Instrument non localisé", detail:"Le moyen n’a pas d’emplacement défini : risque de perte ou d’utilisation non maîtrisée."});
+      if(!normalize(item.certificate)) alerts.push({level:"warning", title:"Certificat non renseigné", detail:"La preuve documentaire de l’étalonnage ou de la vérification n’est pas indiquée."});
+      if(!item.nextCalibration) alerts.push({level:"warning", title:"Prochaine échéance absente", detail:"La planification de l’étalonnage ne peut pas être suivie."});
+      else if(due < 0) alerts.push({level:"critical", title:"Certificat expiré", detail:`Échéance dépassée depuis ${Math.abs(due)} jour(s).`});
+      else if(due <= 30) alerts.push({level:"warning", title:"Étalonnage bientôt dû", detail:`Échéance dans ${due} jour(s).`});
+      
+      if(status === "périmé") alerts.push({level:"critical", title:"Statut périmé", detail:"Le moyen ne devrait pas être utilisé avant décision métrologique."});
+      if(status === "à vérifier") alerts.push({level:"warning", title:"Statut à vérifier", detail:"Une vérification ou une décision d’aptitude est nécessaire."});
+      if((condition === "non conforme" || condition === "endommagé" || status === "hors service" || status === "périmé") && hasWorkshopLocation && !isolated) 
+        alerts.push({level:"critical", title:"Instrument non conforme encore disponible en atelier", detail:"Le moyen devrait être isolé, retiré du poste ou placé en quarantaine."});
+      
+      return alerts;
+    }
+
+    function calibrationProgress(item){
+      const start = parseDate(item.lastCalibration), end = parseDate(item.nextCalibration), now = parseDate(todayIso());
+      if(!start || !end || end <= start) return 0;
+      return Math.max(0, Math.min(100, Math.round(((now - start) / (end - start)) * 100)));
+    }
+
+    function getFilteredInstruments(){
+      const query = normalize($("search").value);
+      const status = $("filterStatus").value;
+      const alert = $("filterAlert").value;
+      const sortBy = $("sortBy").value;
+      return instruments.filter(item => {
+        const text = normalize(Object.values(item).join(" "));
+        const alerts = computeAlerts(item);
+        const hasCritical = alerts.some(a => a.level === "critical");
+        const hasWarning = alerts.some(a => a.level === "warning");
+        return (!query || text.includes(query)) &&
+          (status === "all" || item.status === status) &&
+          (alert === "all" || (alert === "critical" && hasCritical) || (alert === "warning" && hasWarning && !hasCritical) || (alert === "none" && alerts.length === 0));
+      }).sort((a,b) => {
+        if(sortBy === "nextCalibration") return (parseDate(a.nextCalibration)?.getTime() || Infinity) - (parseDate(b.nextCalibration)?.getTime() || Infinity);
+        return normalize(a[sortBy]).localeCompare(normalize(b[sortBy]), "fr");
+      });
+    }
+
+    function renderStats(){
+      const allAlerts = instruments.flatMap(computeAlerts);
+      $("statTotal").textContent = instruments.length;
+      $("statConforme").textContent = instruments.filter(i => i.status === "conforme").length;
+      $("statVerifier").textContent = instruments.filter(i => i.status === "à vérifier").length;
+      $("statPerime").textContent = instruments.filter(i => i.status === "périmé" || daysUntil(i.nextCalibration) < 0).length;
+      $("statHs").textContent = instruments.filter(i => i.status === "hors service").length;
+      $("statAlerts").textContent = allAlerts.length;
+      $("todayBadge").textContent = "Date du jour : " + new Date(todayIso()).toLocaleDateString("fr-CH");
+    }
+
+    function renderTable(){
+      const rows = getFilteredInstruments();
+      const body = $("tableBody");
+      body.innerHTML = "";
+      rows.forEach(item => {
+        const alerts = computeAlerts(item);
+        const due = daysUntil(item.nextCalibration);
+        const progress = calibrationProgress(item);
+        const alertBadges = alerts.length ? alerts.slice(0,3).map(a => `<span class="badge ${a.level === "critical" ? "b-danger" : "b-verifier"}">${escapeHtml(a.title)}</span>`).join(" ") + (alerts.length > 3 ? ` <span class="badge b-info">+${alerts.length - 3}</span>` : "") : `<span class="badge b-conforme">Aucune alerte</span>`;
+        const dueText = due === null ? "Échéance non renseignée" : due < 0 ? `Expiré depuis ${Math.abs(due)} j` : `Dans ${due} j`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(item.name)}</strong><br><span class="hint">${escapeHtml(item.type || "—")}</span></td>
+          <td><strong>Inv.</strong> ${escapeHtml(item.inventory || "—")}<br><strong>Série</strong> ${escapeHtml(item.serial || "—")}<br><span class="hint">${escapeHtml(item.brand || "—")} · ${escapeHtml(item.reference || "—")}</span></td>
+          <td>${escapeHtml(item.location || "—")}</td>
+          <td><strong>Dernier :</strong> ${formatDate(item.lastCalibration)}<br><strong>Prochain :</strong> ${formatDate(item.nextCalibration)}<br><span class="hint">${escapeHtml(dueText)} · Cert. ${escapeHtml(item.certificate || "—")}</span><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div></td>
+          <td>${statusBadge(item.status)}<br><br><span class="hint">État : ${escapeHtml(item.condition || "—")}</span></td>
+          <td><div class="pill-row">${alertBadges}</div></td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn btn-blue" data-action="details" data-id="${item.id}">Fiche</button>
+              <button class="icon-btn btn-light" data-action="edit" data-id="${item.id}">Modifier</button>
+              <button class="icon-btn btn-gray" data-action="duplicate" data-id="${item.id}">Copier</button>
+              <button class="icon-btn btn-danger" data-action="delete" data-id="${item.id}">Suppr.</button>
+            </div>
+          </td>`;
+        body.appendChild(tr);
+      });
+      $("emptyTable").style.display = rows.length ? "none" : "block";
+    }
+
+    function renderAlerts(){
+      const list = $("alertsList");
+      list.innerHTML = "";
+      const alertItems = instruments.flatMap(item => computeAlerts(item).map(alert => ({item, alert})));
+      alertItems.sort((a,b) => (a.alert.level === "critical" ? -1 : 1) - (b.alert.level === "critical" ? -1 : 1));
+      alertItems.forEach(({item, alert}) => {
+        const div = document.createElement("div");
+        div.className = `alert-card ${alert.level === "critical" ? "critical" : "warning"}`;
+        div.innerHTML = `
+          <div class="alert-title">${escapeHtml(alert.title)}</div>
+          <div><strong>${escapeHtml(item.name)}</strong> · ${escapeHtml(item.inventory || "sans n° inventaire")}</div>
+          <div class="alert-meta">${escapeHtml(alert.detail)}<br>Emplacement : ${escapeHtml(item.location || "non renseigné")} · Statut : ${escapeHtml(item.status || "—")}</div>
+          <div class="row-actions">
+            <button class="icon-btn btn-blue" data-action="details" data-id="${item.id}">Voir la fiche</button>
+            <button class="icon-btn btn-light" data-action="edit" data-id="${item.id}">Corriger</button>
+          </div>`;
+        list.appendChild(div);
+      });
+      $("emptyAlerts").style.display = alertItems.length ? "none" : "block";
+    }
+
+    function render(){
+      renderStats(); 
+      renderTable(); 
+      renderAlerts();
+      document.querySelectorAll(".content-section").forEach(s => s.classList.toggle("active", s.id === activeTab));
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === activeTab));
+    }
+
+    function formToInstrument(){
+      return { 
+        id: $("instrumentId").value || uid(), 
+        name: $("name").value.trim(), 
+        type: $("type").value, 
+        brand: $("brand").value.trim(), 
+        reference: $("reference").value.trim(), 
+        serial: $("serial").value.trim(), 
+        inventory: $("inventory").value.trim(), 
+        location: $("location").value.trim(), 
+        condition: $("condition").value, 
+        lastCalibration: $("lastCalibration").value, 
+        nextCalibration: $("nextCalibration").value, 
+        certificate: $("certificate").value.trim(), 
+        status: $("status").value, 
+        comments: $("comments").value.trim(), 
+        updatedAt: new Date().toISOString() 
+      };
+    }
+
+    function fillForm(item){
+      ["name","type","brand","reference","serial","inventory","location","condition","lastCalibration","nextCalibration","certificate","status","comments"].forEach(k => { 
+        if($(k)) $(k).value = item[k] || (k === "type" ? "Instrument de mesure" : k === "condition" ? "Conforme" : k === "status" ? "conforme" : ""); 
+      });
+      $("instrumentId").value = item.id;
+      $("formTitle").textContent = "Modifier la fiche instrument";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function resetForm(){ 
+      $("instrumentForm").reset(); 
+      $("instrumentId").value = ""; 
+      $("type").value = "Instrument de mesure"; 
+      $("condition").value = "Conforme"; 
+      $("status").value = "conforme"; 
+      $("formTitle").textContent = "Créer une fiche instrument"; 
+    }
+
+    function upsertInstrument(item){ 
+      if(!item.name) return showToast("Le nom de l’instrument est obligatoire.", "error"); 
+      const idx = instruments.findIndex(i => i.id === item.id); 
+      if(idx >= 0) {
+        instruments[idx] = {...instruments[idx], ...item}; 
+        showToast("Fiche mise à jour avec succès.", "success");
+      } else {
+        instruments.unshift({...item, createdAt:new Date().toISOString()}); 
+        showToast("Nouvel instrument ajouté.", "success");
+      }
+      saveData(); 
+      render(); 
+    }
+
+    function deleteInstrument(id){ 
+      const item = instruments.find(i => i.id === id); 
+      if(item){ 
+        showConfirm("Suppression", `Voulez-vous vraiment supprimer la fiche de : ${item.name} ?`, () => {
+          instruments = instruments.filter(i => i.id !== id); 
+          saveData(); 
+          render(); 
+          showToast("Fiche supprimée.", "info");
+        });
+      } 
+    }
+
+    function duplicateInstrument(id){
+      const item = instruments.find(i => i.id === id);
+      if(!item) return;
+      instruments.unshift({
+        ...item,
+        id: uid(),
+        name: item.name + " — copie",
+        inventory: "",
+        serial: "",
+        certificate: "",
+        comments: (item.comments || "") + "\nCopie créée le " + new Date().toLocaleDateString("fr-CH") + ".",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      saveData();
+      render();
+      showToast("Fiche dupliquée.", "success");
+    }
+
+    function openDetails(id) {
+      const item = instruments.find(i => i.id === id);
+      if(!item) return;
+      
+      $("modalTitle").textContent = item.name;
+      $("modalSub").textContent = `${item.inventory || "Sans inventaire"} · ${item.type}`;
+      
+      const alerts = computeAlerts(item);
+      const alertsHTML = alerts.length 
+        ? alerts.map(a => `<div class="timeline-entry"><strong>${escapeHtml(a.title)}</strong><small>${escapeHtml(a.detail)}</small></div>`).join("") 
+        : `<div class="timeline-entry">Aucune anomalie détectée pour ce moyen.</div>`;
+
+      $("modalBody").innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-item"><div class="k">Marque / Réf</div><div class="v">${escapeHtml(item.brand || "—")} · ${escapeHtml(item.reference || "—")}</div></div>
+          <div class="detail-item"><div class="k">N° de série</div><div class="v">${escapeHtml(item.serial || "—")}</div></div>
+          <div class="detail-item"><div class="k">Emplacement</div><div class="v">${escapeHtml(item.location || "—")}</div></div>
+          <div class="detail-item"><div class="k">État / Statut</div><div class="v">${statusBadge(item.status)} <span style="font-size:13px;font-weight:normal;margin-left:5px;">(${escapeHtml(item.condition)})</span></div></div>
+          <div class="detail-item"><div class="k">Dernier étalonnage</div><div class="v">${formatDate(item.lastCalibration)}</div></div>
+          <div class="detail-item"><div class="k">Prochaine échéance</div><div class="v">${formatDate(item.nextCalibration)}</div></div>
+          <div class="detail-item"><div class="k">Certificat</div><div class="v">${escapeHtml(item.certificate || "—")}</div></div>
+          <div class="detail-item full"><div class="k">Commentaires</div><div class="v" style="white-space:pre-wrap;">${escapeHtml(item.comments || "—")}</div></div>
+        </div>
+        <div class="timeline">
+          <h3>Alertes de traçabilité</h3>
+          ${alertsHTML}
+        </div>
+      `;
+      $("detailModal").classList.add("open");
+    }
+
+    // Event delegation for dynamically generated buttons in the table and alerts list
+    document.body.addEventListener("click", e => {
+      const btn = e.target.closest(".icon-btn");
+      if(btn) {
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        if(action === "edit") fillForm(instruments.find(i => i.id === id));
+        else if(action === "delete") deleteInstrument(id);
+        else if(action === "duplicate") duplicateInstrument(id);
+        else if(action === "details") openDetails(id);
+      }
+    });
+
+    // Modal closing logic
+    $("closeModal").addEventListener("click", () => $("detailModal").classList.remove("open"));
+    $("detailModal").addEventListener("click", e => { if(e.target === $("detailModal")) $("detailModal").classList.remove("open"); });
+    $("customConfirmModal").addEventListener("click", e => { if(e.target === $("customConfirmModal")) $("customConfirmModal").classList.remove("open"); });
+
+    // Tabs switching
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        activeTab = tab.dataset.tab;
+        render();
+      });
+    });
+
+    // Search and filters functionality
+    ["search", "filterStatus", "filterAlert", "sortBy"].forEach(id => {
+      $(id).addEventListener("input", render);
+    });
+
+    // Form logic
+    $("instrumentForm").addEventListener("submit", e => {
+      e.preventDefault();
+      upsertInstrument(formToInstrument());
+      resetForm();
+    });
+    
+    $("resetBtn").addEventListener("click", resetForm);
+    $("deleteAllBtn").addEventListener("click", () => {
+      showConfirm("Réinitialiser le parc", "Attention, cette action va vider TOUT l'inventaire actuel. Voulez-vous continuer ?", () => {
+        instruments = [];
+        saveData();
+        render();
+        showToast("L'inventaire a été complètement vidé.", "info");
+      });
+    });
+
+    // Global Header Actions
+    $("printBtn").addEventListener("click", () => window.print());
+    
+    $("btnSeed").addEventListener("click", () => {
+      showConfirm("Recharger les exemples", "Remplacer les données actuelles par les exemples initiaux de simulation ?", () => {
+        instruments = starterExamples();
+        saveData();
+        render();
+        showToast("Exemples rechargés avec succès.", "success");
+      });
+    });
+
+    $("btnExportCsv").addEventListener("click", () => {
+      const headers = ["ID", "Nom", "Type", "Marque", "Référence", "Série", "Inventaire", "Localisation", "État", "Dernier_etalonnage", "Prochain_etalonnage", "Certificat", "Statut", "Commentaires"];
+      const rows = instruments.map(i => [
+        i.id, i.name, i.type, i.brand, i.reference, i.serial, i.inventory, i.location, 
+        i.condition, i.lastCalibration, i.nextCalibration, i.certificate, i.status, i.comments
+      ].map(v => `"${String(v || "").replace(/"/g, '""')}"`).join(";"));
+      
+      const csv = [headers.join(";"), ...rows].join("\n");
+      const blob = new Blob(["\ufeff" + csv], {type: "text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; 
+      a.download = `Inventaire_ECME_${todayIso()}.csv`; 
+      a.click(); 
+      URL.revokeObjectURL(url);
+      showToast("Fichier CSV téléchargé.");
+    });
+
+    $("btnExportJson").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(instruments, null, 2)], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; 
+      a.download = `Inventaire_ECME_${todayIso()}.json`; 
+      a.click(); 
+      URL.revokeObjectURL(url);
+      showToast("Fichier JSON téléchargé.");
+    });
+
+    $("importFile").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if(Array.isArray(data)) {
+            showConfirm("Import JSON", `Voulez-vous importer ${data.length} instruments ? Les données actuelles seront complétées ou mises à jour.`, () => {
+              const newIds = new Set(data.map(i => i.id));
+              instruments = instruments.filter(i => !newIds.has(i.id)).concat(data);
+              saveData();
+              render();
+              showToast("Importation réussie.", "success");
+            });
+          } else {
+            showToast("Le fichier JSON n'est pas un tableau valide.", "error");
+          }
+        } catch(err) {
+          showToast("Erreur de lecture du fichier JSON.", "error");
+        }
+        e.target.value = ""; // Reset input
+      };
+      reader.readAsText(file);
+    });
+
+    // Initialize application
+    render();
+  </script>
+</body>
+</html>

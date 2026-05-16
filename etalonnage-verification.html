@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Étalonnage ou vérification ? — Application pédagogique</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#65738a;
+      --line:#dbe3ef;
+      --blue:#1d4ed8;
+      --blue2:#eff6ff;
+      --green:#15803d;
+      --green2:#ecfdf5;
+      --red:#b91c1c;
+      --red2:#fef2f2;
+      --amber:#b45309;
+      --amber2:#fffbeb;
+      --violet:#6d28d9;
+      --violet2:#f5f3ff;
+      --shadow:0 18px 50px rgba(20,37,63,.10);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:radial-gradient(circle at top left,#eaf1ff 0,#f4f7fb 38%,#eef2f7 100%);
+      color:var(--ink);
+    }
+
+    .app{
+      max-width:1240px;
+      margin:0 auto;
+      padding:28px;
+    }
+
+    header{
+      background:linear-gradient(135deg,#0f172a,#1e3a8a 62%,#334155);
+      color:white;
+      border-radius:28px;
+      padding:30px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    header::after{
+      content:"";
+      position:absolute;
+      right:-90px;
+      top:-120px;
+      width:360px;
+      height:360px;
+      border-radius:999px;
+      background:rgba(255,255,255,.09);
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      font-size:13px;
+      letter-spacing:.02em;
+      margin-bottom:16px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(30px,4vw,52px);
+      line-height:1.03;
+      max-width:840px;
+    }
+
+    header p{
+      max-width:900px;
+      color:#dbeafe;
+      font-size:17px;
+      line-height:1.55;
+      margin:18px 0 0;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:22px 0 0;
+    }
+
+    button, select, input, textarea{
+      font:inherit;
+    }
+
+    button{
+      border:0;
+      border-radius:14px;
+      padding:11px 15px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.18s transform,.18s filter,.18s box-shadow;
+    }
+    button:hover{transform:translateY(-1px);filter:brightness(1.02)}
+    button:active{transform:translateY(0)}
+
+    .btn-primary{background:var(--blue); color:white; box-shadow:0 10px 22px rgba(29,78,216,.22)}
+    .btn-ghost{background:rgba(255,255,255,.13); color:white; border:1px solid rgba(255,255,255,.24)}
+    .btn-light{background:#eef2ff; color:#1e3a8a}
+    .btn-neutral{background:#e5e7eb;color:#111827}
+    .btn-danger{background:#fee2e2;color:#991b1b}
+    .btn-small{padding:8px 10px; border-radius:12px; font-size:13px}
+
+    nav{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      margin:22px 0;
+    }
+
+    .tab{
+      background:var(--panel);
+      border:1px solid var(--line);
+      box-shadow:0 10px 25px rgba(20,37,63,.06);
+      color:var(--muted);
+      text-align:left;
+      padding:14px 16px;
+      min-height:70px;
+    }
+    .tab strong{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+    .tab.active{
+      border-color:#93c5fd;
+      background:#eff6ff;
+      color:#1d4ed8;
+      box-shadow:0 14px 34px rgba(29,78,216,.14);
+    }
+
+    .grid{display:grid;gap:18px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+    .panel{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow:var(--shadow);
+    }
+
+    .panel h2,.panel h3{margin-top:0}
+    .panel p,.panel li{line-height:1.55;color:#334155}
+    .muted{color:var(--muted)}
+
+    .concept-card{
+      border-radius:20px;
+      padding:20px;
+      border:1px solid var(--line);
+      background:#fff;
+      position:relative;
+      overflow:hidden;
+    }
+    .concept-card::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:6px;
+      background:var(--blue);
+    }
+    .concept-card.verify::before{background:var(--green)}
+    .concept-card.warning::before{background:var(--amber)}
+    .concept-card h3{margin:8px 0 8px;font-size:22px}
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+    .b-blue{background:var(--blue2);color:#1d4ed8}
+    .b-green{background:var(--green2);color:var(--green)}
+    .b-red{background:var(--red2);color:var(--red)}
+    .b-amber{background:var(--amber2);color:var(--amber)}
+    .b-violet{background:var(--violet2);color:var(--violet)}
+    .b-gray{background:#f1f5f9;color:#475569}
+
+    .table-wrap{overflow:auto;border-radius:16px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;background:white;min-width:760px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{background:#f8fafc;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#475569}
+    tr:last-child td{border-bottom:0}
+
+    .scenario-list{display:grid;gap:14px}
+    .scenario{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:#fff;
+      padding:18px;
+      display:grid;
+      grid-template-columns:1fr 310px;
+      gap:18px;
+      align-items:start;
+    }
+    .scenario.correct{border-color:#86efac;background:linear-gradient(0deg,#ffffff,#f0fdf4)}
+    .scenario.wrong{border-color:#fecaca;background:linear-gradient(0deg,#ffffff,#fff1f2)}
+
+    .scenario h3{margin:0 0 8px;font-size:19px}
+    .scenario .meta{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .document-box{
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:16px;
+      padding:13px;
+      color:#334155;
+      line-height:1.45;
+      white-space:pre-line;
+    }
+    .answer-box{
+      background:#f8fafc;
+      border-radius:16px;
+      padding:14px;
+      border:1px solid var(--line);
+      position:sticky;
+      top:12px;
+    }
+    .answer-box label{display:block;font-size:13px;font-weight:800;color:#475569;margin-bottom:8px}
+    select, input, textarea{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:13px;
+      padding:11px 12px;
+      background:white;
+      color:#111827;
+      outline:none;
+    }
+    select:focus,input:focus,textarea:focus{border-color:#60a5fa;box-shadow:0 0 0 4px rgba(96,165,250,.18)}
+    textarea{min-height:92px;resize:vertical}
+
+    .feedback{
+      margin-top:10px;
+      padding:11px;
+      border-radius:14px;
+      background:#f1f5f9;
+      color:#334155;
+      font-size:14px;
+      display:none;
+    }
+    .feedback.show{display:block}
+
+    .score-card{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      background:#0f172a;
+      color:white;
+      border-radius:20px;
+      padding:18px 20px;
+      margin-bottom:16px;
+    }
+    .score-value{font-size:34px;font-weight:900;line-height:1}
+    .score-card p{margin:4px 0 0;color:#cbd5e1}
+
+    .decision-layout{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+    .form-grid{display:grid;gap:12px}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field label{font-size:13px;font-weight:800;color:#475569;margin-bottom:6px;display:block}
+
+    .result-card{
+      border-radius:22px;
+      padding:22px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .result-card.conforme{background:linear-gradient(0deg,#fff,#ecfdf5);border-color:#86efac}
+    .result-card.nonconforme{background:linear-gradient(0deg,#fff,#fef2f2);border-color:#fca5a5}
+    .result-card.impossible{background:linear-gradient(0deg,#fff,#fffbeb);border-color:#fcd34d}
+    .result-title{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:900;margin-bottom:10px}
+
+    .axis{
+      margin:24px 0 8px;
+      padding:28px 18px 20px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:18px;
+      position:relative;
+    }
+    .axis-line{
+      position:relative;
+      height:10px;
+      background:#e2e8f0;
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .axis-ok{
+      position:absolute;
+      top:0;
+      bottom:0;
+      left:25%;
+      width:50%;
+      background:#bbf7d0;
+    }
+    .axis-marker{
+      position:absolute;
+      top:-11px;
+      width:4px;
+      height:32px;
+      border-radius:999px;
+      background:#111827;
+      transform:translateX(-50%);
+    }
+    .axis-uncertainty{
+      position:absolute;
+      top:-4px;
+      height:18px;
+      border-radius:999px;
+      background:rgba(29,78,216,.32);
+      border:1px solid rgba(29,78,216,.45);
+    }
+    .axis-labels{
+      display:flex;
+      justify-content:space-between;
+      color:#64748b;
+      font-size:12px;
+      margin-top:10px;
+    }
+
+    .checklist{display:grid;gap:10px}
+    .check-item{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      padding:13px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .check-item input{width:auto;margin-top:3px}
+    .diagnosis{
+      margin-top:14px;
+      border-radius:16px;
+      padding:16px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+    }
+
+    .footer-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .hidden{display:none!important}
+
+    @media (max-width:980px){
+      .grid-2,.grid-3,nav,.scenario,.decision-layout{grid-template-columns:1fr}
+      .answer-box{position:static}
+      .app{padding:16px}
+      header{padding:24px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="kicker">⌁ CPH_HO_08 — Labo qualité</div>
+      <h1>Étalonnage ou vérification&nbsp;?</h1>
+      <p>Application de comparaison et de décision pour distinguer un document d’étalonnage, un constat de vérification, un certificat incomplet et une situation où la décision est impossible.</p>
+      <div class="toolbar">
+        <button class="btn-primary" onclick="goTab('entrainement')">Commencer l’entraînement</button>
+        <button class="btn-ghost" onclick="goTab('decision')">Tester une décision avec EMT</button>
+        <button class="btn-ghost" onclick="downloadHTML()">Enregistrer l’application</button>
+      </div>
+    </header>
+
+    <nav aria-label="Navigation principale">
+      <button class="tab active" data-tab="theorie" onclick="goTab('theorie')"><strong>1. Repères</strong>Comparer les notions</button>
+      <button class="tab" data-tab="entrainement" onclick="goTab('entrainement')"><strong>2. Classement</strong>Analyser des situations</button>
+      <button class="tab" data-tab="decision" onclick="goTab('decision')"><strong>3. Décision EMT</strong>Accepter ou refuser</button>
+      <button class="tab" data-tab="prof" onclick="goTab('prof')"><strong>4. Mode formateur</strong>Créer des cas</button>
+    </nav>
+
+    <main>
+      <section id="theorie" class="screen">
+        <div class="grid grid-3">
+          <article class="concept-card">
+            <span class="badge b-blue">Document descriptif</span>
+            <h3>Étalonnage</h3>
+            <p>On compare un instrument avec un étalon de référence. Le document fournit des valeurs mesurées, des erreurs ou corrections, et des incertitudes.</p>
+            <p><strong>Point clé :</strong> il informe sur l’état de l’instrument, mais ne décide pas seul s’il est apte à l’emploi.</p>
+          </article>
+          <article class="concept-card verify">
+            <span class="badge b-green">Document décisionnel</span>
+            <h3>Vérification</h3>
+            <p>On compare les résultats de l’instrument à une exigence définie, généralement une Erreur Maximale Tolérée.</p>
+            <p><strong>Point clé :</strong> elle aboutit à un verdict : conforme ou non conforme.</p>
+          </article>
+          <article class="concept-card warning">
+            <span class="badge b-amber">Attention</span>
+            <h3>Décision impossible</h3>
+            <p>Une décision peut être impossible si l’EMT, l’incertitude, la règle de décision, l’identification de l’instrument ou la traçabilité manquent.</p>
+            <p><strong>Point clé :</strong> un chiffre seul ne suffit pas toujours pour autoriser un instrument.</p>
+          </article>
+        </div>
+
+        <div class="panel" style="margin-top:18px">
+          <h2>Tableau de comparaison</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Critère</th><th>Étalonnage</th><th>Vérification</th><th>Erreur fréquente</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Question posée</td><td>Quel est l’écart entre l’instrument et l’étalon&nbsp;?</td><td>L’instrument respecte-t-il l’EMT&nbsp;?</td><td>Confondre une erreur mesurée avec une décision.</td></tr>
+                <tr><td>Résultat</td><td>Erreurs, corrections, incertitudes.</td><td>Verdict conforme / non conforme.</td><td>Croire qu’un certificat d’étalonnage dit forcément « conforme ».</td></tr>
+                <tr><td>Document attendu</td><td>Certificat d’étalonnage.</td><td>Constat ou certificat de vérification.</td><td>Accepter un instrument sans connaître l’exigence appliquée.</td></tr>
+                <tr><td>Exigence nécessaire</td><td>Étalon, méthode, conditions, incertitude, traçabilité.</td><td>EMT, règle de décision, mesures, verdict.</td><td>Dire « conforme » sans préciser l’EMT.</td></tr>
+                <tr><td>Usage atelier</td><td>Connaître et suivre la dérive de l’instrument.</td><td>Autoriser, limiter ou interdire l’utilisation.</td><td>Utiliser un moyen non maîtrisé car le document semble officiel.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="entrainement" class="screen hidden">
+        <div class="score-card">
+          <div>
+            <div class="score-value" id="scoreValue">—</div>
+            <p id="scoreText">Classe les situations puis valide tes réponses.</p>
+          </div>
+          <div class="footer-actions" style="margin:0">
+            <button class="btn-light" onclick="validateAll()">Valider</button>
+            <button class="btn-neutral" onclick="resetAnswers()">Réinitialiser</button>
+            <button class="btn-neutral" onclick="shuffleScenarios()">Mélanger</button>
+          </div>
+        </div>
+        <div class="scenario-list" id="scenarioList"></div>
+      </section>
+
+      <section id="decision" class="screen hidden">
+        <div class="decision-layout">
+          <div class="panel">
+            <h2>Calculer une décision</h2>
+            <p class="muted">Saisir les données du document. Les valeurs sont exprimées en micromètres pour simplifier.</p>
+            <div class="form-grid">
+              <div class="field">
+                <label for="rule">Règle de décision</label>
+                <select id="rule" onchange="computeDecision()">
+                  <option value="simple">Règle simple : |erreur| ≤ EMT</option>
+                  <option value="guard" selected>Règle prudente : |erreur| + U ≤ EMT</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="field"><label for="err">Erreur maximale observée (µm)</label><input id="err" type="number" step="0.1" value="2.0" oninput="computeDecision()"></div>
+                <div class="field"><label for="unc">Incertitude U, k≈2 (µm)</label><input id="unc" type="number" step="0.1" value="0.8" oninput="computeDecision()"></div>
+              </div>
+              <div class="field"><label for="emt">EMT — Erreur Maximale Tolérée (µm)</label><input id="emt" type="number" step="0.1" value="3.0" oninput="computeDecision()"></div>
+            </div>
+            <div class="footer-actions">
+              <button class="btn-light" onclick="loadDecisionExample(0)">Exemple conforme</button>
+              <button class="btn-light" onclick="loadDecisionExample(1)">Zone douteuse</button>
+              <button class="btn-light" onclick="loadDecisionExample(2)">Non conforme</button>
+            </div>
+          </div>
+          <div class="result-card" id="decisionCard">
+            <div class="result-title" id="decisionTitle">—</div>
+            <p id="decisionExplanation" class="muted"></p>
+            <div class="axis">
+              <div class="axis-line" id="axisLine">
+                <div class="axis-ok"></div>
+                <div class="axis-uncertainty" id="axisUncertainty"></div>
+                <div class="axis-marker" id="axisMarker"></div>
+              </div>
+              <div class="axis-labels"><span>-2 × EMT</span><span>-EMT</span><span>0</span><span>+EMT</span><span>+2 × EMT</span></div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Donnée</th><th>Valeur</th><th>Interprétation</th></tr></thead>
+                <tbody id="decisionTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="prof" class="screen hidden">
+        <div class="grid grid-2">
+          <div class="panel">
+            <h2>Créer une situation d’entraînement</h2>
+            <div class="form-grid">
+              <div class="field"><label for="newTitle">Titre</label><input id="newTitle" placeholder="Ex. Micromètre 0–25 mm — certificat externe"></div>
+              <div class="field"><label for="newDoc">Contenu affiché à l’élève</label><textarea id="newDoc" placeholder="Décrire les informations présentes sur le document : erreurs, incertitudes, EMT, verdict, traçabilité..."></textarea></div>
+              <div class="field"><label for="newCategory">Réponse attendue</label><select id="newCategory"></select></div>
+              <div class="field"><label for="newExplanation">Explication de correction</label><textarea id="newExplanation" placeholder="Expliquer pourquoi cette situation relève de cette catégorie."></textarea></div>
+              <button class="btn-primary" onclick="addScenario()">Ajouter au jeu d’entraînement</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Diagnostic guidé</h2>
+            <p class="muted">Cocher les éléments présents sur un document réel pour obtenir une orientation.</p>
+            <div class="checklist">
+              <label class="check-item"><input type="checkbox" class="diag" value="errors" onchange="diagnoseDoc()"><span><strong>Erreurs / corrections</strong><br><span class="muted">Le document donne des écarts entre instrument et étalon.</span></span></label>
+              <label class="check-item"><input type="checkbox" class="diag" value="unc" onchange="diagnoseDoc()"><span><strong>Incertitudes</strong><br><span class="muted">Le document indique une incertitude U ou équivalente.</span></span></label>
+              <label class="check-item"><input type="checkbox" class="diag" value="emt" onchange="diagnoseDoc()"><span><strong>EMT</strong><br><span class="muted">Une Erreur Maximale Tolérée est indiquée.</span></span></label>
+              <label class="check-item"><input type="checkbox" class="diag" value="verdict" onchange="diagnoseDoc()"><span><strong>Verdict</strong><br><span class="muted">Le document conclut « conforme » ou « non conforme ».</span></span></label>
+              <label class="check-item"><input type="checkbox" class="diag" value="trace" onchange="diagnoseDoc()"><span><strong>Traçabilité</strong><br><span class="muted">Étalons, laboratoire, raccordement ou accréditation sont identifiables.</span></span></label>
+            </div>
+            <div class="diagnosis" id="diagnosisBox"><strong>Diagnostic :</strong> coche les éléments présents.</div>
+            <div class="footer-actions">
+              <button class="btn-neutral" onclick="clearCustomScenarios()">Supprimer les cas ajoutés</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const categories = [
+      {id:'etalonnage', label:'Document d’étalonnage', badge:'b-blue'},
+      {id:'verification', label:'Constat de vérification', badge:'b-green'},
+      {id:'incomplet', label:'Certificat incomplet', badge:'b-amber'},
+      {id:'impossible', label:'Décision impossible', badge:'b-red'}
+    ];
+
+    const defaultScenarios = [
+      {
+        id:'S1',
+        title:'Micromètre extérieur 0–25 mm — certificat du laboratoire',
+        tags:['Micromètre','Erreurs + incertitudes','Pas de verdict'],
+        doc:'Le document indique :\n• valeur de référence : 5 / 10 / 15 / 20 / 25 mm ;\n• indication du micromètre ;\n• erreur mesurée : de +1 à +3 µm ;\n• incertitude élargie U = 1 µm ;\n• raccordement aux étalons du laboratoire.\nAucune EMT et aucune conclusion « conforme / non conforme » ne sont indiquées.',
+        correct:'etalonnage',
+        explanation:'Le document décrit l’état métrologique de l’instrument avec des erreurs et des incertitudes. Il ne statue pas sur l’aptitude à l’emploi.'
+      },
+      {
+        id:'S2',
+        title:'Pied à coulisse numérique — fiche de remise en service',
+        tags:['Pied à coulisse','EMT ±30 µm','Conforme'],
+        doc:'Le document indique :\n• EMT définie par l’entreprise : ±30 µm ;\n• erreur maximale observée : +18 µm ;\n• contrôle réalisé avec cales étalons ;\n• conclusion : instrument CONFORME, utilisable en atelier jusqu’au 30.09.2026.',
+        correct:'verification',
+        explanation:'La présence d’une EMT et d’un verdict explicite montre qu’il s’agit d’un constat de vérification.'
+      },
+      {
+        id:'S3',
+        title:'Comparateur vertical — document très synthétique',
+        tags:['Comparateur','Verdict isolé','Données absentes'],
+        doc:'Le document indique seulement :\n« Comparateur conforme ».\nIl ne donne ni points contrôlés, ni erreur mesurée, ni EMT, ni incertitude, ni référence d’étalon.',
+        correct:'incomplet',
+        explanation:'Un verdict seul ne suffit pas. Sans EMT, méthode, points contrôlés et traçabilité, le document ne permet pas de prouver correctement la décision.'
+      },
+      {
+        id:'S4',
+        title:'Jauge tampon lisse — erreurs connues mais besoin non défini',
+        tags:['Jauge','Erreurs connues','EMT absente'],
+        doc:'Le document donne :\n• erreur mesurée : +2 µm ;\n• incertitude U = 0,8 µm ;\n• comparaison réalisée avec une bague étalon.\nLe responsable demande : « Peut-on l’accepter pour cette opération ? »\nAucune EMT d’utilisation n’est fournie.',
+        correct:'impossible',
+        explanation:'Même si l’erreur est connue, on ne peut pas décider de l’aptitude sans exigence d’acceptation, donc sans EMT adaptée à l’usage.'
+      },
+      {
+        id:'S5',
+        title:'Certificat d’étalonnage avec déclaration de conformité',
+        tags:['Document combiné','EMT ±5 µm','Conforme'],
+        doc:'Le document contient deux parties :\n1. Étalonnage : erreurs et incertitudes à 5, 10, 15, 20 et 25 mm.\n2. Déclaration : EMT appliquée ±5 µm, règle de décision précisée, conclusion : CONFORME.',
+        correct:'verification',
+        explanation:'Le document contient bien des données d’étalonnage, mais la présence d’une EMT, d’une règle et d’un verdict en fait aussi un document de vérification pour l’usage visé.'
+      },
+      {
+        id:'S6',
+        title:'Micromètre neuf livré avec certificat fournisseur',
+        tags:['Instrument neuf','Traçabilité incertaine','Pas d’incertitude'],
+        doc:'Le fournisseur indique :\n« Instrument contrôlé en usine selon nos procédures internes ».\nLe document ne précise pas les étalons utilisés, les incertitudes, les points de contrôle, ni le raccordement métrologique.',
+        correct:'incomplet',
+        explanation:'Un instrument neuf n’est pas automatiquement maîtrisé. Le document ne donne pas les preuves métrologiques suffisantes pour un usage qualité exigeant.'
+      },
+      {
+        id:'S7',
+        title:'Fiche interne — vérification mensuelle d’un comparateur',
+        tags:['Vérification interne','EMT ±3 µm','Non conforme'],
+        doc:'La fiche interne indique :\n• étalon utilisé : cale étalon 10,000 mm identifiée ;\n• EMT interne : ±3 µm ;\n• erreur mesurée : -5 µm ;\n• conclusion : NON CONFORME ;\n• action : isoler l’instrument et prévenir le responsable qualité.',
+        correct:'verification',
+        explanation:'La fiche compare l’instrument à une EMT et conclut sur son aptitude. C’est une vérification.'
+      },
+      {
+        id:'S8',
+        title:'Rapport de mesure sans identification d’instrument',
+        tags:['Instrument non identifié','Traçabilité rompue','Données inutilisables'],
+        doc:'Le rapport indique des mesures et des écarts, mais le numéro de série de l’instrument, le numéro d’inventaire et le certificat associé ne sont pas renseignés.',
+        correct:'incomplet',
+        explanation:'Sans identification claire de l’instrument, la traçabilité documentaire est insuffisante. On ne sait pas quel moyen a réellement été contrôlé.'
+      },
+      {
+        id:'S9',
+        title:'Instrument avec certificat périmé',
+        tags:['Certificat expiré','Risque qualité','Décision d’usage'],
+        doc:'L’étiquette indique : prochain étalonnage avant 04.2026.\nNous sommes en mai 2026.\nLe dernier certificat ancien indiquait des erreurs faibles, mais aucune donnée récente ne permet de connaître la dérive actuelle.',
+        correct:'impossible',
+        explanation:'La validité métrologique n’est plus assurée. On ne peut pas autoriser l’usage sans nouvelle vérification ou nouvel étalonnage.'
+      },
+      {
+        id:'S10',
+        title:'Certificat détaillé mais sans incertitude',
+        tags:['Erreurs présentes','Incertitude absente','Certificat incomplet'],
+        doc:'Le document liste les valeurs de référence et les indications de l’instrument. Les erreurs sont calculées, mais aucune incertitude de mesure n’est indiquée.',
+        correct:'incomplet',
+        explanation:'Pour un certificat d’étalonnage exploitable, l’incertitude est une information essentielle. Sans elle, la qualité du résultat n’est pas correctement qualifiée.'
+      }
+    ];
+
+    let scenarios = [];
+    let answers = {};
+    let validated = false;
+
+    function customScenarios(){
+      try { return JSON.parse(localStorage.getItem('customScenariosEV') || '[]'); }
+      catch(e){ return []; }
+    }
+
+    function saveCustom(list){ localStorage.setItem('customScenariosEV', JSON.stringify(list)); }
+
+    function init(){
+      scenarios = [...defaultScenarios, ...customScenarios()];
+      populateCategorySelect();
+      renderScenarios();
+      computeDecision();
+      diagnoseDoc();
+    }
+
+    function goTab(id){
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+    }
+
+    function populateCategorySelect(){
+      const select = document.getElementById('newCategory');
+      select.innerHTML = categories.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+    }
+
+    function categoryLabel(id){ return categories.find(c => c.id === id)?.label || '—'; }
+    function categoryBadge(id){ return categories.find(c => c.id === id)?.badge || 'b-gray'; }
+
+    function renderScenarios(){
+      const root = document.getElementById('scenarioList');
+      root.innerHTML = scenarios.map((s, index) => {
+        const selected = answers[s.id] || '';
+        const isAnswered = validated && selected;
+        const stateClass = validated ? (selected === s.correct ? 'correct' : 'wrong') : '';
+        return `<article class="scenario ${stateClass}" id="card-${s.id}">
+          <div>
+            <h3>${index+1}. ${escapeHTML(s.title)}</h3>
+            <div class="meta">${s.tags.map(t=>`<span class="badge b-gray">${escapeHTML(t)}</span>`).join('')}</div>
+            <div class="document-box">${escapeHTML(s.doc)}</div>
+          </div>
+          <aside class="answer-box">
+            <label>Classement attendu</label>
+            <select onchange="setAnswer('${s.id}', this.value)">
+              <option value="">Choisir une réponse...</option>
+              ${categories.map(c => `<option value="${c.id}" ${selected===c.id?'selected':''}>${c.label}</option>`).join('')}
+            </select>
+            <div class="feedback ${validated ? 'show' : ''}" id="fb-${s.id}">
+              ${validated ? correctionHTML(s, selected) : ''}
+            </div>
+          </aside>
+        </article>`;
+      }).join('');
+      updateScore();
+    }
+
+    function correctionHTML(s, selected){
+      const ok = selected === s.correct;
+      if(!selected){
+        return `<span class="badge b-amber">Non répondu</span><br><br>Réponse attendue : <strong>${categoryLabel(s.correct)}</strong>.<br>${escapeHTML(s.explanation)}`;
+      }
+      return `<span class="badge ${ok?'b-green':'b-red'}">${ok?'Correct':'À corriger'}</span><br><br>` +
+        `Ta réponse : <strong>${categoryLabel(selected)}</strong><br>` +
+        `Correction : <strong>${categoryLabel(s.correct)}</strong><br><br>${escapeHTML(s.explanation)}`;
+    }
+
+    function setAnswer(id, value){
+      answers[id] = value;
+      if(validated) renderScenarios();
+      else updateScore();
+    }
+
+    function validateAll(){
+      validated = true;
+      renderScenarios();
+      window.scrollTo({top:document.getElementById('entrainement').offsetTop - 10, behavior:'smooth'});
+    }
+
+    function resetAnswers(){
+      answers = {};
+      validated = false;
+      renderScenarios();
+    }
+
+    function shuffleScenarios(){
+      for(let i=scenarios.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [scenarios[i], scenarios[j]] = [scenarios[j], scenarios[i]];
+      }
+      renderScenarios();
+    }
+
+    function updateScore(){
+      const answered = scenarios.filter(s => answers[s.id]).length;
+      if(!validated){
+        document.getElementById('scoreValue').textContent = `${answered}/${scenarios.length}`;
+        document.getElementById('scoreText').textContent = 'Réponses sélectionnées. Valider pour afficher la correction.';
+        return;
+      }
+      const correct = scenarios.filter(s => answers[s.id] === s.correct).length;
+      const pct = Math.round(correct / scenarios.length * 100);
+      document.getElementById('scoreValue').textContent = `${correct}/${scenarios.length}`;
+      document.getElementById('scoreText').textContent = `${pct}% de réussite — objectif : justifier le classement, pas seulement trouver la bonne case.`;
+    }
+
+    function computeDecision(){
+      const err = parseFloat(document.getElementById('err').value);
+      const unc = parseFloat(document.getElementById('unc').value);
+      const emt = parseFloat(document.getElementById('emt').value);
+      const rule = document.getElementById('rule').value;
+      const card = document.getElementById('decisionCard');
+      const title = document.getElementById('decisionTitle');
+      const exp = document.getElementById('decisionExplanation');
+      const tbody = document.getElementById('decisionTable');
+
+      card.classList.remove('conforme','nonconforme','impossible');
+      if(!isFinite(err) || !isFinite(emt) || emt <= 0 || (rule === 'guard' && (!isFinite(unc) || unc < 0))){
+        card.classList.add('impossible');
+        title.textContent = '⚠️ Décision impossible';
+        exp.textContent = 'Les données nécessaires ne sont pas complètes : erreur, EMT et éventuellement incertitude doivent être renseignées.';
+        tbody.innerHTML = '';
+        updateAxis(0,0,1);
+        return;
+      }
+
+      const absErr = Math.abs(err);
+      let status, explanation;
+      if(rule === 'simple'){
+        if(absErr <= emt){
+          status = 'conforme';
+          explanation = `Règle simple : |${err}| = ${absErr.toFixed(2)} µm ≤ EMT ${emt.toFixed(2)} µm.`;
+        }else{
+          status = 'nonconforme';
+          explanation = `Règle simple : |${err}| = ${absErr.toFixed(2)} µm > EMT ${emt.toFixed(2)} µm.`;
+        }
+      }else{
+        const upperRisk = absErr + unc;
+        const lowerRisk = Math.max(absErr - unc, 0);
+        if(upperRisk <= emt){
+          status = 'conforme';
+          explanation = `Règle prudente : |erreur| + U = ${absErr.toFixed(2)} + ${unc.toFixed(2)} = ${upperRisk.toFixed(2)} µm ≤ EMT ${emt.toFixed(2)} µm.`;
+        }else if(lowerRisk > emt){
+          status = 'nonconforme';
+          explanation = `Règle prudente : même en retirant l’incertitude, |erreur| - U = ${lowerRisk.toFixed(2)} µm > EMT ${emt.toFixed(2)} µm.`;
+        }else{
+          status = 'impossible';
+          explanation = `Zone de doute : l’intervalle d’incertitude recoupe la limite d’acceptation. Il faut préciser la règle de décision ou refaire une mesure plus adaptée.`;
+        }
+      }
+      card.classList.add(status);
+      title.textContent = status === 'conforme' ? '✅ Instrument conforme' : status === 'nonconforme' ? '⛔ Instrument non conforme' : '⚠️ Décision impossible';
+      exp.textContent = explanation;
+
+      tbody.innerHTML = `
+        <tr><td>Erreur observée</td><td>${err.toFixed(2)} µm</td><td>Écart entre l’instrument et l’étalon.</td></tr>
+        <tr><td>Incertitude U</td><td>${isFinite(unc)?unc.toFixed(2):'—'} µm</td><td>Doute associé au résultat.</td></tr>
+        <tr><td>EMT</td><td>±${emt.toFixed(2)} µm</td><td>Erreur maximale tolérée pour l’usage.</td></tr>
+        <tr><td>Règle appliquée</td><td>${rule === 'simple' ? '|erreur| ≤ EMT' : '|erreur| + U ≤ EMT'}</td><td>${rule === 'simple' ? 'Approche pédagogique simple.' : 'Approche prudente intégrant l’incertitude.'}</td></tr>
+      `;
+      updateAxis(err, rule==='guard'?unc:0, emt);
+    }
+
+    function updateAxis(err, unc, emt){
+      const marker = document.getElementById('axisMarker');
+      const interval = document.getElementById('axisUncertainty');
+      const min = -2 * emt;
+      const max = 2 * emt;
+      const pos = clamp((err - min) / (max - min) * 100, 0, 100);
+      const leftVal = clamp((err - unc - min) / (max - min) * 100, 0, 100);
+      const rightVal = clamp((err + unc - min) / (max - min) * 100, 0, 100);
+      marker.style.left = pos + '%';
+      interval.style.left = leftVal + '%';
+      interval.style.width = Math.max(2, rightVal - leftVal) + '%';
+    }
+
+    function loadDecisionExample(i){
+      const examples = [
+        {err:2, unc:.8, emt:3},
+        {err:2.6, unc:.8, emt:3},
+        {err:5, unc:.8, emt:3}
+      ];
+      document.getElementById('err').value = examples[i].err;
+      document.getElementById('unc').value = examples[i].unc;
+      document.getElementById('emt').value = examples[i].emt;
+      computeDecision();
+    }
+
+    function addScenario(){
+      const title = document.getElementById('newTitle').value.trim();
+      const doc = document.getElementById('newDoc').value.trim();
+      const correct = document.getElementById('newCategory').value;
+      const explanation = document.getElementById('newExplanation').value.trim();
+      if(!title || !doc || !explanation){
+        alert('Compléter le titre, le contenu et l’explication.');
+        return;
+      }
+      const list = customScenarios();
+      list.push({
+        id:'C' + Date.now(),
+        title,
+        tags:['Cas ajouté','Formateur'],
+        doc,
+        correct,
+        explanation
+      });
+      saveCustom(list);
+      document.getElementById('newTitle').value = '';
+      document.getElementById('newDoc').value = '';
+      document.getElementById('newExplanation').value = '';
+      scenarios = [...defaultScenarios, ...customScenarios()];
+      resetAnswers();
+      goTab('entrainement');
+    }
+
+    function clearCustomScenarios(){
+      if(confirm('Supprimer tous les cas ajoutés en mode formateur ?')){
+        localStorage.removeItem('customScenariosEV');
+        scenarios = [...defaultScenarios];
+        resetAnswers();
+      }
+    }
+
+    function diagnoseDoc(){
+      const values = Array.from(document.querySelectorAll('.diag:checked')).map(x=>x.value);
+      const has = v => values.includes(v);
+      const box = document.getElementById('diagnosisBox');
+      let label, cls, msg;
+      if(has('emt') && has('verdict') && has('errors')){
+        label = 'Constat de vérification'; cls='b-green';
+        msg = 'Le document contient une exigence, des données et une décision. Vérifier que la règle de décision et la traçabilité sont précisées.';
+      }else if(has('errors') && has('unc') && has('trace') && !has('verdict') && !has('emt')){
+        label = 'Document d’étalonnage'; cls='b-blue';
+        msg = 'Le document décrit l’état de l’instrument sans juger son aptitude. Il faudra une EMT pour décider de l’utilisation.';
+      }else if(has('errors') && !has('emt') && !has('verdict')){
+        label = 'Décision impossible'; cls='b-red';
+        msg = 'Les données peuvent être utiles, mais l’acceptation ou le refus n’est pas possible sans exigence d’utilisation.';
+      }else{
+        label = 'Certificat probablement incomplet'; cls='b-amber';
+        msg = 'Plusieurs éléments de preuve manquent. Chercher au minimum : identification, méthode, étalons, résultats, incertitude, EMT si décision, et verdict si vérification.';
+      }
+      box.innerHTML = `<strong>Diagnostic :</strong> <span class="badge ${cls}">${label}</span><br><br>${msg}`;
+    }
+
+    function downloadHTML(){
+      const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'application-etalonnage-ou-verification.html';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHTML(str){
+      return String(str).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#039;','"':'&quot;'}[ch]));
+    }
+    function clamp(v,min,max){return Math.max(min, Math.min(max, v));}
+
+    init();
+  </script>
+</body>
+</html>

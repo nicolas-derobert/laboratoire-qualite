@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QualiTools - Accueil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #cfa346;
+            --accent-text: #856404;
+            --accent-light: #f4e8cb;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #2d3436;
+            --danger: #e74c3c;
+            --highlight: #e74c3c;
+            
+            --color-m1: #c0392b;
+            --color-m2: #2980b9;
+            --color-m3: #27ae60;
+            --color-m4: #8e44ad;
+            --color-m5: #d35400;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .main-content {
+            background: var(--panel-bg);
+            padding: 3rem;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .btn-gold {
+            background-color: var(--accent);
+            color: var(--primary);
+            transition: all 0.2s;
+            text-decoration: none; /* Remove underline from links */
+            display: inline-block; /* Make links behave like buttons */
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 0.5rem;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .btn-gold:hover {
+            background-color: #e0b050;
+            transform: translateY(-2px);
+        }
+        .btn-gold:active {
+            transform: translateY(1px);
+        }
+        .section-title {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1 class="text-4xl font-bold text-[var(--accent-text)] mb-2 tracking-widest uppercase">QualiTools</h1>
+        <p class="text-gray-500 mb-8 text-lg">Suite d'outils pour la Qualité et la Simulation Probabiliste</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
+            <!-- Section 1 : Gestion des Équipements -->
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <h2 class="section-title w-full text-center">Gestion des Équipements</h2>
+                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Suivi, étalonnage et raccordement.</p>
+                <div class="flex flex-col gap-2">
+                    <a href="inventaire.html" class="btn-gold">
+                        <div class="flex flex-col items-center">
+                            <i data-lucide="clipboard-list" class="w-8 h-8 mb-1"></i>
+                            <span class="block">Inventaire</span>
+                        </div>
+                        <span class="text-xs font-normal opacity-75">Liste des équipements</span>
+                    </a>
+                    <a href="pyramide-etalonnage.html" class="btn-gold">
+                        <div class="flex flex-col items-center">
+                            <i data-lucide="triangle" class="w-8 h-8 mb-1"></i>
+                            <span class="block">Pyramide d'Étalonnage</span>
+                        </div>
+                        <span class="text-xs font-normal opacity-75">Chaîne de raccordement</span>
+                    </a>
+                    <a href="etalonnage-verification.html" class="btn-gold">
+                        <div class="flex flex-col items-center">
+                            <i data-lucide="check-circle" class="w-8 h-8 mb-1"></i>
+                            <span class="block">Étalonnage & Vérification</span>
+                        </div>
+                        <span class="text-xs font-normal opacity-75">Gestion et conformité</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Section 2 : Outils de Mesure -->
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <h2 class="section-title w-full text-center">Outils de Mesure</h2>
+                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Lecture et utilisation des instruments.</p>
+                <div class="flex flex-col gap-2">
+                    <a href="lecture-instrument.html" class="btn-gold">
+                        <div class="flex flex-col items-center">
+                            <i data-lucide="ruler" class="w-8 h-8 mb-1"></i>
+                            <span class="block">Lecture Instrument</span>
+                        </div>
+                        <span class="text-xs font-normal opacity-75">Exercices de lecture</span>
+                    </a>
+                    <a href="lecture-instrument-v2.html" class="btn-gold">
+                        <div class="flex flex-col items-center">
+                            <i data-lucide="ruler" class="w-8 h-8 mb-1"></i>
+                            <span class="block">Lecture Instrument v2</span>
+                        </div>
+                        <span class="text-xs font-normal opacity-75">Exercices avancés</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2023 QualiTools Suite. Tous droits réservés.</p>
+            <p class="mt-1">Développé pour l'amélioration continue et la pédagogie.</p>
+        </footer>
+    </div>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
