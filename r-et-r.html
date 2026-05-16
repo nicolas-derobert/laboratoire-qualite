@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gage R&R Pro — Validation MSA (AIAG 4e éd.)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { 700:'#1e3a8a', 800:'#1e3a5f', 900:'#0f172a' },
+          gold: { 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706' }
+        },
+        fontFamily: {
+          sans: ['Inter','Segoe UI','sans-serif'],
+          title:['Montserrat','sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&family=Caveat:wght@500;700&display=swap');
+  body { font-family:'Inter',sans-serif; background:#f8fafc; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; animation:fadeIn .4s ease-out; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .measure-input:focus { outline:none; box-shadow:inset 0 0 0 2px #d97706; border-radius:4px; }
+  .measure-input { transition:all .2s; }
+  .measure-input.invalid { background:#fee2e2; }
+  .hide-scroll::-webkit-scrollbar { display:none; }
+  .hide-scroll { -ms-overflow-style:none; scrollbar-width:none; }
+
+  /* PICO la mascotte */
+  #pico-bubble {
+    position: fixed; bottom: 100px; right: 20px; max-width: 280px;
+    background: white; border: 2px solid #1e3a5f; border-radius: 16px;
+    padding: 14px 16px; box-shadow: 0 10px 25px rgba(0,0,0,.15);
+    font-size: 14px; line-height: 1.4; z-index: 50;
+    animation: slideIn .4s ease-out;
+  }
+  #pico-bubble::after {
+    content: ''; position: absolute; bottom: -12px; right: 30px;
+    width: 0; height: 0; border-left: 12px solid transparent;
+    border-right: 12px solid transparent; border-top: 12px solid #1e3a5f;
+  }
+  #pico-bubble::before {
+    content: ''; position: absolute; bottom: -9px; right: 32px;
+    width: 0; height: 0; border-left: 10px solid transparent;
+    border-right: 10px solid transparent; border-top: 10px solid white;
+    z-index: 1;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+  #pico-btn {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 70px; height: 70px; border-radius: 50%;
+    background: linear-gradient(135deg, #1e3a5f, #1e3a8a);
+    border: 3px solid #f59e0b; cursor: pointer; z-index: 50;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2); transition: transform .2s;
+  }
+  #pico-btn:hover { transform: scale(1.1) rotate(5deg); }
+  .pico-pulse { animation: pulse 2s infinite; }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 6px 20px rgba(245,158,11,.4); }
+    50% { box-shadow: 0 6px 30px rgba(245,158,11,.8), 0 0 0 8px rgba(245,158,11,.15); }
+  }
+
+  /* Cible interactive */
+  #targetCanvas { cursor: crosshair; touch-action: none; }
+  .target-stat { transition: all .3s; }
+  .stat-good { color:#059669; }
+  .stat-bad { color:#dc2626; }
+  .stat-mid { color:#d97706; }
+
+  /* Quiz */
+  .quiz-option {
+    transition: all .2s;
+    border: 2px solid #e2e8f0;
+  }
+  .quiz-option:hover { border-color:#f59e0b; background:#fef3c7; transform:translateY(-2px); }
+  .quiz-option.correct { background:#d1fae5; border-color:#059669; }
+  .quiz-option.incorrect { background:#fee2e2; border-color:#dc2626; }
+  .quiz-option.disabled { pointer-events:none; opacity:.6; }
+
+  /* Progress bar quiz */
+  .progress-fill { transition: width .4s ease-out; }
+
+  /* Certificat */
+  .certificate {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 8px double #d97706;
+    font-family: 'Caveat', cursive;
+  }
+  .cert-seal {
+    background: radial-gradient(circle, #d97706 0%, #92400e 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  }
+
+  /* Print */
+  @media print {
+    nav, .no-print, #pico-btn, #pico-bubble { display:none !important; }
+    .tab-content { display:block !important; page-break-inside:avoid; }
+    body { background:white; }
+    .certificate { page-break-inside:avoid; }
+  }
+  button:focus-visible, input:focus-visible { outline:2px solid #d97706; outline-offset:2px; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- ====== MASCOTTE PICO ====== -->
+<button id="pico-btn" onclick="togglePico()" aria-label="Coach Pico" class="pico-pulse">
+  <svg viewBox="0 0 64 64" class="w-full h-full p-2">
+    <!-- Corps pied à coulisse stylisé -->
+    <rect x="14" y="22" width="36" height="8" rx="2" fill="#f59e0b"/>
+    <rect x="14" y="30" width="36" height="4" fill="#fbbf24"/>
+    <rect x="18" y="34" width="3" height="8" fill="#d97706"/>
+    <rect x="43" y="34" width="3" height="8" fill="#d97706"/>
+    <!-- Yeux -->
+    <circle cx="24" cy="26" r="3" fill="white"/>
+    <circle cx="40" cy="26" r="3" fill="white"/>
+    <circle cx="24" cy="26" r="1.5" fill="#0f172a"/>
+    <circle cx="40" cy="26" r="1.5" fill="#0f172a"/>
+    <!-- Sourire -->
+    <path d="M 26 30 Q 32 33 38 30" stroke="#0f172a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </svg>
+</button>
+<div id="pico-bubble" class="hidden">
+  <div class="flex justify-between items-start mb-1">
+    <strong class="text-navy-900">Pico 🔧</strong>
+    <button onclick="togglePico()" class="text-slate-400 hover:text-slate-700 -mt-1" aria-label="Fermer">✕</button>
+  </div>
+  <p id="pico-text" class="text-slate-700">Salut ! Je suis Pico, ton coach métrologie. Clique sur moi à tout moment pour un conseil !</p>
+</div>
+
+<div class="max-w-6xl mx-auto p-4 sm:p-6">
+
+  <!-- Header -->
+  <header class="flex flex-col sm:flex-row items-center justify-between bg-navy-900 text-white p-6 rounded-2xl shadow-lg mb-8">
+    <div class="flex items-center gap-4 mb-4 sm:mb-0">
+      <svg class="w-12 h-12 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-title font-bold tracking-tight">Gage R&R <span class="text-gold-500">Pro</span></h1>
+        <p class="text-sm text-slate-300 font-light">Validation MSA — Méthode Moyennes &amp; Étendues (AIAG 4<sup>e</sup> éd.)</p>
+      </div>
+    </div>
+    <div class="text-right text-xs text-slate-400 no-print">
+      <p>Édition pédagogique</p>
+      <p>Conforme AIAG 4<sup>e</sup> éd.</p>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="flex gap-2 sm:gap-3 mb-6 overflow-x-auto hide-scroll pb-2 border-b border-slate-200 no-print" role="tablist">
+    <button onclick="switchTab('tab-theorie')" id="btn-tab-theorie" role="tab" aria-selected="true"
+            class="tab-btn active px-4 py-3 rounded-t-xl font-semibold bg-white text-navy-800 border-t border-l border-r border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] whitespace-nowrap text-sm sm:text-base">
+      1. Théorie
+    </button>
+    <button onclick="switchTab('tab-cible')" id="btn-tab-cible" role="tab" aria-selected="false"
+            class="tab-btn px-4 py-3 rounded-t-xl font-medium text-slate-500 hover:bg-slate-100 hover:text-navy-800 whitespace-nowrap text-sm sm:text-base">
+      🎯 Tir Cible
+    </button>
+    <button onclick="switchTab('tab-simu')" id="btn-tab-simu" role="tab" aria-selected="false"
+            class="tab-btn px-4 py-3 rounded-t-xl font-medium text-slate-500 hover:bg-slate-100 hover:text-navy-800 whitespace-nowrap text-sm sm:text-base">
+      2. Simulateur
+    </button>
+    <button onclick="switchTab('tab-appli')" id="btn-tab-appli" role="tab" aria-selected="false"
+            class="tab-btn px-4 py-3 rounded-t-xl font-medium text-slate-500 hover:bg-slate-100 hover:text-navy-800 whitespace-nowrap text-sm sm:text-base">
+      3. Calcul R&amp;R
+    </button>
+    <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" role="tab" aria-selected="false"
+            class="tab-btn px-4 py-3 rounded-t-xl font-medium text-slate-500 hover:bg-slate-100 hover:text-navy-800 whitespace-nowrap text-sm sm:text-base">
+      🎓 Quiz
+    </button>
+  </nav>
+
+  <!-- ====== ONGLET 1 : THÉORIE ====== -->
+  <div id="tab-theorie" class="tab-content active" role="tabpanel">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-2xl font-title font-bold text-navy-800 mb-6 border-b border-gold-500 pb-2 inline-block">Comprendre l'Analyse MSA</h2>
+      <p class="text-slate-600 mb-8 leading-relaxed">L'analyse du système de mesure (MSA) sert à vérifier que votre processus d'inspection est fiable. Si l'instrument est mauvais, vous risquez de rejeter des pièces conformes, ou pire, de livrer des pièces défectueuses au client.</p>
+
+      <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-8 rounded-r-lg">
+        <p class="text-sm text-amber-900"><strong>💡 Astuce pédagogique :</strong> Avant de continuer, va dans l'onglet <strong>🎯 Tir Cible</strong> pour expérimenter toi-même la différence entre justesse et fidélité. Tu comprendras tout en 1 minute !</p>
+      </div>
+
+      <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-10">
+        <h3 class="text-lg font-bold text-navy-900 mb-4 flex items-center gap-2">
+          <span class="bg-gold-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">!</span>
+          Préalable : Justesse (Centrage) ≠ Fidélité (Dispersion)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="text-center">
+            <svg viewBox="0 0 100 100" class="w-24 h-24 mx-auto mb-3"><circle cx="50" cy="50" r="45" fill="#e2e8f0"/><circle cx="50" cy="50" r="30" fill="#cbd5e1"/><circle cx="50" cy="50" r="15" fill="#f87171"/><circle cx="50" cy="50" r="3" fill="#991b1b"/><circle cx="52" cy="48" r="4" fill="#1e3a8a"/><circle cx="49" cy="51" r="4" fill="#1e3a8a"/><circle cx="50" cy="49" r="4" fill="#1e3a8a"/><circle cx="51" cy="53" r="4" fill="#1e3a8a"/></svg>
+            <span class="block font-bold text-green-700">Juste ET Fidèle</span>
+            <span class="text-xs text-slate-500">(L'idéal)</span>
+          </div>
+          <div class="text-center">
+            <svg viewBox="0 0 100 100" class="w-24 h-24 mx-auto mb-3"><circle cx="50" cy="50" r="45" fill="#e2e8f0"/><circle cx="50" cy="50" r="30" fill="#cbd5e1"/><circle cx="50" cy="50" r="15" fill="#f87171"/><circle cx="50" cy="50" r="3" fill="#991b1b"/><circle cx="80" cy="20" r="4" fill="#1e3a8a"/><circle cx="78" cy="23" r="4" fill="#1e3a8a"/><circle cx="82" cy="18" r="4" fill="#1e3a8a"/><circle cx="81" cy="21" r="4" fill="#1e3a8a"/></svg>
+            <span class="block font-bold text-orange-600">Fidèle, mais NON Juste</span>
+            <span class="text-xs text-slate-500">(Biais → recalibrer.<br>Le R&amp;R sera bon !)</span>
+          </div>
+          <div class="text-center">
+            <svg viewBox="0 0 100 100" class="w-24 h-24 mx-auto mb-3"><circle cx="50" cy="50" r="45" fill="#e2e8f0"/><circle cx="50" cy="50" r="30" fill="#cbd5e1"/><circle cx="50" cy="50" r="15" fill="#f87171"/><circle cx="50" cy="50" r="3" fill="#991b1b"/><circle cx="30" cy="60" r="4" fill="#1e3a8a"/><circle cx="60" cy="20" r="4" fill="#1e3a8a"/><circle cx="70" cy="70" r="4" fill="#1e3a8a"/><circle cx="20" cy="30" r="4" fill="#1e3a8a"/></svg>
+            <span class="block font-bold text-red-600">NON Fidèle</span>
+            <span class="text-xs text-slate-500">(Dispersion inacceptable)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+
+        <!-- Bloc EV (Répétabilité) -->
+        <div class="bg-blue-50 p-6 rounded-xl border border-blue-100">
+          <h3 class="text-xl font-bold text-navy-800 mb-2">Répétabilité (EV)</h3>
+          <p class="text-sm font-semibold text-blue-600 mb-4">Variation due à l'ÉQUIPEMENT</p>
+
+          <!-- Cibles : Bonne vs Mauvaise EV -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="text-center">
+              <svg viewBox="0 0 100 100" class="w-full max-w-[110px] mx-auto">
+                <circle cx="50" cy="50" r="45" fill="#e2e8f0"/>
+                <circle cx="50" cy="50" r="32" fill="#cbd5e1"/>
+                <circle cx="50" cy="50" r="18" fill="#f87171"/>
+                <circle cx="50" cy="50" r="6" fill="#991b1b"/>
+                <!-- 5 tirs d'un MÊME opérateur, très groupés -->
+                <circle cx="49" cy="50" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="52" cy="48" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="50" cy="52" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="51" cy="50" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="48" cy="51" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+              </svg>
+              <span class="block text-xs font-bold text-green-700 mt-1">✓ Bonne EV</span>
+              <span class="text-[10px] text-slate-500">Tirs groupés du même opérateur</span>
+            </div>
+            <div class="text-center">
+              <svg viewBox="0 0 100 100" class="w-full max-w-[110px] mx-auto">
+                <circle cx="50" cy="50" r="45" fill="#e2e8f0"/>
+                <circle cx="50" cy="50" r="32" fill="#cbd5e1"/>
+                <circle cx="50" cy="50" r="18" fill="#f87171"/>
+                <circle cx="50" cy="50" r="6" fill="#991b1b"/>
+                <!-- 5 tirs du MÊME opérateur mais très dispersés (appareil mauvais) -->
+                <circle cx="30" cy="35" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="70" cy="40" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="45" cy="75" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="65" cy="70" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="25" cy="60" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+              </svg>
+              <span class="block text-xs font-bold text-red-600 mt-1">✗ Mauvaise EV</span>
+              <span class="text-[10px] text-slate-500">Même opérateur, tirs dispersés</span>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-700 leading-relaxed">
+            Capacité de l'appareil à donner <strong>le même résultat</strong> quand une même pièce est mesurée plusieurs fois par <strong>la même personne</strong>.<br>
+            <em class="text-blue-700">⚠ Mauvais ⇒ Outil avec jeu, encrassé, environnement perturbant.</em>
+          </p>
+        </div>
+
+        <!-- Bloc AV (Reproductibilité) -->
+        <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
+          <h3 class="text-xl font-bold text-navy-800 mb-2">Reproductibilité (AV)</h3>
+          <p class="text-sm font-semibold text-gold-600 mb-4">Variation due aux OPÉRATEURS</p>
+
+          <!-- Cibles : Bonne vs Mauvaise AV -->
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="text-center">
+              <svg viewBox="0 0 100 100" class="w-full max-w-[110px] mx-auto">
+                <circle cx="50" cy="50" r="45" fill="#e2e8f0"/>
+                <circle cx="50" cy="50" r="32" fill="#cbd5e1"/>
+                <circle cx="50" cy="50" r="18" fill="#f87171"/>
+                <circle cx="50" cy="50" r="6" fill="#991b1b"/>
+                <!-- 3 opérateurs (couleurs), 2 tirs chacun, tous au centre -->
+                <circle cx="46" cy="48" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="49" cy="51" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="52" cy="49" r="3.5" fill="#d97706" stroke="white" stroke-width="0.8"/>
+                <circle cx="54" cy="52" r="3.5" fill="#d97706" stroke="white" stroke-width="0.8"/>
+                <circle cx="50" cy="46" r="3.5" fill="#10b981" stroke="white" stroke-width="0.8"/>
+                <circle cx="48" cy="53" r="3.5" fill="#10b981" stroke="white" stroke-width="0.8"/>
+              </svg>
+              <span class="block text-xs font-bold text-green-700 mt-1">✓ Bonne AV</span>
+              <span class="text-[10px] text-slate-500">3 opérateurs convergent au centre</span>
+            </div>
+            <div class="text-center">
+              <svg viewBox="0 0 100 100" class="w-full max-w-[110px] mx-auto">
+                <circle cx="50" cy="50" r="45" fill="#e2e8f0"/>
+                <circle cx="50" cy="50" r="32" fill="#cbd5e1"/>
+                <circle cx="50" cy="50" r="18" fill="#f87171"/>
+                <circle cx="50" cy="50" r="6" fill="#991b1b"/>
+                <!-- 3 opérateurs, chacun groupé MAIS dans une zone différente -->
+                <circle cx="28" cy="30" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="31" cy="33" r="3.5" fill="#3b82f6" stroke="white" stroke-width="0.8"/>
+                <circle cx="70" cy="32" r="3.5" fill="#d97706" stroke="white" stroke-width="0.8"/>
+                <circle cx="72" cy="35" r="3.5" fill="#d97706" stroke="white" stroke-width="0.8"/>
+                <circle cx="50" cy="75" r="3.5" fill="#10b981" stroke="white" stroke-width="0.8"/>
+                <circle cx="53" cy="73" r="3.5" fill="#10b981" stroke="white" stroke-width="0.8"/>
+              </svg>
+              <span class="block text-xs font-bold text-red-600 mt-1">✗ Mauvaise AV</span>
+              <span class="text-[10px] text-slate-500">Chacun groupé, mais à un endroit différent</span>
+            </div>
+          </div>
+
+          <!-- Légende des couleurs opérateurs -->
+          <div class="flex justify-center gap-3 text-[10px] text-slate-600 mb-3">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>Op. A</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>Op. B</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>Op. C</span>
+          </div>
+
+          <p class="text-sm text-slate-700 leading-relaxed">
+            Différence de moyenne entre les mesures de <strong>différentes personnes</strong> jaugeant la même pièce.<br>
+            <em class="text-amber-700">⚠ Mauvais ⇒ Méthode variable, mauvaise formation, effort de serrage différent.</em>
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-navy-900 text-white p-6 rounded-xl">
+        <h3 class="text-lg font-bold text-gold-500 mb-4">Critères de décision AIAG</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <p class="font-semibold mb-2 text-gold-400">% Gage R&amp;R</p>
+            <ul class="space-y-1 text-slate-300">
+              <li><span class="text-green-400 font-bold">&lt; 10 %</span> : Système acceptable</li>
+              <li><span class="text-amber-400 font-bold">10 – 30 %</span> : Sous conditions</li>
+              <li><span class="text-red-400 font-bold">&gt; 30 %</span> : Non acceptable</li>
+            </ul>
+          </div>
+          <div>
+            <p class="font-semibold mb-2 text-gold-400">ndc — Catégories distinctes</p>
+            <p class="text-slate-300 mb-1">ndc = 1,41 × (PV / GRR)</p>
+            <ul class="space-y-1 text-slate-300">
+              <li><span class="text-green-400 font-bold">≥ 5</span> : Bon pouvoir discriminant</li>
+              <li><span class="text-red-400 font-bold">&lt; 5</span> : Insuffisant</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ONGLET TIR À LA CIBLE ====== -->
+  <div id="tab-cible" class="tab-content" role="tabpanel">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-2xl font-title font-bold text-navy-800 mb-2 border-b border-gold-500 pb-2 inline-block">🎯 Es-tu Juste et Fidèle ?</h2>
+      <p class="text-sm text-slate-500 mb-6">Tire <strong>5 fois</strong> sur la cible en cliquant le plus près possible du centre rouge. L'appli calcule ton biais (justesse) et ta dispersion (fidélité). C'est exactement ce que fait un Gage R&amp;R !</p>
+
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Cible -->
+        <div class="flex-shrink-0 mx-auto">
+          <canvas id="targetCanvas" width="360" height="360" class="bg-slate-50 rounded-xl border-2 border-slate-200"></canvas>
+          <div class="mt-3 flex gap-2 justify-center no-print">
+            <button onclick="resetTarget()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg text-sm">🔄 Recommencer</button>
+            <span id="shotCount" class="px-4 py-2 bg-navy-900 text-white font-bold rounded-lg text-sm">Tir 0 / 5</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="flex-1">
+          <div class="bg-gradient-to-br from-navy-900 to-navy-800 text-white p-5 rounded-xl mb-4">
+            <h3 class="font-title font-bold text-gold-500 mb-3 uppercase text-sm tracking-wider">Tes statistiques</h3>
+            <div class="space-y-3">
+              <div class="flex justify-between items-baseline border-b border-slate-700 pb-2">
+                <span class="text-sm text-slate-300">Biais (Justesse)</span>
+                <span id="targetBias" class="target-stat text-2xl font-bold">—</span>
+              </div>
+              <div class="flex justify-between items-baseline border-b border-slate-700 pb-2">
+                <span class="text-sm text-slate-300">Écart-type (Fidélité)</span>
+                <span id="targetStd" class="target-stat text-2xl font-bold">—</span>
+              </div>
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm text-slate-300">Distance moyenne</span>
+                <span id="targetMean" class="target-stat text-xl">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="targetVerdict" class="hidden p-4 rounded-xl border-2 font-medium text-center">
+            <!-- Verdict dynamique -->
+          </div>
+
+          <div class="mt-4 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg text-sm text-slate-700">
+            <p><strong>💡 Comprendre :</strong></p>
+            <ul class="mt-2 space-y-1 list-disc list-inside text-xs">
+              <li><strong>Biais faible + dispersion faible</strong> = Juste & Fidèle ✅</li>
+              <li><strong>Biais élevé + dispersion faible</strong> = Étalonnage requis ⚠</li>
+              <li><strong>Dispersion élevée</strong> = Le R&amp;R échouera ❌</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ONGLET 2 : SIMULATEUR ====== -->
+  <div id="tab-simu" class="tab-content" role="tabpanel">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-2xl font-title font-bold text-navy-800 mb-2 border-b border-gold-500 pb-2 inline-block">Démonstrateur Visuel</h2>
+      <p class="text-sm text-slate-500 mb-4">Chaque scénario simule 3 opérateurs (A, B, C) mesurant 4 fois la même pièce. Compare les schémas pour identifier l'origine du problème.</p>
+
+      <!-- Guide de lecture -->
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 rounded-r-lg text-sm">
+        <p class="font-bold text-navy-900 mb-2">📖 Comment lire le simulateur ?</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-slate-700 text-xs">
+          <div class="flex items-start gap-2">
+            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500 mt-0.5"></span>
+            <div><strong>Couleurs</strong> = opérateurs différents (A bleu, B orange, C vert). Un groupe de 4 points = 4 essais d'un même opérateur sur la même pièce.</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="flex-shrink-0 w-5 h-1 bg-slate-400 mt-2 border-dashed"></span>
+            <div><strong>Ligne pointillée</strong> = la <em>vraie</em> valeur de la pièce (référence absolue). Les mesures devraient s'aligner dessus.</div>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="flex-shrink-0 mt-0.5">📊</span>
+            <div><strong>Histogramme bas</strong> = % d'erreur attribuable à chaque cause (EV, AV, R&amp;R total). Vert = bon, orange = limite, rouge = problème.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col lg:flex-row gap-8">
+        <div class="w-full lg:w-1/3">
+          <h3 class="font-bold text-navy-800 mb-3 text-sm uppercase tracking-wider">🔬 Choisis un scénario</h3>
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="runSimulation('good')" class="p-3 bg-green-50 hover:bg-green-100 border border-green-200 text-green-800 rounded-xl text-sm font-semibold text-left flex flex-col">
+              <span>✅ Processus Validé</span><span class="text-xs font-normal opacity-80 mt-2">Juste et Fidèle</span>
+            </button>
+            <button onclick="runSimulation('bad-ev')" class="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 rounded-xl text-sm font-semibold text-left flex flex-col">
+              <span>🔧 Défaut Appareil</span><span class="text-xs font-normal opacity-80 mt-2">EV — Outil imprécis</span>
+            </button>
+            <button onclick="runSimulation('bad-av')" class="p-3 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-xl text-sm font-semibold text-left flex flex-col">
+              <span>👥 Défaut Opérateurs</span><span class="text-xs font-normal opacity-80 mt-2">AV — Méthodes différentes</span>
+            </button>
+            <button onclick="runSimulation('bad-bias')" class="p-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-800 rounded-xl text-sm font-semibold text-left flex flex-col">
+              <span>📐 Erreur de Justesse</span><span class="text-xs font-normal opacity-80 mt-2">Biais (R&amp;R OK !)</span>
+            </button>
+          </div>
+          <div id="simu-explication" class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 min-h-[200px]">
+            <p class="text-slate-500 italic">Cliquez sur un scénario pour voir l'impact visuel et son analyse pédagogique complète.</p>
+          </div>
+        </div>
+
+        <div class="w-full lg:w-2/3 flex flex-col gap-4">
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 relative">
+            <span class="absolute top-2 left-3 text-xs font-bold text-slate-400 z-10">📍 3 Opérateurs (A bleu • B orange • C vert) × 4 Essais</span>
+            <canvas id="simuCanvas" width="600" height="200" class="w-full h-auto bg-white rounded-lg"></canvas>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 relative">
+            <p class="text-xs text-slate-500 mb-2 text-center"><strong>📊 % d'erreur du système de mesure</strong> — Plus c'est bas, mieux c'est. Seuils AIAG : &lt;10 % ✅ | 10–30 % ⚠ | &gt;30 % ❌</p>
+            <div class="h-40">
+              <canvas id="simuChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tableau récapitulatif des 4 scénarios -->
+      <div class="mt-8 bg-slate-50 p-5 rounded-xl border border-slate-200">
+        <h3 class="font-title font-bold text-navy-900 mb-4 text-center">🧭 Mémo : reconnaître un problème en un coup d'œil</h3>
+        <div class="overflow-x-auto hide-scroll">
+          <table class="w-full text-sm border-collapse">
+            <thead>
+              <tr class="bg-navy-900 text-white">
+                <th class="p-3 text-left rounded-tl-lg">Scénario</th>
+                <th class="p-3 text-left">Ce que tu vois</th>
+                <th class="p-3 text-left">Pourquoi</th>
+                <th class="p-3 text-left rounded-tr-lg">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white">
+              <tr class="border-b border-slate-200">
+                <td class="p-3 font-bold text-green-700">✅ Validé</td>
+                <td class="p-3 text-slate-600">Tous les points groupés sur la ligne</td>
+                <td class="p-3 text-slate-600">Appareil bon, opérateurs alignés</td>
+                <td class="p-3 text-slate-600">Rien à faire — mesurer en confiance</td>
+              </tr>
+              <tr class="border-b border-slate-200 bg-slate-50">
+                <td class="p-3 font-bold text-blue-700">🔧 EV élevé</td>
+                <td class="p-3 text-slate-600">Points dispersés <strong>verticalement</strong> dans chaque groupe</td>
+                <td class="p-3 text-slate-600">L'appareil ne re-mesure pas pareil</td>
+                <td class="p-3 text-slate-600">Vérifier l'instrument (jeu, usure, propreté)</td>
+              </tr>
+              <tr class="border-b border-slate-200">
+                <td class="p-3 font-bold text-amber-700">👥 AV élevé</td>
+                <td class="p-3 text-slate-600">Chaque groupe est compact mais à <strong>une hauteur différente</strong></td>
+                <td class="p-3 text-slate-600">Opérateurs interprètent différemment</td>
+                <td class="p-3 text-slate-600">Former / standardiser la méthode</td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="p-3 font-bold text-purple-700">📐 Biais</td>
+                <td class="p-3 text-slate-600">Points groupés et alignés, mais <strong>tous au-dessus/dessous</strong> de la ligne</td>
+                <td class="p-3 text-slate-600">Instrument déréglé (Gage R&amp;R ne le voit pas !)</td>
+                <td class="p-3 text-slate-600">Étalonner contre un étalon de référence</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ONGLET 3 : CALCULATEUR ====== -->
+  <div id="tab-appli" class="tab-content" role="tabpanel">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+      <h2 class="text-2xl font-title font-bold text-navy-800 mb-6 border-b border-gold-500 pb-2 inline-block">Calculateur R&amp;R Industriel</h2>
+
+      <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-6">
+        <div class="flex flex-wrap gap-4 items-end">
+          <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1" for="numParts">Pièces (n)</label>
+            <input type="number" id="numParts" value="10" min="2" max="20" class="w-20 p-2 border border-slate-300 rounded-lg text-center font-bold text-navy-900">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1" for="numOps">Opérateurs (k)</label>
+            <input type="number" id="numOps" value="3" min="2" max="3" class="w-20 p-2 border border-slate-300 rounded-lg text-center font-bold text-navy-900">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1" for="numTrials">Essais (r)</label>
+            <input type="number" id="numTrials" value="2" min="2" max="3" class="w-20 p-2 border border-slate-300 rounded-lg text-center font-bold text-navy-900">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1" for="tolUSL">LSS (USL)</label>
+            <input type="number" step="any" id="tolUSL" placeholder="—" class="w-24 p-2 border border-slate-300 rounded-lg text-center text-navy-900">
+          </div>
+          <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-500 uppercase mb-1" for="tolLSL">LSI (LSL)</label>
+            <input type="number" step="any" id="tolLSL" placeholder="—" class="w-24 p-2 border border-slate-300 rounded-lg text-center text-navy-900">
+          </div>
+
+          <div class="flex flex-wrap gap-2 ml-auto no-print">
+            <button onclick="generateGrid()" class="px-4 py-2.5 bg-navy-800 hover:bg-navy-700 text-white font-semibold rounded-lg shadow-md">1. Grille</button>
+            <button onclick="fillRandomData()" class="px-3 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg">Test</button>
+            <button onclick="calculateRR()" class="px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg shadow-md">2. Analyser</button>
+            <button onclick="exportCSV()" class="px-3 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg">CSV</button>
+            <button onclick="window.print()" class="px-3 py-2.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg">PDF</button>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-3">💡 Renseigner les tolérances (LSS/LSI) active le calcul du <strong>% R&amp;R vs Tolérance</strong>.</p>
+      </div>
+
+      <div id="tableContainer" class="overflow-x-auto hide-scroll rounded-xl border border-slate-200 shadow-sm mb-6 pb-2">
+        <p class="text-center text-slate-400 italic py-8">Cliquez sur "Grille" pour commencer.</p>
+      </div>
+
+      <div id="error-msg" class="hidden bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 mb-6 font-medium" role="alert"></div>
+
+      <div id="resultsPanel" class="hidden">
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
+          <div class="bg-white p-3 rounded-xl border-l-4 border-blue-400 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">Équipement (EV)</span>
+            <span id="resEV" class="text-lg font-bold text-navy-900">—</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border-l-4 border-amber-400 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">Opérateurs (AV)</span>
+            <span id="resAV" class="text-lg font-bold text-navy-900">—</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border-l-4 border-slate-400 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">Gage R&amp;R</span>
+            <span id="resGRR" class="text-lg font-bold text-navy-900">—</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border-l-4 border-slate-400 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">Pièces (PV)</span>
+            <span id="resPV" class="text-lg font-bold text-navy-900">—</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border-l-4 border-gold-500 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">% R&amp;R / VT</span>
+            <span id="resPercent" class="text-xl font-title font-bold text-navy-900">—</span>
+          </div>
+          <div class="bg-white p-3 rounded-xl border-l-4 border-purple-500 shadow-sm">
+            <span class="block text-[10px] font-bold text-slate-500 uppercase">ndc</span>
+            <span id="resNDC" class="text-xl font-title font-bold text-navy-900">—</span>
+          </div>
+        </div>
+
+        <div id="toleranceBox" class="hidden bg-white p-4 rounded-xl border-2 border-dashed border-slate-300 mb-6">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="block text-xs font-bold text-slate-500 uppercase">% R&amp;R / Tolérance</span>
+              <span id="resPercentTol" class="text-2xl font-title font-bold text-navy-900">—</span>
+            </div>
+            <div class="text-sm text-slate-600">
+              Tolérance = <span id="resTol" class="font-bold">—</span><br>
+              <span class="text-xs">Calcul : (GRR / Tolérance) × 100</span>
+            </div>
+            <div id="tolVerdict" class="px-4 py-2 rounded-lg font-semibold">—</div>
+          </div>
+        </div>
+
+        <div id="conclusionBox" class="p-5 rounded-xl border-2 font-medium text-lg text-center shadow-sm"></div>
+
+        <div id="chartsContainer" class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 hidden">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+            <h3 class="text-center font-title font-bold text-navy-900 mb-1">Composantes de la Variation</h3>
+            <p class="text-center text-xs text-slate-500 mb-4">% rapporté à la Variation Totale.</p>
+            <canvas id="varianceChart" height="200"></canvas>
+          </div>
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-md">
+            <h3 class="text-center font-title font-bold text-navy-900 mb-1">Interaction Opérateurs × Pièces</h3>
+            <p class="text-center text-xs text-slate-500 mb-4">Lignes non parallèles ⇒ problème AV.</p>
+            <canvas id="interactionChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ONGLET QUIZ ====== -->
+  <div id="tab-quiz" class="tab-content" role="tabpanel">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200">
+
+      <!-- État initial : intro -->
+      <div id="quizIntro">
+        <h2 class="text-2xl font-title font-bold text-navy-800 mb-2 border-b border-gold-500 pb-2 inline-block">🎓 Quiz de Certification MSA</h2>
+        <p class="text-slate-600 mb-6">Teste tes connaissances en 10 questions sur la méthode Gage R&amp;R. À la clé : un certificat imprimable !</p>
+
+        <div class="bg-gradient-to-br from-navy-900 to-navy-800 text-white p-6 rounded-xl mb-6">
+          <h3 class="font-title font-bold text-gold-500 mb-4">📋 Règles du jeu</h3>
+          <ul class="space-y-2 text-sm">
+            <li>✅ <strong>10 questions</strong> à choix multiples</li>
+            <li>⏱️ Aucune limite de temps — prends ton temps</li>
+            <li>🏆 Score ≥ 8/10 = <strong>Certificat Bronze</strong></li>
+            <li>🥈 Score ≥ 9/10 = <strong>Certificat Argent</strong></li>
+            <li>🥇 Score 10/10 = <strong>Certificat Or</strong></li>
+            <li>🎯 Tu peux recommencer autant de fois que tu veux</li>
+          </ul>
+        </div>
+
+        <div class="text-center">
+          <button onclick="startQuiz()" class="px-8 py-4 bg-gold-500 hover:bg-gold-600 text-white font-title font-bold rounded-xl shadow-lg text-lg transition-transform hover:scale-105">
+            🚀 Commencer le quiz
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz en cours -->
+      <div id="quizGame" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-sm font-semibold text-slate-600">Question <span id="qNum">1</span> / 10</span>
+          <span class="text-sm font-bold text-navy-900">Score : <span id="qScore">0</span></span>
+        </div>
+        <div class="w-full bg-slate-200 rounded-full h-2 mb-6 overflow-hidden">
+          <div id="quizProgress" class="progress-fill bg-gold-500 h-2 rounded-full" style="width:0%"></div>
+        </div>
+
+        <div id="quizQuestion" class="bg-navy-900 text-white p-5 rounded-xl mb-4 font-title font-bold text-lg">
+          <!-- Question dynamique -->
+        </div>
+
+        <div id="quizOptions" class="space-y-3">
+          <!-- Options dynamiques -->
+        </div>
+
+        <div id="quizFeedback" class="hidden mt-4 p-4 rounded-xl text-sm"></div>
+
+        <div class="mt-6 text-right">
+          <button id="quizNext" onclick="nextQuestion()" class="hidden px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg shadow">
+            Question suivante →
+          </button>
+        </div>
+      </div>
+
+      <!-- Résultat final -->
+      <div id="quizResult" class="hidden">
+        <!-- Certificat dynamique -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// =====================================================
+// CONSTANTES MSA — AIAG 4e éd. (base 6σ)
+// =====================================================
+const K1_TABLE = { 2: 0.8862, 3: 0.5908 };
+const K2_TABLE = { 2: 0.7071, 3: 0.5231 };
+const K3_TABLE = {
+  2:0.7071, 3:0.5231, 4:0.4467, 5:0.4030, 6:0.3742,
+  7:0.3534, 8:0.3375, 9:0.3249, 10:0.3146,
+  11:0.3062, 12:0.2989, 13:0.2926, 14:0.2870, 15:0.2820,
+  16:0.2775, 17:0.2734, 18:0.2697, 19:0.2662, 20:0.2630
+};
+
+const state = {
+  parts: 10, ops: 3, trials: 2,
+  USL: null, LSL: null,
+  lastResults: null,
+  currentTab: 'tab-theorie'
+};
+let simuAnimationId = null;
+let simChartInstance = null;
+let varianceChartInstance = null;
+let interactionChartInstance = null;
+
+// =====================================================
+// MASCOTTE PICO
+// =====================================================
+const PICO_MESSAGES = {
+  'tab-theorie': [
+    "Bienvenue ! Le MSA, ça sert à vérifier si ton instrument de mesure dit la vérité. Sans ça, tu prends des décisions sur du sable mouvant !",
+    "Astuce : la <strong>justesse</strong>, c'est viser le centre. La <strong>fidélité</strong>, c'est grouper tes tirs. Va dans 🎯 Tir Cible pour le voir !",
+    "Un Gage R&R ne détecte pas un biais ! Il faut un étalon de référence pour ça. Souviens-toi en pour le quiz 😉"
+  ],
+  'tab-cible': [
+    "Tire 5 fois et regarde tes stats. Si ton biais est élevé mais ton écart-type faible, tu es comme une mire déréglée : précis mais à côté !",
+    "Plus tu cliques près du centre, plus tu es <strong>juste</strong>. Plus tes clics sont groupés, plus tu es <strong>fidèle</strong>."
+  ],
+  'tab-simu': [
+    "Le scénario 'Erreur de Justesse' est piégeux : le R&R sera excellent mais les mesures sont fausses ! C'est tout le problème du biais.",
+    "Regarde les paliers verticaux entre opérateurs : si grands paliers = mauvaise AV (reproductibilité)."
+  ],
+  'tab-appli': [
+    "Astuce : 10 pièces × 3 opérateurs × 2 essais = 60 mesures. C'est le standard AIAG. Moins, c'est statistiquement faible.",
+    "ndc ≥ 5 ET %R&R < 30 % : ce sont les <strong>deux</strong> conditions. Beaucoup oublient ndc !",
+    "Si AV >> EV : forme tes opérateurs. Si EV >> AV : change l'instrument. Simple comme ça !"
+  ],
+  'tab-quiz': [
+    "Prends ton temps, lis bien les questions. En cas de doute, repasse par les onglets théorie !",
+    "Score 10/10 = certificat Or 🥇 Allez, tu peux le faire !"
+  ]
+};
+
+function togglePico() {
+  const bubble = document.getElementById('pico-bubble');
+  const btn = document.getElementById('pico-btn');
+  if (bubble.classList.contains('hidden')) {
+    const msgs = PICO_MESSAGES[state.currentTab] || PICO_MESSAGES['tab-theorie'];
+    document.getElementById('pico-text').innerHTML = msgs[Math.floor(Math.random() * msgs.length)];
+    bubble.classList.remove('hidden');
+    btn.classList.remove('pico-pulse');
+  } else {
+    bubble.classList.add('hidden');
+  }
+}
+
+function picoSay(message, autoOpen = true) {
+  document.getElementById('pico-text').innerHTML = message;
+  if (autoOpen) {
+    document.getElementById('pico-bubble').classList.remove('hidden');
+    document.getElementById('pico-btn').classList.remove('pico-pulse');
+    setTimeout(() => {
+      document.getElementById('pico-btn').classList.add('pico-pulse');
+    }, 8000);
+  }
+}
+
+// =====================================================
+// ONGLETS
+// =====================================================
+function switchTab(tabId) {
+  state.currentTab = tabId;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => {
+    el.classList.remove('active','bg-white','text-navy-800','border-t','border-l','border-r','shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]');
+    el.classList.add('text-slate-500','hover:bg-slate-100');
+    el.setAttribute('aria-selected','false');
+  });
+  document.getElementById(tabId).classList.add('active');
+  const btn = document.getElementById('btn-' + tabId);
+  btn.classList.remove('text-slate-500','hover:bg-slate-100');
+  btn.classList.add('active','bg-white','text-navy-800','border-t','border-l','border-r','shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]');
+  btn.setAttribute('aria-selected','true');
+
+  // Init contextuelle
+  if (tabId === 'tab-cible') initTarget();
+}
+
+// =====================================================
+// TIR À LA CIBLE
+// =====================================================
+const targetCanvas = document.getElementById('targetCanvas');
+const targetCtx = targetCanvas.getContext('2d');
+const targetState = { shots: [], center: { x: 180, y: 180 } };
+
+function drawTarget() {
+  const ctx = targetCtx;
+  const cx = targetState.center.x;
+  const cy = targetState.center.y;
+  ctx.clearRect(0, 0, 360, 360);
+
+  // Anneaux
+  const rings = [
+    { r: 160, color: '#e2e8f0' },
+    { r: 130, color: '#cbd5e1' },
+    { r: 100, color: '#94a3b8' },
+    { r: 70,  color: '#fca5a5' },
+    { r: 40,  color: '#f87171' },
+    { r: 15,  color: '#dc2626' }
+  ];
+  rings.forEach(ring => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
+    ctx.fillStyle = ring.color;
+    ctx.fill();
+  });
+  // Croix centrale
+  ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - 10, cy); ctx.lineTo(cx + 10, cy);
+  ctx.moveTo(cx, cy - 10); ctx.lineTo(cx, cy + 10);
+  ctx.stroke();
+
+  // Tirs
+  targetState.shots.forEach((shot, i) => {
+    ctx.beginPath();
+    ctx.arc(shot.x, shot.y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#1e3a8a';
+    ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(i + 1, shot.x, shot.y);
+  });
+}
+
+function initTarget() {
+  drawTarget();
+}
+
+function resetTarget() {
+  targetState.shots = [];
+  drawTarget();
+  document.getElementById('shotCount').innerText = 'Tir 0 / 5';
+  document.getElementById('targetBias').innerText = '—';
+  document.getElementById('targetStd').innerText  = '—';
+  document.getElementById('targetMean').innerText = '—';
+  document.getElementById('targetBias').className = 'target-stat text-2xl font-bold';
+  document.getElementById('targetStd').className  = 'target-stat text-2xl font-bold';
+  document.getElementById('targetVerdict').classList.add('hidden');
+}
+
+targetCanvas.addEventListener('click', (e) => {
+  if (targetState.shots.length >= 5) return;
+  const rect = targetCanvas.getBoundingClientRect();
+  const scaleX = targetCanvas.width / rect.width;
+  const scaleY = targetCanvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  targetState.shots.push({ x, y });
+  drawTarget();
+  document.getElementById('shotCount').innerText = `Tir ${targetState.shots.length} / 5`;
+  updateTargetStats();
+});
+
+function updateTargetStats() {
+  const shots = targetState.shots;
+  if (shots.length === 0) return;
+
+  // Distance euclidienne au centre
+  const dists = shots.map(s => Math.hypot(s.x - targetState.center.x, s.y - targetState.center.y));
+  const meanDist = dists.reduce((a,b)=>a+b,0) / dists.length;
+
+  // Biais = distance de la moyenne des tirs au centre
+  const meanX = shots.reduce((a,s)=>a+s.x,0) / shots.length;
+  const meanY = shots.reduce((a,s)=>a+s.y,0) / shots.length;
+  const bias = Math.hypot(meanX - targetState.center.x, meanY - targetState.center.y);
+
+  // Écart-type des tirs (dispersion par rapport à leur propre moyenne)
+  let sum = 0;
+  shots.forEach(s => { sum += Math.pow(Math.hypot(s.x - meanX, s.y - meanY), 2); });
+  const std = shots.length > 1 ? Math.sqrt(sum / (shots.length - 1)) : 0;
+
+  const biasEl = document.getElementById('targetBias');
+  const stdEl = document.getElementById('targetStd');
+  biasEl.innerText = bias.toFixed(1) + ' px';
+  stdEl.innerText  = std.toFixed(1)  + ' px';
+  document.getElementById('targetMean').innerText = meanDist.toFixed(1) + ' px';
+
+  // Coloration
+  biasEl.className = 'target-stat text-2xl font-bold ' + (bias < 20 ? 'stat-good' : bias < 50 ? 'stat-mid' : 'stat-bad');
+  stdEl.className  = 'target-stat text-2xl font-bold ' + (std < 15 ? 'stat-good' : std < 35 ? 'stat-mid' : 'stat-bad');
+
+  // Verdict à 5 tirs
+  if (shots.length === 5) {
+    const v = document.getElementById('targetVerdict');
+    let label, css, msg;
+    if (bias < 25 && std < 20) {
+      label = '✅ Juste ET Fidèle'; css = 'bg-green-50 border-green-300 text-green-800';
+      msg = "Bravo ! Tu es un excellent tireur. Tes mesures seraient parfaites pour un Gage R&R.";
+    } else if (bias >= 25 && std < 20) {
+      label = '⚠️ Fidèle mais NON Juste (Biais)'; css = 'bg-amber-50 border-amber-300 text-amber-800';
+      msg = "Tu es précis (tirs groupés) mais décalé. C'est un problème de <strong>justesse</strong> — étalonnage requis. Mais ton R&R serait bon !";
+    } else if (bias < 25 && std >= 20) {
+      label = '❌ Juste mais NON Fidèle'; css = 'bg-red-50 border-red-300 text-red-800';
+      msg = "Tes tirs sont centrés en moyenne, mais dispersés. C'est un problème de <strong>fidélité</strong>. Ton R&R serait MAUVAIS.";
+    } else {
+      label = '❌ Ni Juste, Ni Fidèle'; css = 'bg-red-50 border-red-300 text-red-800';
+      msg = "Aïe ! Décalé ET dispersé. Recommence ou repère-toi mieux 🎯";
+    }
+    v.className = 'p-4 rounded-xl border-2 font-medium text-center ' + css;
+    v.innerHTML = `<div class="font-title font-bold text-lg mb-2">${label}</div><div class="text-sm">${msg}</div>`;
+    v.classList.remove('hidden');
+    picoSay("Tu vois ? C'est exactement ce que mesure un Gage R&R : la dispersion (fidélité). Le biais n'est PAS détecté par la méthode !", true);
+  }
+}
+
+// =====================================================
+// SIMULATEUR (onglet 2)
+// =====================================================
+const simuCanvas = document.getElementById('simuCanvas');
+const simuCtx = simuCanvas.getContext('2d');
+const opColors = ['#3b82f6','#f59e0b','#10b981'];
+
+function drawSimulation(scenario) {
+  simuCtx.clearRect(0, 0, simuCanvas.width, simuCanvas.height);
+
+  // Ligne de référence (vraie valeur)
+  simuCtx.beginPath();
+  simuCtx.moveTo(0, 100); simuCtx.lineTo(600, 100);
+  simuCtx.strokeStyle = '#94a3b8'; simuCtx.setLineDash([5,5]);
+  simuCtx.lineWidth = 1.5;
+  simuCtx.stroke(); simuCtx.setLineDash([]);
+  simuCtx.font = "bold 11px sans-serif"; simuCtx.fillStyle = "#475569";
+  simuCtx.fillText("← Valeur réelle (cible)", 10, 95);
+
+  // Axe Y stylisé : "trop haut" / "trop bas"
+  simuCtx.font = "10px sans-serif"; simuCtx.fillStyle = "#94a3b8";
+  simuCtx.fillText("▲ Sur-mesure", 540, 25);
+  simuCtx.fillText("▼ Sous-mesure", 540, 185);
+
+  let r_ev = 0, r_av_offsets = [0,0,0], bias = 0;
+  if (scenario === 'good')      { r_ev = 5;  r_av_offsets = [-2, 4, -1]; }
+  else if (scenario === 'bad-ev') { r_ev = 40; r_av_offsets = [0, 5, -5]; }
+  else if (scenario === 'bad-av') { r_ev = 5;  r_av_offsets = [-35, 40, -10]; }
+  else if (scenario === 'bad-bias'){ r_ev = 5;  r_av_offsets = [-2, 4, -1]; bias = 60; }
+
+  let evVals = [], avVals = [];
+  const opLabels = ['A','B','C'];
+
+  for (let op = 0; op < 3; op++) {
+    const opBaseX = 150 + op * 150;
+    const opAvgs = [];
+
+    // Label opérateur sous chaque groupe
+    simuCtx.font = "bold 13px sans-serif";
+    simuCtx.fillStyle = opColors[op];
+    simuCtx.fillText("Op. " + opLabels[op], opBaseX - 22, 195);
+
+    for (let trial = 0; trial < 4; trial++) {
+      const noise = (Math.random() - 0.5) * 2 * r_ev;
+      const y = 100 + r_av_offsets[op] + noise - bias;
+      simuCtx.beginPath();
+      simuCtx.arc(opBaseX + (trial*15) - 22, y, 6, 0, Math.PI * 2);
+      simuCtx.fillStyle = opColors[op]; simuCtx.fill();
+      simuCtx.strokeStyle = 'white'; simuCtx.lineWidth = 1.5;
+      simuCtx.stroke();
+      opAvgs.push(r_av_offsets[op] + noise);
+    }
+    const opMean = opAvgs.reduce((a,b)=>a+b,0)/4;
+    avVals.push(opMean);
+    evVals.push(Math.max(...opAvgs) - Math.min(...opAvgs));
+  }
+  updateSimChart(evVals, avVals);
+}
+
+function updateSimChart(evVals, avVals) {
+  const evAvg = evVals.reduce((a,b)=>a+b,0)/evVals.length;
+  const avDiff = Math.max(...avVals) - Math.min(...avVals);
+  const simEV = evAvg * 3.5;
+  const simAV = avDiff * 2.7;
+  const simGRR = Math.sqrt(simEV*simEV + simAV*simAV);
+  const simPV = 150;
+  const simTV = Math.sqrt(simGRR*simGRR + simPV*simPV);
+  const pEV = (simEV/simTV)*100;
+  const pAV = (simAV/simTV)*100;
+  const pGRR = (simGRR/simTV)*100;
+
+  const ctx = document.getElementById('simuChart').getContext('2d');
+  if (simChartInstance) simChartInstance.destroy();
+  simChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['EV','AV','% R&R'],
+      datasets: [{
+        data: [pEV, pAV, pGRR],
+        backgroundColor: [
+          'rgba(59,130,246,0.7)',
+          'rgba(245,158,11,0.7)',
+          pGRR > 30 ? 'rgba(239,68,68,0.9)' : (pGRR > 10 ? 'rgba(245,158,11,0.9)' : 'rgba(16,185,129,0.9)')
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 100 } },
+      plugins: { legend: { display: false } },
+      animation: { duration: 400 }
+    }
+  });
+}
+
+function runSimulation(scenario) {
+  const explication = document.getElementById('simu-explication');
+  const msgs = {
+    'good': `
+      <div class="font-title font-bold text-green-700 text-base mb-3 flex items-center gap-2">
+        <span class="bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">✓</span>
+        Processus Validé
+      </div>
+      <div class="space-y-2 text-xs">
+        <div><strong class="text-slate-700">👁️ Observation :</strong> <span class="text-slate-600">Les 3 groupes de couleurs sont compacts ET centrés autour de la ligne pointillée.</span></div>
+        <div><strong class="text-slate-700">🔬 Pourquoi :</strong> <span class="text-slate-600">L'appareil est fiable (faible EV) et tous les opérateurs interprètent la mesure de la même façon (faible AV).</span></div>
+        <div><strong class="text-slate-700">🎯 Verdict :</strong> <span class="text-green-700 font-semibold">%R&R &lt; 10 % — Système accepté par AIAG.</span></div>
+        <div class="mt-3 pt-2 border-t border-slate-200 text-slate-500 italic">💡 C'est l'objectif à atteindre. Tes décisions qualité reposent sur du solide.</div>
+      </div>`,
+
+    'bad-ev': `
+      <div class="font-title font-bold text-blue-700 text-base mb-3 flex items-center gap-2">
+        <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">🔧</span>
+        Défaut Appareil (EV élevé)
+      </div>
+      <div class="space-y-2 text-xs">
+        <div><strong class="text-slate-700">👁️ Observation :</strong> <span class="text-slate-600">Chaque groupe de couleur est <strong>éclaté verticalement</strong>. Les 4 essais d'un même opérateur donnent des valeurs très différentes.</span></div>
+        <div><strong class="text-slate-700">🔬 Pourquoi :</strong> <span class="text-slate-600">Même la même personne avec la même pièce n'arrive pas à reproduire sa mesure. L'instrument est en cause : jeu mécanique, capteur usé, environnement instable (température, vibrations).</span></div>
+        <div><strong class="text-slate-700">🛠️ Solution :</strong> <span class="text-slate-600">Maintenance / remplacement de l'instrument. Vérifier les conditions ambiantes. Contrôler la pression de mesure.</span></div>
+        <div><strong class="text-slate-700">🎯 Verdict :</strong> <span class="text-red-600 font-semibold">%R&R élevé — Système rejeté. EV domine.</span></div>
+      </div>`,
+
+    'bad-av': `
+      <div class="font-title font-bold text-amber-700 text-base mb-3 flex items-center gap-2">
+        <span class="bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">👥</span>
+        Défaut Opérateurs (AV élevé)
+      </div>
+      <div class="space-y-2 text-xs">
+        <div><strong class="text-slate-700">👁️ Observation :</strong> <span class="text-slate-600">Chaque groupe de couleur est <strong>compact</strong> (l'appareil marche !), mais les groupes sont à des <strong>hauteurs différentes</strong>. Op. A mesure trop bas, Op. B mesure trop haut.</span></div>
+        <div><strong class="text-slate-700">🔬 Pourquoi :</strong> <span class="text-slate-600">L'instrument fonctionne, mais les opérateurs ne s'en servent pas pareil : positionnement de la pièce, force de serrage, lecture de l'échelle, interprétation du contact.</span></div>
+        <div><strong class="text-slate-700">🛠️ Solution :</strong> <span class="text-slate-600">Standardiser la méthode (mode opératoire écrit), former les opérateurs, mettre en place des gabarits de positionnement.</span></div>
+        <div><strong class="text-slate-700">🎯 Verdict :</strong> <span class="text-red-600 font-semibold">%R&R élevé — Système rejeté. AV domine.</span></div>
+      </div>`,
+
+    'bad-bias': `
+      <div class="font-title font-bold text-purple-700 text-base mb-3 flex items-center gap-2">
+        <span class="bg-purple-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">📐</span>
+        Erreur de Justesse (Biais)
+      </div>
+      <div class="space-y-2 text-xs">
+        <div><strong class="text-slate-700">👁️ Observation :</strong> <span class="text-slate-600">Tous les groupes sont compacts et alignés <strong>entre eux</strong>… mais <strong>décalés en bloc</strong> par rapport à la ligne pointillée (valeur vraie).</span></div>
+        <div><strong class="text-slate-700">🔬 Pourquoi :</strong> <span class="text-slate-600">L'instrument est précis (répétabilité OK) et tous l'utilisent pareil (reproductibilité OK), mais il est <strong>déréglé</strong> par rapport au zéro réel.</span></div>
+        <div class="bg-purple-100 border border-purple-300 rounded p-2 my-2">
+          <strong class="text-purple-900">⚠ PIÈGE CLASSIQUE :</strong>
+          <span class="text-purple-800">Le %R&R sera EXCELLENT, le système semble validé… mais toutes tes mesures sont fausses ! Le Gage R&R <strong>ne détecte pas le biais</strong>.</span>
+        </div>
+        <div><strong class="text-slate-700">🛠️ Solution :</strong> <span class="text-slate-600">Étalonner contre un étalon de référence certifié. Faire une étude de biais ou de linéarité <em>en plus</em> du R&R.</span></div>
+        <div><strong class="text-slate-700">🎯 Verdict :</strong> <span class="text-amber-600 font-semibold">R&R OK trompeur — Étalonnage requis !</span></div>
+      </div>`
+  };
+  explication.innerHTML = msgs[scenario] || '';
+
+  let count = 0;
+  if (simuAnimationId) clearInterval(simuAnimationId);
+  simuAnimationId = setInterval(() => {
+    drawSimulation(scenario);
+    count++;
+    if (count > 4) clearInterval(simuAnimationId);
+  }, 150);
+}
+
+// =====================================================
+// CALCULATEUR (onglet 3)
+// =====================================================
+function showError(msg) {
+  const errBox = document.getElementById('error-msg');
+  if (msg) { errBox.innerText = msg; errBox.classList.remove('hidden'); }
+  else { errBox.classList.add('hidden'); }
+}
+
+function readConfig() {
+  const n = parseInt(document.getElementById('numParts').value, 10);
+  const k = parseInt(document.getElementById('numOps').value, 10);
+  const r = parseInt(document.getElementById('numTrials').value, 10);
+  if (!Number.isFinite(n) || n < 2 || n > 20) { showError("Pièces : entre 2 et 20."); return null; }
+  if (!Number.isFinite(k) || k < 2 || k > 3)  { showError("Opérateurs : 2 ou 3."); return null; }
+  if (!Number.isFinite(r) || r < 2 || r > 3)  { showError("Essais : 2 ou 3."); return null; }
+  showError("");
+  return { n, k, r };
+}
+
+function generateGrid() {
+  const cfg = readConfig();
+  if (!cfg) return;
+  state.parts = cfg.n; state.ops = cfg.k; state.trials = cfg.r;
+
+  let html = '<table class="w-full border-collapse bg-white text-sm"><thead class="bg-slate-100 border-b-2 border-slate-200"><tr><th class="p-3 text-left font-bold text-slate-600 border-r border-slate-200">Pièce #</th>';
+  for (let o = 1; o <= cfg.k; o++) {
+    for (let t = 1; t <= cfg.r; t++) {
+      html += `<th class="p-3 text-center font-semibold text-slate-600 border-r border-slate-200">Op. ${String.fromCharCode(64+o)}<br><span class="text-xs font-normal text-slate-400">Essai ${t}</span></th>`;
+    }
+  }
+  html += '</tr></thead><tbody>';
+  for (let p = 1; p <= cfg.n; p++) {
+    const bg = p % 2 === 0 ? 'bg-slate-50' : 'bg-white';
+    html += `<tr class="${bg} border-b border-slate-100 hover:bg-blue-50"><td class="p-3 font-bold text-navy-900 border-r border-slate-200 text-center">${p}</td>`;
+    for (let o = 1; o <= cfg.k; o++) {
+      for (let t = 1; t <= cfg.r; t++) {
+        html += `<td class="p-1 border-r border-slate-200"><input type="number" step="any" inputmode="decimal" class="measure-input w-full p-2 text-center text-base bg-transparent border-none" data-op="${o}" data-trial="${t}" data-part="${p}" aria-label="Pièce ${p} Op ${o} Essai ${t}"></td>`;
+      }
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('tableContainer').innerHTML = html;
+  document.getElementById('resultsPanel').classList.add('hidden');
+  document.getElementById('chartsContainer').classList.add('hidden');
+  document.getElementById('toleranceBox').classList.add('hidden');
+
+  document.querySelectorAll('.measure-input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const v = e.target.value;
+      if (v !== '' && !Number.isFinite(parseFloat(v))) e.target.classList.add('invalid');
+      else e.target.classList.remove('invalid');
+    });
+  });
+}
+
+function fillRandomData() {
+  let inputs = document.querySelectorAll('.measure-input');
+  if (inputs.length === 0) {
+    generateGrid();
+    inputs = document.querySelectorAll('.measure-input');
+    if (inputs.length === 0) return;
+  }
+  inputs.forEach(input => {
+    const base = parseInt(input.dataset.part, 10) * 10;
+    const noise = (Math.random() * 2 - 1);
+    const opBias = (parseInt(input.dataset.op, 10) - 2) * 0.5;
+    input.value = (base + noise + opBias).toFixed(2);
+  });
+}
+
+function calculateRR() {
+  showError("");
+  const inputs = document.querySelectorAll('.measure-input');
+  if (inputs.length === 0) return showError("Veuillez d'abord générer la grille.");
+
+  const data = [];
+  let missing = false, invalid = false;
+  inputs.forEach(input => {
+    if (input.value === "") missing = true;
+    const v = parseFloat(input.value);
+    if (!Number.isFinite(v)) invalid = true;
+    data.push({
+      part: parseInt(input.dataset.part, 10),
+      op:   parseInt(input.dataset.op, 10),
+      trial:parseInt(input.dataset.trial, 10),
+      val: v
+    });
+  });
+  if (missing) return showError("Toutes les cellules doivent être remplies.");
+  if (invalid) return showError("Certaines valeurs ne sont pas des nombres valides.");
+
+  const { n, k, r } = { n: state.parts, k: state.ops, r: state.trials };
+
+  let totalRange = 0;
+  const opPartAverages = {};
+  for (let o = 1; o <= k; o++) opPartAverages[o] = [];
+
+  for (let o = 1; o <= k; o++) {
+    for (let p = 1; p <= n; p++) {
+      const trials = data.filter(d => d.op === o && d.part === p).map(d => d.val);
+      totalRange += (Math.max(...trials) - Math.min(...trials));
+      opPartAverages[o].push(trials.reduce((a,b)=>a+b,0) / trials.length);
+    }
+  }
+  const R_bar = totalRange / (k * n);
+
+  const opMeans = [];
+  for (let o = 1; o <= k; o++) {
+    const opVals = data.filter(d => d.op === o).map(d => d.val);
+    opMeans.push(opVals.reduce((a,b)=>a+b,0) / opVals.length);
+  }
+  const X_diff = Math.max(...opMeans) - Math.min(...opMeans);
+
+  const partGrandAverages = [];
+  for (let p = 1; p <= n; p++) {
+    const pVals = data.filter(d => d.part === p).map(d => d.val);
+    partGrandAverages.push(pVals.reduce((a,b)=>a+b,0) / pVals.length);
+  }
+  const Rp = Math.max(...partGrandAverages) - Math.min(...partGrandAverages);
+
+  const K1 = K1_TABLE[r];
+  const K2 = K2_TABLE[k];
+  const K3 = K3_TABLE[n];
+
+  const EV = 6 * R_bar * K1;
+  const AV_sq = Math.pow(6 * X_diff * K2, 2) - (EV * EV) / (n * r);
+  const AV = AV_sq > 0 ? Math.sqrt(AV_sq) : 0;
+  const GRR = Math.sqrt(EV * EV + AV * AV);
+  const PV = 6 * Rp * K3;
+  const TV = Math.sqrt(GRR * GRR + PV * PV);
+
+  const pEV  = (EV / TV) * 100;
+  const pAV  = (AV / TV) * 100;
+  const pGRR = (GRR / TV) * 100;
+  const pPV  = (PV / TV) * 100;
+  const ndc = GRR > 0 ? Math.floor(1.41 * (PV / GRR)) : 0;
+
+  const USL = parseFloat(document.getElementById('tolUSL').value);
+  const LSL = parseFloat(document.getElementById('tolLSL').value);
+  let tol = null, pGRRtol = null;
+  if (Number.isFinite(USL) && Number.isFinite(LSL) && USL > LSL) {
+    tol = USL - LSL;
+    pGRRtol = (GRR / tol) * 100;
+  }
+
+  const fmt = x => x.toFixed(4);
+  document.getElementById('resEV').innerText  = fmt(EV);
+  document.getElementById('resAV').innerText  = fmt(AV);
+  document.getElementById('resGRR').innerText = fmt(GRR);
+  document.getElementById('resPV').innerText  = fmt(PV);
+  document.getElementById('resPercent').innerText = pGRR.toFixed(1) + ' %';
+  document.getElementById('resNDC').innerText = ndc;
+
+  const tolBox = document.getElementById('toleranceBox');
+  if (tol !== null) {
+    document.getElementById('resTol').innerText = tol.toFixed(4);
+    document.getElementById('resPercentTol').innerText = pGRRtol.toFixed(1) + ' %';
+    const tv = document.getElementById('tolVerdict');
+    if (pGRRtol < 10) { tv.className = 'px-4 py-2 rounded-lg font-semibold bg-green-100 text-green-800'; tv.innerText = '✓ Acceptable'; }
+    else if (pGRRtol <= 30) { tv.className = 'px-4 py-2 rounded-lg font-semibold bg-amber-100 text-amber-800'; tv.innerText = '⚠ Marginal'; }
+    else { tv.className = 'px-4 py-2 rounded-lg font-semibold bg-red-100 text-red-800'; tv.innerText = '✗ Inacceptable'; }
+    tolBox.classList.remove('hidden');
+  } else {
+    tolBox.classList.add('hidden');
+  }
+
+  const conclusion = document.getElementById('conclusionBox');
+  let verdict = '', cls = '', picoMsg = '';
+  if (pGRR < 10 && ndc >= 5) {
+    cls = "bg-green-50 border-green-200 text-green-800";
+    verdict = `✅ <strong>Excellent :</strong> Système validé. %R&R = ${pGRR.toFixed(1)} % | ndc = ${ndc}.`;
+    picoMsg = "🎉 Bravo ! Système de mesure validé. Tu peux mesurer en toute confiance !";
+  } else if (pGRR <= 30 && ndc >= 5) {
+    cls = "bg-amber-50 border-amber-200 text-amber-800";
+    verdict = `⚠️ <strong>Marginal :</strong> Acceptable sous conditions. %R&R = ${pGRR.toFixed(1)} % | ndc = ${ndc}.`;
+    picoMsg = "Marginal. Acceptable si la mesure est coûteuse à améliorer, sinon vise mieux !";
+  } else if (ndc < 5 && pGRR <= 30) {
+    cls = "bg-amber-50 border-amber-200 text-amber-800";
+    verdict = `⚠️ <strong>Discrimination insuffisante :</strong> %R&R OK mais ndc = ${ndc} (&lt; 5).`;
+    picoMsg = "ndc trop faible ! Tes pièces sont peut-être toutes trop similaires. Choisis une plage plus large.";
+  } else {
+    cls = "bg-red-50 border-red-200 text-red-800";
+    verdict = `❌ <strong>Inacceptable :</strong> %R&R = ${pGRR.toFixed(1)} % | ndc = ${ndc}.`;
+    picoMsg = "Système non fiable. Si AV >> EV : forme tes opérateurs. Si EV >> AV : change l'instrument.";
+  }
+  conclusion.className = "p-5 rounded-xl border-2 font-medium text-lg text-center shadow-sm " + cls;
+  conclusion.innerHTML = verdict;
+
+  document.getElementById('resultsPanel').classList.remove('hidden');
+  document.getElementById('chartsContainer').classList.remove('hidden');
+
+  state.lastResults = { EV, AV, GRR, PV, TV, pEV, pAV, pGRR, pPV, ndc, tol, pGRRtol, data };
+  renderCharts(pEV, pAV, pGRR, pPV, opPartAverages);
+  picoSay(picoMsg, true);
+}
+
+function renderCharts(pEV, pAV, pGRR, pPV, opPartAverages) {
+  const ctxVar = document.getElementById('varianceChart').getContext('2d');
+  if (varianceChartInstance) varianceChartInstance.destroy();
+  const grrColor = pGRR > 30 ? '#ef4444' : (pGRR > 10 ? '#f59e0b' : '#10b981');
+  varianceChartInstance = new Chart(ctxVar, {
+    type: 'bar',
+    data: {
+      labels: ['EV','AV','GRR','PV'],
+      datasets: [{
+        data: [+pEV.toFixed(1), +pAV.toFixed(1), +pGRR.toFixed(1), +pPV.toFixed(1)],
+        backgroundColor: ['#3b82f6','#d97706', grrColor,'#94a3b8'],
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, max: Math.max(100, pPV + 5) } }
+    }
+  });
+
+  const ctxInt = document.getElementById('interactionChart').getContext('2d');
+  if (interactionChartInstance) interactionChartInstance.destroy();
+  const labels = [];
+  for (let p = 1; p <= state.parts; p++) labels.push('P' + p);
+  const colors = ['#3b82f6','#d97706','#10b981'];
+  const datasets = [];
+  for (let o = 1; o <= state.ops; o++) {
+    datasets.push({
+      label: 'Op. ' + String.fromCharCode(64+o),
+      data: opPartAverages[o],
+      borderColor: colors[o-1],
+      backgroundColor: colors[o-1],
+      tension: 0.1,
+      pointRadius: 4
+    });
+  }
+  interactionChartInstance = new Chart(ctxInt, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      interaction: { mode: 'index', intersect: false }
+    }
+  });
+}
+
+function exportCSV() {
+  const inputs = document.querySelectorAll('.measure-input');
+  if (inputs.length === 0) return showError("Aucune donnée à exporter.");
+  const { n, k, r } = state;
+  const lines = [];
+  lines.push('Gage R&R Pro - Export');
+  lines.push('Date;' + new Date().toLocaleString('fr-FR'));
+  lines.push('Pièces;' + n + ';Opérateurs;' + k + ';Essais;' + r);
+  lines.push('');
+  let header = 'Pièce';
+  for (let o = 1; o <= k; o++) for (let t = 1; t <= r; t++) header += ';Op.' + String.fromCharCode(64+o) + ' E' + t;
+  lines.push(header);
+  for (let p = 1; p <= n; p++) {
+    let row = '' + p;
+    for (let o = 1; o <= k; o++) {
+      for (let t = 1; t <= r; t++) {
+        const inp = document.querySelector(`.measure-input[data-part="${p}"][data-op="${o}"][data-trial="${t}"]`);
+        row += ';' + (inp?.value ?? '');
+      }
+    }
+    lines.push(row);
+  }
+  if (state.lastResults) {
+    const R = state.lastResults;
+    lines.push('');
+    lines.push('Résultats');
+    lines.push('EV;'  + R.EV.toFixed(4));
+    lines.push('AV;'  + R.AV.toFixed(4));
+    lines.push('GRR;' + R.GRR.toFixed(4));
+    lines.push('PV;'  + R.PV.toFixed(4));
+    lines.push('TV;'  + R.TV.toFixed(4));
+    lines.push('%R&R/VT;' + R.pGRR.toFixed(2));
+    lines.push('ndc;' + R.ndc);
+    if (R.tol !== null) lines.push('%R&R/Tolérance;' + R.pGRRtol.toFixed(2));
+  }
+  const csv = '\uFEFF' + lines.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gage-rr-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =====================================================
+// QUIZ DE CERTIFICATION
+// =====================================================
+const QUIZ_QUESTIONS = [
+  {
+    q: "Que mesure la RÉPÉTABILITÉ (EV) ?",
+    options: [
+      "La variation entre opérateurs différents",
+      "La variation de l'appareil quand la même personne mesure plusieurs fois",
+      "La variation entre les pièces",
+      "L'écart par rapport à l'étalon"
+    ],
+    correct: 1,
+    explain: "EV = Equipment Variation. C'est la dispersion intrinsèque de l'appareil, mesurée par UNE personne qui mesure plusieurs fois la même pièce."
+  },
+  {
+    q: "Que mesure la REPRODUCTIBILITÉ (AV) ?",
+    options: [
+      "La variation due aux différents opérateurs mesurant les mêmes pièces",
+      "La fiabilité de l'appareil au cours du temps",
+      "La précision absolue de la mesure",
+      "Le centrage de l'instrument"
+    ],
+    correct: 0,
+    explain: "AV = Appraiser Variation. C'est la différence entre opérateurs : méthodes, expérience, force de serrage…"
+  },
+  {
+    q: "Un %R&R = 8 % indique :",
+    options: [
+      "Un système inacceptable",
+      "Un système acceptable sous conditions",
+      "Un système excellent",
+      "Un problème de biais"
+    ],
+    correct: 2,
+    explain: "AIAG : < 10 % = Acceptable. 10–30 % = Marginal. > 30 % = Inacceptable."
+  },
+  {
+    q: "Le Gage R&R détecte-t-il un BIAIS (erreur de justesse) ?",
+    options: [
+      "Oui, c'est sa fonction principale",
+      "Non, il ne mesure que la dispersion (fidélité)",
+      "Oui, mais seulement en présence d'un étalon",
+      "Cela dépend du nombre d'opérateurs"
+    ],
+    correct: 1,
+    explain: "Piège classique ! Le R&R ne détecte que la DISPERSION. Pour le biais, il faut comparer à un étalon de référence."
+  },
+  {
+    q: "Combien de pièces, d'opérateurs et d'essais sont recommandés par AIAG ?",
+    options: [
+      "5 pièces, 2 opérateurs, 2 essais",
+      "10 pièces, 3 opérateurs, 2 essais",
+      "20 pièces, 5 opérateurs, 3 essais",
+      "Peu importe, du moment que k×n×r ≥ 30"
+    ],
+    correct: 1,
+    explain: "Le standard AIAG est 10×3×2 = 60 mesures. Suffisant statistiquement, raisonnable opérationnellement."
+  },
+  {
+    q: "Que signifie ndc = 3 ?",
+    options: [
+      "Le système distingue 3 opérateurs",
+      "Le système distingue 3 catégories de pièces — insuffisant",
+      "3 mesures sont aberrantes",
+      "Il y a 3 % d'erreur"
+    ],
+    correct: 1,
+    explain: "ndc = Number of Distinct Categories. Doit être ≥ 5 selon AIAG pour un système discriminant."
+  },
+  {
+    q: "Si AV >> EV, quelle est la cause la plus probable ?",
+    options: [
+      "Instrument usé",
+      "Pièces trop similaires",
+      "Méthode de mesure variable entre opérateurs",
+      "Erreur de saisie"
+    ],
+    correct: 2,
+    explain: "AV dominant = problème de reproductibilité = problème humain/méthode. Formation requise."
+  },
+  {
+    q: "Sur un graphe d'interaction (lignes par opérateur, axe X = pièces), des lignes NON parallèles révèlent :",
+    options: [
+      "Un appareil défectueux",
+      "Une interaction opérateur × pièce (problème de reproductibilité)",
+      "Un échantillonnage insuffisant",
+      "Une erreur de calcul"
+    ],
+    correct: 1,
+    explain: "Lignes parallèles = pas d'interaction. Lignes croisées = certains opérateurs réagissent différemment selon les pièces."
+  },
+  {
+    q: "Que faire si %R&R = 25 % vs Tolérance ?",
+    options: [
+      "Rejeter le système immédiatement",
+      "C'est acceptable sous conditions (coût vs criticité)",
+      "C'est excellent",
+      "Refaire l'étude avec plus de pièces"
+    ],
+    correct: 1,
+    explain: "Entre 10 et 30 %, c'est une zone grise. Décision selon le coût d'amélioration et la criticité de la caractéristique."
+  },
+  {
+    q: "La formule GRR = √(EV² + AV²) signifie que :",
+    options: [
+      "EV et AV s'additionnent simplement",
+      "EV et AV sont indépendants — les variances s'additionnent",
+      "AV inclut toujours EV",
+      "Il faut toujours que EV = AV"
+    ],
+    correct: 1,
+    explain: "Hypothèse statistique d'indépendance : les VARIANCES (écarts-types au carré) s'additionnent. D'où la racine."
+  }
+];
+
+const quizState = { current: 0, score: 0, answered: false };
+
+function startQuiz() {
+  quizState.current = 0;
+  quizState.score = 0;
+  quizState.answered = false;
+  document.getElementById('quizIntro').classList.add('hidden');
+  document.getElementById('quizResult').classList.add('hidden');
+  document.getElementById('quizGame').classList.remove('hidden');
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = QUIZ_QUESTIONS[quizState.current];
+  document.getElementById('qNum').innerText = quizState.current + 1;
+  document.getElementById('qScore').innerText = quizState.score;
+  document.getElementById('quizProgress').style.width = ((quizState.current) / QUIZ_QUESTIONS.length * 100) + '%';
+  document.getElementById('quizQuestion').innerText = q.q;
+
+  const optionsContainer = document.getElementById('quizOptions');
+  optionsContainer.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const div = document.createElement('button');
+    div.className = 'quiz-option w-full text-left p-4 bg-white rounded-xl font-medium text-slate-700';
+    div.innerHTML = `<span class="inline-block w-7 h-7 rounded-full bg-slate-200 text-center font-bold mr-3 leading-7">${String.fromCharCode(65+idx)}</span>${opt}`;
+    div.onclick = () => answerQuestion(idx);
+    optionsContainer.appendChild(div);
+  });
+
+  document.getElementById('quizFeedback').classList.add('hidden');
+  document.getElementById('quizNext').classList.add('hidden');
+  quizState.answered = false;
+}
+
+function answerQuestion(idx) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = QUIZ_QUESTIONS[quizState.current];
+  const options = document.querySelectorAll('.quiz-option');
+  options.forEach(o => o.classList.add('disabled'));
+
+  if (idx === q.correct) {
+    options[idx].classList.add('correct');
+    quizState.score++;
+    document.getElementById('qScore').innerText = quizState.score;
+    document.getElementById('quizFeedback').className = 'mt-4 p-4 rounded-xl text-sm bg-green-50 border border-green-200 text-green-800';
+    document.getElementById('quizFeedback').innerHTML = `<strong>✅ Correct !</strong> ${q.explain}`;
+  } else {
+    options[idx].classList.add('incorrect');
+    options[q.correct].classList.add('correct');
+    document.getElementById('quizFeedback').className = 'mt-4 p-4 rounded-xl text-sm bg-red-50 border border-red-200 text-red-800';
+    document.getElementById('quizFeedback').innerHTML = `<strong>❌ Faux.</strong> La bonne réponse est <strong>${String.fromCharCode(65+q.correct)}</strong>. ${q.explain}`;
+  }
+  document.getElementById('quizFeedback').classList.remove('hidden');
+
+  // Dernier ou suivant
+  if (quizState.current === QUIZ_QUESTIONS.length - 1) {
+    document.getElementById('quizNext').innerText = '🏆 Voir mon résultat';
+  } else {
+    document.getElementById('quizNext').innerText = 'Question suivante →';
+  }
+  document.getElementById('quizNext').classList.remove('hidden');
+}
+
+function nextQuestion() {
+  quizState.current++;
+  if (quizState.current >= QUIZ_QUESTIONS.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizGame').classList.add('hidden');
+  const score = quizState.score;
+  const total = QUIZ_QUESTIONS.length;
+  const pct = (score / total) * 100;
+
+  let medal, medalEmoji, medalLabel, message, sealColor;
+  if (score === 10) {
+    medal = 'Or'; medalEmoji = '🥇'; medalLabel = 'CHAMPION MSA';
+    message = "Score parfait ! Tu maîtrises l'analyse de système de mesure.";
+    sealColor = '#d97706';
+  } else if (score >= 9) {
+    medal = 'Argent'; medalEmoji = '🥈'; medalLabel = 'EXPERT MSA';
+    message = "Excellent niveau ! Tu es prêt(e) pour des études R&R en autonomie.";
+    sealColor = '#94a3b8';
+  } else if (score >= 8) {
+    medal = 'Bronze'; medalEmoji = '🥉'; medalLabel = 'TECHNICIEN QUALIFIÉ';
+    message = "Bon niveau ! Quelques révisions et tu seras au top.";
+    sealColor = '#92400e';
+  } else {
+    medal = null; medalEmoji = '📖'; medalLabel = '';
+    message = `${score}/10 — Tu n'as pas encore le seuil pour la certification (8/10). Révise les onglets théorie et tir à la cible, puis recommence !`;
+    sealColor = '#64748b';
+  }
+
+  const nom = (typeof prompt === 'function') ? '' : '';
+  const dateStr = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+
+  const result = document.getElementById('quizResult');
+  if (medal) {
+    result.innerHTML = `
+      <div class="text-center mb-6">
+        <div class="text-7xl mb-3">${medalEmoji}</div>
+        <h2 class="text-3xl font-title font-bold text-navy-900 mb-2">Félicitations !</h2>
+        <p class="text-slate-600 mb-4">${message}</p>
+        <p class="text-2xl font-bold text-gold-600">Score : ${score} / ${total} (${pct.toFixed(0)} %)</p>
+      </div>
+
+      <div class="certificate p-8 sm:p-12 rounded-2xl text-center text-navy-900 my-6 relative">
+        <div class="absolute top-4 right-4 cert-seal w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold transform rotate-12">
+          ${medalEmoji}<br><span style="font-size:10px;font-family:Inter">${medal.toUpperCase()}</span>
+        </div>
+        <div class="font-title font-bold text-amber-700 text-sm tracking-widest mb-2">CERTIFICAT DE RÉUSSITE</div>
+        <h3 class="text-4xl font-bold mb-2" style="font-family:'Caveat',cursive;">Gage R&amp;R Pro</h3>
+        <p class="text-slate-600 text-sm mb-6">Validation MSA — AIAG 4<sup>e</sup> édition</p>
+
+        <p class="text-xl mb-2" style="font-family:'Caveat',cursive;">Ce certificat est décerné à</p>
+        <div class="inline-block border-b-2 border-amber-700 px-8 pb-1 mb-6">
+          <input id="certName" type="text" placeholder="Saisis ton nom" class="bg-transparent text-3xl font-bold text-center focus:outline-none" style="font-family:'Caveat',cursive;">
+        </div>
+
+        <p class="text-lg mb-1" style="font-family:'Caveat',cursive;">avec la mention</p>
+        <p class="text-3xl font-bold text-amber-800 mb-6" style="font-family:'Caveat',cursive;">${medalLabel}</p>
+
+        <p class="text-sm text-slate-600 mb-1">pour avoir validé le quiz de certification</p>
+        <p class="text-lg font-bold mb-6">${score} / ${total} bonnes réponses</p>
+
+        <div class="flex justify-between items-end mt-8 text-xs">
+          <div class="text-left">
+            <div class="border-t border-slate-400 pt-1 inline-block min-w-[120px]">Pico le Métrologue</div>
+            <div class="text-slate-500">Coach MSA</div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold">${dateStr}</div>
+            <div class="text-slate-500">Date d'obtention</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 justify-center no-print">
+        <button onclick="window.print()" class="px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg shadow">🖨️ Imprimer mon certificat</button>
+        <button onclick="startQuiz()" class="px-6 py-3 bg-navy-800 hover:bg-navy-700 text-white font-semibold rounded-lg">🔄 Recommencer le quiz</button>
+        <button onclick="backToQuizIntro()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg">Retour</button>
+      </div>
+    `;
+    picoSay(`${medalEmoji} ${score}/10 ! ${message}`, true);
+  } else {
+    result.innerHTML = `
+      <div class="text-center">
+        <div class="text-7xl mb-3">${medalEmoji}</div>
+        <h2 class="text-3xl font-title font-bold text-navy-900 mb-2">Pas encore !</h2>
+        <p class="text-slate-600 mb-4 max-w-md mx-auto">${message}</p>
+        <p class="text-2xl font-bold text-slate-700 mb-6">Score : ${score} / ${total}</p>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6 max-w-lg mx-auto text-sm text-amber-900 text-left">
+          <strong>💡 Pico te conseille :</strong>
+          <ul class="mt-2 list-disc list-inside space-y-1">
+            <li>Relis l'onglet "Théorie" pour les concepts EV/AV/biais</li>
+            <li>Pratique sur l'onglet "Tir Cible" pour comprendre fidélité vs justesse</li>
+            <li>Refais une étude dans le "Calcul R&R" en variant les paramètres</li>
+          </ul>
+        </div>
+        <div class="flex flex-wrap gap-3 justify-center no-print">
+          <button onclick="startQuiz()" class="px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-lg shadow">🔄 Réessayer</button>
+          <button onclick="backToQuizIntro()" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg">Retour</button>
+        </div>
+      </div>
+    `;
+    picoSay(`Pas encore le seuil (${score}/10). Révise et reviens !`, true);
+  }
+  result.classList.remove('hidden');
+}
+
+function backToQuizIntro() {
+  document.getElementById('quizResult').classList.add('hidden');
+  document.getElementById('quizGame').classList.add('hidden');
+  document.getElementById('quizIntro').classList.remove('hidden');
+}
+
+// =====================================================
+// INIT
+// =====================================================
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => runSimulation('good'), 300);
+  initTarget();
+  // Pico bienvenue après 1.5s
+  setTimeout(() => {
+    picoSay("Salut ! Je suis Pico, ton coach métrologie 🔧 Clique sur moi à tout moment pour des conseils contextuels !", true);
+  }, 1500);
+});
+</script>
+</body>
+</html>
