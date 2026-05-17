@@ -106,7 +106,7 @@
 
   .simu-grid {
     display: grid;
-    grid-template-columns: 280px 1fr 340px;
+    grid-template-columns: 240px 500px 1fr;
     gap: 16px; align-items: start;
   }
 
@@ -117,7 +117,7 @@
 
   .schema-layout { display: flex; align-items: stretch; }
   .ctrl-side {
-    width: 190px; flex-shrink: 0;
+    width: 160px; flex-shrink: 0;
     border-right: 1px solid var(--border);
     padding: 14px;
     display: flex; flex-direction: column; gap: 18px;
@@ -221,17 +221,47 @@
   }
 
   .vue-obs-wrap {
-    padding: 14px;
+    padding: 0 14px 14px;
     display: flex; flex-direction: column; align-items: center;
-    gap: 12px; overflow: hidden;
+    gap: 12px; overflow: visible;
   }
+  .obs3d-scene {
+    perspective: 620px;
+    perspective-origin: 50% 48%;
+    width: 100%; display: flex;
+    justify-content: center; align-items: center;
+    padding: 22px 8px 14px;
+    cursor: grab; user-select: none;
+    position: relative;
+  }
+  .obs3d-scene.dragging { cursor: grabbing; }
   #vueObs {
     width: 100%; max-width: 340px; height: 220px;
     background: #0a0b0d;
     border-radius: var(--r-sm);
     border: 1px solid var(--border);
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), var(--shadow);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15), 0 8px 32px rgba(0,0,0,0.22), var(--shadow);
+    transform: rotateX(-22deg) rotateY(6deg);
+    transform-origin: center center;
+    will-change: transform;
+    transition: transform 0.06s linear;
+    flex-shrink: 0;
   }
+  .obs3d-hint {
+    position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: var(--txt-tech); font-weight: 500;
+    opacity: 0.65; pointer-events: none; white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .obs3d-reset {
+    position: absolute; top: 6px; right: 10px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--r-sm); padding: 3px 9px;
+    font-size: 10px; color: var(--txt-sec); font-weight: 500;
+    cursor: pointer; transition: all 0.15s; font-family: var(--font-b);
+    line-height: 1.6;
+  }
+  .obs3d-reset:hover { border-color: var(--accent-t); color: var(--accent-t); }
   .effet-display {
     width: 100%; text-align: center;
     padding: 10px 14px;
@@ -458,10 +488,13 @@
   footer em { font-style: normal; color: var(--accent-t); font-weight: 600; }
 
   @media (max-width: 1300px) {
-    .simu-grid { grid-template-columns: 1fr; }
+    .simu-grid { grid-template-columns: 240px 500px; }
     .theo-section, .theo-section.inverse { grid-template-columns: 1fr; }
     .theo-section.inverse .theo-texte { grid-column: 1; grid-row: 1; }
     .theo-section.inverse .theo-svg { grid-column: 1; grid-row: 2; }
+  }
+  @media (max-width: 900px) {
+    .simu-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -824,7 +857,11 @@
         </div>
       </div>
       <div class="vue-obs-wrap">
-        <canvas id="vueObs" width="340" height="220"></canvas>
+        <div class="obs3d-scene" id="obs3dScene">
+          <canvas id="vueObs" width="340" height="220"></canvas>
+          <span class="obs3d-hint">Glisser pour incliner la vue</span>
+          <button class="obs3d-reset" id="obs3dReset">↺ Réinitialiser</button>
+        </div>
         <div class="effet-display" id="effetDisplay" data-effet="brillant">
           <div class="effet-label">Effet de lumière observé</div>
           <div class="effet-nom" id="effetNom">Brillant</div>
@@ -1986,6 +2023,45 @@ const VW = cv.width, VH = cv.height;  // dimensions CSS logiques (340 × 220)
   ctx.scale(dpr, dpr);
 }
 const PLAQUE = { x: 20, y: 20, w: VW - 40, h: VH - 40 };
+
+// ── Vue 3D observateur — drag pour incliner ──
+etat.obs3d = { rx: -22, ry: 6 };
+let _obs3dDrag = null;
+const obs3dScene = $("obs3dScene");
+
+function applyObs3d() {
+  cv.style.transform = `rotateX(${etat.obs3d.rx}deg) rotateY(${etat.obs3d.ry}deg)`;
+}
+applyObs3d();
+
+obs3dScene.addEventListener("pointerdown", e => {
+  if (e.target === $("obs3dReset")) return;
+  _obs3dDrag = { x: e.clientX, y: e.clientY, rx: etat.obs3d.rx, ry: etat.obs3d.ry };
+  obs3dScene.classList.add("dragging");
+  obs3dScene.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+obs3dScene.addEventListener("pointermove", e => {
+  if (!_obs3dDrag) return;
+  const dx = e.clientX - _obs3dDrag.x;
+  const dy = e.clientY - _obs3dDrag.y;
+  etat.obs3d.rx = Math.max(-80, Math.min(10, _obs3dDrag.rx - dy * 0.45));
+  etat.obs3d.ry = Math.max(-55, Math.min(55, _obs3dDrag.ry + dx * 0.45));
+  applyObs3d();
+});
+obs3dScene.addEventListener("pointerup", () => {
+  _obs3dDrag = null;
+  obs3dScene.classList.remove("dragging");
+});
+obs3dScene.addEventListener("dblclick", e => {
+  if (e.target === $("obs3dReset")) return;
+  etat.obs3d = { rx: -22, ry: 6 };
+  applyObs3d();
+});
+$("obs3dReset").addEventListener("click", () => {
+  etat.obs3d = { rx: -22, ry: 6 };
+  applyObs3d();
+});
 
 function renderVueObservateur(g) {
   ctx.clearRect(0, 0, VW, VH);
