@@ -1,572 +1,1938 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Qualité – Gamme Structurée & Calculs</title>
-  <style>
-    :root {
-      /* Palette Principale */
-      --primary: #1a1a1a;       /* Noir/Gris profond */
-      --accent: #cfa346;        /* Or antique */
-      --accent-text: #856404;   /* Texte sur fond or clair */
-      --accent-light: #f4e8cb;  /* Fond or très pâle */
-      
-      /* Structure */
-      --bg-color: #f8f9fa;      /* Fond de page */
-      --panel-bg: #ffffff;      /* Fond des cartes */
-      --border-color: #e0e0e0;  /* Bordures subtiles */
-      --text-color: #2d3436;    /* Texte principal */
-      --muted: #636e72;         /* Texte secondaire */
-      
-      /* Feedback */
-      --success: #27ae60;
-      --success-bg: #eafaf1;
-      --danger: #c0392b;
-      --danger-bg: #fdedec;
-      --warn: #f39c12;
-      
-      /* UI Elements */
-      --radius: 8px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-    }
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qualité — Gammes &amp; Rapports de contrôle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Palette */
+    --ink:        #0f0f10;
+    --ink-soft:   #2a2a2c;
+    --ink-mute:   #5a5a5e;
+    --line:       #e6e2d8;
+    --line-soft:  #efece4;
+    --paper:      #faf8f3;
+    --paper-2:    #f3efe5;
+    --card:       #ffffff;
 
-    * { box-sizing: border-box; }
-    
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.5;
-    }
+    /* Accent or */
+    --gold:       #b48a3d;
+    --gold-deep:  #8a6722;
+    --gold-soft:  #f2e9d2;
+    --gold-tint:  #fbf6e8;
 
-    /* --- Header --- */
-    header {
-      background-color: var(--primary);
-      color: white;
-      padding: 1rem 0;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      position: sticky; top: 0; z-index: 50;
-    }
-    .wrap { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-    
-    h1 {
-      margin: 0; font-size: 1.25rem; font-weight: 600;
-      display: flex; align-items: center; gap: 10px;
-    }
-    h1::before {
-      content: ''; display: block; width: 4px; height: 24px;
-      background: var(--accent); border-radius: 2px;
-    }
+    /* Statuts */
+    --ok:         #2f6f4a;
+    --ok-bg:      #e9f3ec;
+    --ko:         #a82820;
+    --ko-bg:      #fbebe8;
+    --na:         #7a6a4a;
+    --na-bg:      #f3eedf;
+    --warn:       #b07418;
+    --warn-bg:    #fcf2dd;
 
-    /* --- Navigation --- */
-    nav { display: flex; gap: 6px; margin-top: 16px; }
-    .tab {
-      background: transparent; color: #b2bec3; border: none; padding: 8px 16px;
-      font-weight: 500; font-size: 0.9rem; cursor: pointer;
-      border-bottom: 3px solid transparent; transition: all 0.2s;
-    }
-    .tab:hover { color: white; }
-    .tab[aria-selected="true"] {
-      color: var(--accent); border-bottom-color: var(--accent);
-      background: rgba(255,255,255,0.05);
-    }
+    --r-sm: 4px;
+    --r:    8px;
+    --r-lg: 14px;
+    --shadow-s: 0 1px 0 rgba(0,0,0,.04), 0 2px 6px rgba(20,15,5,.04);
+    --shadow:   0 1px 0 rgba(0,0,0,.05), 0 8px 24px rgba(20,15,5,.06);
+  }
 
-    /* --- Layout --- */
-    main { padding-bottom: 60px; }
-    .panel {
-      background: var(--panel-bg); border: 1px solid var(--border-color);
-      border-radius: var(--radius); padding: 24px; margin-top: 24px;
-      box-shadow: var(--shadow-sm); animation: fadeIn 0.3s ease-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
 
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-    .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
-    .row > * { flex: 1; min-width: 200px; }
+  /* ============ HEADER ============ */
+  header {
+    background: var(--ink);
+    color: #fff;
+    border-bottom: 1px solid #000;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 0 28px; }
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0 14px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 14px;
+  }
+  .brand .logo {
+    width: 38px; height: 38px;
+    background: var(--gold);
+    color: var(--ink);
+    display: grid; place-items: center;
+    font-family: 'IBM Plex Serif', serif;
+    font-weight: 600; font-size: 20px;
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+  }
+  .brand-text h1 {
+    margin: 0; font-family: 'IBM Plex Serif', serif;
+    font-weight: 600; font-size: 1.05rem; letter-spacing: .2px;
+  }
+  .brand-text .sub {
+    font-size: .72rem; color: #b8b3a4; letter-spacing: 1.5px; text-transform: uppercase;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .header-meta {
+    display: flex; align-items: center; gap: 24px;
+    font-size: .75rem; color: #b8b3a4;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .header-meta span b { color: #fff; font-weight: 500; }
 
-    /* --- Forms --- */
-    label {
-      display: block; font-size: 0.7rem; font-weight: 700; color: var(--muted);
-      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    input, select, textarea {
-      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color);
-      border-radius: 6px; background: #fff; color: var(--text-color);
-      font-size: 0.9rem; font-family: inherit; transition: all 0.2s;
-    }
-    input:focus, select:focus {
-      outline: none; border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(207, 163, 70, 0.15);
-    }
-    /* Champs calculés automatiquement */
-    input.auto-calc { background-color: #fcfcfc; color: var(--primary); font-weight: bold; border-color: #eee; }
+  nav {
+    display: flex; gap: 0;
+    border-top: 1px solid #1f1f21;
+  }
+  .tab {
+    background: transparent; color: #b8b3a4; border: none;
+    padding: 14px 22px;
+    font-family: inherit; font-size: .82rem; font-weight: 500;
+    letter-spacing: .8px; text-transform: uppercase;
+    cursor: pointer; transition: color .15s, background .15s;
+    border-bottom: 2px solid transparent;
+    position: relative;
+  }
+  .tab:hover { color: #fff; }
+  .tab[aria-selected="true"] {
+    color: var(--gold); background: rgba(180,138,61,.08);
+    border-bottom-color: var(--gold);
+  }
+  .tab .num {
+    font-family: 'IBM Plex Mono', monospace; font-size: .7rem;
+    color: #6b6b6e; margin-right: 8px;
+  }
+  .tab[aria-selected="true"] .num { color: var(--gold); }
 
-    /* --- Buttons --- */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
-      cursor: pointer; text-decoration: none; transition: all 0.2s;
-      border: 1px solid var(--border-color); background: white; color: var(--text-color);
-    }
-    .btn:hover { background: #f1f2f6; border-color: #ced6e0; }
-    .btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
-    .btn.primary:hover { background: #333; transform: translateY(-1px); }
-    .btn.ok { border-color: var(--accent); color: #9e7d35; }
-    .btn.ok:hover { background: var(--accent-light); }
-    .btn.danger { border-color: var(--danger); color: var(--danger); }
-    .btn.danger:hover { background: var(--danger-bg); }
-    .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+  /* ============ MAIN ============ */
+  main { padding: 32px 0 80px; }
 
-    /* --- Lists & Tables --- */
-    .gamme-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; border: 1px solid var(--border-color);
-      border-radius: var(--radius); background: white; cursor: pointer; margin-bottom: 8px;
-      transition: all 0.2s;
-    }
-    .gamme-item:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); transform: translateX(4px); }
-    
-    .table-scroll {
-      width: 100%; overflow-x: auto; margin-top: 5px; margin-bottom: 20px;
-      border: 1px solid var(--border-color); border-radius: var(--radius);
-    }
-    table { width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; }
-    thead th {
-      background: var(--accent-light); color: var(--accent-text); font-weight: 700;
-      text-transform: uppercase; font-size: 0.7rem; padding: 10px 8px;
-      text-align: left; border-bottom: 1px solid rgba(207, 163, 70, 0.3); white-space: nowrap;
-    }
-    tbody td {
-      padding: 8px; border-bottom: 1px solid var(--border-color);
-      background: white; font-size: 0.85rem; vertical-align: top;
-    }
-    td input, td select { border: 1px solid transparent; background: transparent; padding: 4px; font-size: 0.85rem; }
-    td input:hover, td select:hover { border-color: var(--border-color); background: white; }
-    td input:focus, td select:focus { border-color: var(--accent); background: white; }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    box-shadow: var(--shadow-s);
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .panel-head h2 {
+    margin: 0;
+    font-family: 'IBM Plex Serif', serif; font-weight: 600;
+    font-size: 1.25rem; letter-spacing: -.3px;
+  }
+  .panel-head .lede {
+    color: var(--ink-mute); font-size: .85rem; margin-top: 2px;
+  }
+  .panel-body { padding: 22px 24px 24px; }
 
-    /* --- Section Headers --- */
-    .section-block { margin-top: 30px; }
-    .section-header {
-      background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px;
-      font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;
-      text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between;
-    }
-    .compact-header-area {
-      background: #fcfcfc; border: 1px solid var(--border-color);
-      padding: 16px; border-radius: var(--radius); margin-bottom: 24px;
-    }
-    
-    /* Config Mode Bandeau */
-    .config-bar {
-      background: #eef2f7; padding: 12px 16px; border-radius: 8px; border: 1px solid #d0d7de;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-    }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .68rem; letter-spacing: 2px;
+    color: var(--gold-deep); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
 
-    /* --- Utilities --- */
-    .hidden { display: none !important; }
-    .pill {
-      display: inline-flex; align-items: center; gap: 8px; background: #f1f2f6;
-      padding: 6px 12px; border-radius: 99px; font-size: 0.85rem;
-    }
-    .status.ok { background: #eafaf1; color: #27ae60; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-    .status.ko { background: #fdedec; color: #c0392b; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--line);
+    background: #fff; color: var(--ink);
+    font-family: inherit; font-size: .82rem; font-weight: 500;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .12s;
+    text-decoration: none; white-space: nowrap;
+  }
+  .btn:hover { background: var(--paper-2); border-color: #d6cfbe; }
+  .btn:active { transform: translateY(1px); }
+  .btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn.primary:hover { background: #1f1f22; border-color: #1f1f22; }
+  .btn.gold {
+    background: var(--gold); color: var(--ink); border-color: var(--gold-deep);
+    font-weight: 600;
+  }
+  .btn.gold:hover { background: #c69a47; }
+  .btn.ghost { background: transparent; }
+  .btn.danger { color: var(--ko); border-color: #e9c8c4; background: #fff; }
+  .btn.danger:hover { background: var(--ko-bg); border-color: var(--ko); }
+  .btn.sm { padding: 5px 10px; font-size: .75rem; }
+  .btn.icon { padding: 6px 8px; min-width: 30px; justify-content: center; }
+  .btn.full { width: 100%; justify-content: center; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    @media print {
-      body { background: white; color: black; font-size: 11px; }
-      header, .no-print, nav, .btn, .help, input, select, footer { display: none !important; }
-      .panel { border: none; box-shadow: none; padding: 0; margin: 0; }
-      #reportPreview { display: block !important; border: none; }
-      .table-scroll { border: none; overflow: visible; }
-      table { width: 100%; border-collapse: collapse; font-size: 10px; }
-      th, td { border: 1px solid #000; padding: 4px; }
-      thead th { background: #ddd !important; -webkit-print-color-adjust: exact; }
+  /* ============ INPUTS ============ */
+  label.fld {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .68rem; letter-spacing: 1.2px;
+    color: var(--ink-mute); text-transform: uppercase;
+    margin-bottom: 6px; font-weight: 500;
+  }
+  input[type="text"], input[type="date"], input[type="number"], input:not([type]), select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    font-family: inherit; font-size: .88rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: #fff; color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-tint);
+  }
+  input.mono { font-family: 'IBM Plex Mono', monospace; font-size: .82rem; }
+  input.calc {
+    background: var(--gold-tint);
+    border-color: #e8dcbc;
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+  }
+  input[readonly]:not(.calc) {
+    background: var(--paper-2);
+    color: var(--ink-soft);
+  }
+  textarea { min-height: 60px; resize: vertical; }
+
+  .grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+  .grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+  /* ============ DASHBOARD KPI ============ */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    position: relative; overflow: hidden;
+  }
+  .kpi .lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .66rem; letter-spacing: 1.8px;
+    color: var(--ink-mute); text-transform: uppercase;
+  }
+  .kpi .val {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 2rem; font-weight: 600; line-height: 1.1;
+    margin-top: 6px; color: var(--ink);
+  }
+  .kpi .delta { font-size: .78rem; color: var(--ink-mute); margin-top: 2px; }
+  .kpi.ok .val { color: var(--ok); }
+  .kpi.ko .val { color: var(--ko); }
+  .kpi.gold .val { color: var(--gold-deep); }
+  .kpi .bar {
+    position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+    background: var(--line);
+  }
+  .kpi.ok .bar { background: var(--ok); }
+  .kpi.ko .bar { background: var(--ko); }
+  .kpi.gold .bar { background: var(--gold); }
+  .kpi.warn .val { color: var(--warn); }
+  .kpi.warn .bar { background: var(--warn); }
+
+  /* ============ LIBRARY CARDS ============ */
+  .lib-toolbar {
+    display: flex; gap: 12px; align-items: center; margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .search {
+    flex: 1; min-width: 240px;
+    position: relative;
+  }
+  .search input { padding-left: 36px; }
+  .search::before {
+    content: ""; position: absolute; left: 12px; top: 50%;
+    width: 14px; height: 14px;
+    transform: translateY(-50%);
+    background: no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235a5a5e' stroke-width='2'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.3-4.3'/></svg>");
+  }
+  .gamme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .gamme-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 16px 18px 14px;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s, box-shadow .15s;
+    position: relative;
+  }
+  .gamme-card:hover {
+    border-color: var(--gold);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
+  }
+  .gamme-card .top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .gamme-card .id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem; letter-spacing: 1px;
+    background: var(--paper-2); padding: 3px 8px;
+    border-radius: 3px; color: var(--ink-soft);
+  }
+  .gamme-card .mode {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .68rem; letter-spacing: 1.2px;
+    padding: 3px 8px; border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .gamme-card .mode.prod { background: var(--gold-soft); color: var(--gold-deep); }
+  .gamme-card .mode.recep { background: #e5edf2; color: #2c5070; }
+  .gamme-card h3 {
+    margin: 4px 0 4px;
+    font-family: 'IBM Plex Serif', serif; font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .gamme-card .meta {
+    font-size: .82rem; color: var(--ink-mute);
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .gamme-card .steps-count {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem; color: var(--ink-mute);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .gamme-card .card-actions {
+    display: flex; gap: 6px;
+  }
+  .empty {
+    padding: 40px; text-align: center;
+    border: 1px dashed var(--line);
+    border-radius: var(--r);
+    color: var(--ink-mute);
+    background: var(--paper-2);
+  }
+  .empty .icon {
+    font-family: 'IBM Plex Serif', serif; font-size: 2.2rem;
+    color: var(--gold); margin-bottom: 8px;
+  }
+
+  /* ============ TABLES ============ */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: #fff;
+  }
+  table {
+    width: 100%; min-width: 920px;
+    border-collapse: separate; border-spacing: 0;
+  }
+  thead th {
+    background: var(--paper-2);
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .68rem; letter-spacing: 1.2px;
+    text-transform: uppercase; font-weight: 600;
+    padding: 10px 10px; text-align: left;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: .85rem;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--paper); }
+  td input, td select {
+    border: 1px solid transparent; background: transparent;
+    padding: 5px 6px; font-size: .85rem;
+  }
+  td input:hover, td select:hover { border-color: var(--line); background: #fff; }
+  td input:focus, td select:focus { border-color: var(--gold); background: #fff; }
+
+  /* ============ SECTIONS BUILDER/REPORT ============ */
+  .section-block { margin-top: 22px; }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(90deg, var(--ink) 0%, #1c1c1f 100%);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--r) var(--r) 0 0;
+    border: 1px solid var(--ink);
+  }
+  .section-head .left {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-head .num {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--gold); font-size: .72rem; letter-spacing: 1.5px;
+  }
+  .section-head h4 {
+    margin: 0;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 1rem; font-weight: 500;
+  }
+  .section-head .stats {
+    display: flex; gap: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem;
+  }
+  .section-head .stats .pip {
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .section-head .stats .pip::before {
+    content: ""; width: 8px; height: 8px; border-radius: 99px;
+  }
+  .section-head .stats .pip.ok::before  { background: var(--ok); }
+  .section-head .stats .pip.ko::before  { background: var(--ko); }
+  .section-head .stats .pip.na::before  { background: #888; }
+  .section-block .table-scroll {
+    border-top: none;
+    border-radius: 0 0 var(--r) var(--r);
+  }
+  .section-block .empty-sub {
+    padding: 14px; background: #fff;
+    border: 1px solid var(--line);
+    border-top: none;
+    border-radius: 0 0 var(--r) var(--r);
+    color: var(--ink-mute); font-size: .85rem;
+    text-align: center;
+  }
+
+  /* ============ STATUTS ============ */
+  .status {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem; font-weight: 600;
+    letter-spacing: .5px;
+    border: 1px solid transparent;
+  }
+  .status.ok { background: var(--ok-bg); color: var(--ok); border-color: #c2dfca; }
+  .status.ko { background: var(--ko-bg); color: var(--ko); border-color: #ecc4bf; }
+  .status.na { background: var(--na-bg); color: var(--na); border-color: #ddd2b3; }
+  .status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 99px;
+  }
+  .status.ok::before { background: var(--ok); }
+  .status.ko::before { background: var(--ko); }
+  .status.na::before { background: var(--na); }
+
+  .crit-pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 99px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .68rem; font-weight: 500;
+    letter-spacing: .3px;
+    border: 1px solid;
+  }
+  .crit-pill.critique { background: #fbebe8; color: var(--ko); border-color: #eccac6; }
+  .crit-pill.majeur   { background: #fcf2dd; color: var(--warn); border-color: #ecdcb1; }
+  .crit-pill.mineur   { background: var(--paper-2); color: var(--ink-soft); border-color: var(--line); }
+
+  /* Position dans tolérance */
+  .tol-bar {
+    width: 80px; height: 6px;
+    background: var(--paper-2);
+    border-radius: 99px; position: relative; margin-top: 4px;
+    overflow: visible;
+  }
+  .tol-bar .mark {
+    position: absolute; top: -2px; width: 2px; height: 10px;
+    background: var(--ink); border-radius: 1px;
+  }
+  .tol-bar .target {
+    position: absolute; left: 50%; top: -1px; width: 1px; height: 8px;
+    background: var(--gold); opacity: .8;
+  }
+
+  /* ============ CONFIG BAR / META HEADER ============ */
+  .config-bar {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--gold);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .config-bar .lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem; letter-spacing: 1.5px;
+    color: var(--ink-soft); text-transform: uppercase;
+    font-weight: 600;
+  }
+  .config-bar select {
+    max-width: 320px;
+    font-weight: 600;
+    border-color: var(--gold-deep);
+  }
+  .config-bar .hint {
+    font-size: .8rem; color: var(--ink-mute); margin-left: auto;
+    font-style: italic;
+  }
+
+  .meta-block {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 18px 20px 20px;
+  }
+  .meta-block .ttl {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 1.05rem; font-weight: 600;
+    margin: 0 0 14px;
+  }
+
+  /* ============ TOAST ============ */
+  .toast-zone {
+    position: fixed; bottom: 24px; right: 24px;
+    z-index: 1000; display: flex; flex-direction: column; gap: 10px;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--ink); color: #fff;
+    padding: 12px 18px;
+    border-radius: var(--r);
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    font-size: .88rem;
+    min-width: 240px; max-width: 360px;
+    display: flex; align-items: center; gap: 10px;
+    animation: toastIn .25s ease-out;
+    pointer-events: auto;
+    border-left: 4px solid var(--gold);
+  }
+  .toast.ok { border-left-color: var(--ok); }
+  .toast.err { border-left-color: var(--ko); }
+  .toast.warn { border-left-color: var(--warn); }
+  .toast .ico { font-family: 'IBM Plex Serif', serif; font-weight: 600; }
+  @keyframes toastIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* ============ MODAL ============ */
+  .modal-back {
+    position: fixed; inset: 0;
+    background: rgba(15,15,16,.55);
+    backdrop-filter: blur(2px);
+    display: grid; place-items: center;
+    z-index: 900;
+    animation: fadeIn .15s ease-out;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #fff; border-radius: var(--r-lg);
+    width: 90%; max-width: 460px;
+    padding: 24px 26px 22px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.3);
+    border-top: 4px solid var(--gold);
+  }
+  .modal h3 {
+    margin: 0 0 8px;
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 1.15rem; font-weight: 600;
+  }
+  .modal p { margin: 0 0 18px; color: var(--ink-mute); font-size: .9rem; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+  /* ============ CONCLUSION CACHET ============ */
+  .conclusion-block {
+    margin: 24px 0;
+    padding: 20px 24px;
+    border-radius: var(--r);
+    border: 1px solid;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px;
+  }
+  .conclusion-block.accept {
+    background: var(--ok-bg); border-color: #b5d4be; color: var(--ok);
+  }
+  .conclusion-block.reserve {
+    background: var(--warn-bg); border-color: #e3cf9c; color: var(--warn);
+  }
+  .conclusion-block.refuse {
+    background: var(--ko-bg); border-color: #e0b8b3; color: var(--ko);
+  }
+  .conclusion-block .ttl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .72rem; letter-spacing: 2px;
+    text-transform: uppercase; opacity: .7;
+  }
+  .conclusion-block .val {
+    font-family: 'IBM Plex Serif', serif;
+    font-size: 1.6rem; font-weight: 600;
+    margin-top: 2px;
+  }
+  .conclusion-block .det {
+    font-size: .85rem; max-width: 50%; text-align: right;
+  }
+
+  /* ============ HISTORY ============ */
+  .history-table-wrap { margin-top: 6px; }
+  .history-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px 100px 160px;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--r-sm);
+    margin-bottom: 6px;
+    align-items: center;
+    transition: border-color .12s;
+  }
+  .history-row:hover { border-color: var(--gold); }
+  .history-row .ref {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .82rem; font-weight: 600;
+  }
+  .history-row .obj { color: var(--ink-soft); font-size: .85rem; }
+  .history-row .dt { font-family: 'IBM Plex Mono', monospace; font-size: .78rem; color: var(--ink-mute); }
+  @media (max-width: 800px) {
+    .history-row { grid-template-columns: 1fr; }
+  }
+
+  /* ============ HELPERS ============ */
+  .hidden { display: none !important; }
+  .mute { color: var(--ink-mute); font-size: .85rem; }
+  .hr { border: none; border-top: 1px solid var(--line); margin: 24px 0; }
+  .row-flex { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .row-flex > * { flex: 1; min-width: 200px; }
+  .pill-tabs {
+    display: inline-flex; gap: 4px; padding: 4px;
+    background: var(--paper-2); border-radius: 99px;
+  }
+  .pill-tabs button {
+    padding: 5px 12px; border: none; background: transparent;
+    border-radius: 99px; cursor: pointer; font-size: .78rem;
+    font-family: inherit; color: var(--ink-mute);
+  }
+  .pill-tabs button[aria-pressed="true"] {
+    background: #fff; color: var(--ink); font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  /* ============ PREVIEW / PRINT ============ */
+  .preview-doc {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 36px 40px;
+    margin-top: 16px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .preview-doc .doc-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding-bottom: 20px; border-bottom: 2px solid var(--ink);
+    margin-bottom: 24px;
+  }
+  .preview-doc .doc-head .left h1 {
+    margin: 0; font-family: 'IBM Plex Serif', serif;
+    font-size: 1.6rem; font-weight: 600;
+  }
+  .preview-doc .doc-head .left .id {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78rem; letter-spacing: 1px; color: var(--ink-mute);
+    margin-top: 4px;
+  }
+  .preview-doc .doc-head .right { text-align: right; }
+  .preview-doc .doc-head .right .logo {
+    width: 50px; height: 50px; background: var(--gold);
+    color: var(--ink); display: inline-grid; place-items: center;
+    font-family: 'IBM Plex Serif', serif; font-size: 26px; font-weight: 600;
+    border-radius: 2px;
+  }
+  .preview-doc .doc-meta {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 24px;
+    padding: 14px 16px;
+    background: var(--paper-2);
+    border-radius: var(--r-sm);
+  }
+  .preview-doc .doc-meta .cell .lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .65rem; letter-spacing: 1.4px;
+    color: var(--ink-mute); text-transform: uppercase;
+  }
+  .preview-doc .doc-meta .cell .val {
+    font-weight: 600; margin-top: 2px;
+  }
+  .preview-doc table {
+    min-width: 0; width: 100%;
+    border: 1px solid var(--line);
+    border-collapse: collapse;
+  }
+  .preview-doc thead th {
+    background: var(--ink); color: #fff;
+    border-bottom: none; padding: 8px 8px;
+  }
+  .preview-doc tbody td {
+    border: 1px solid var(--line);
+    padding: 6px 8px;
+    font-size: .82rem;
+  }
+  .preview-doc .doc-section-title {
+    margin: 22px 0 8px;
+    font-family: 'IBM Plex Serif', serif; font-weight: 600;
+    font-size: 1rem;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--gold);
+    color: var(--gold-deep);
+  }
+  .preview-doc .doc-cachet {
+    margin-top: 30px;
+    display: flex; justify-content: space-between;
+    align-items: flex-end; gap: 24px;
+  }
+  .preview-doc .doc-cachet .sig {
+    flex: 1; border-top: 1px solid var(--ink);
+    padding-top: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78rem; color: var(--ink-soft);
+  }
+  .preview-doc .doc-cachet .sig b { color: var(--ink); display: block; margin-bottom: 4px; font-family: 'IBM Plex Sans', sans-serif; font-size: .9rem; }
+  .doc-stamp {
+    border: 3px solid;
+    padding: 10px 20px;
+    font-family: 'IBM Plex Serif', serif;
+    font-weight: 600; font-size: 1.4rem;
+    letter-spacing: 2px;
+    transform: rotate(-6deg);
+    text-transform: uppercase;
+    opacity: .85;
+  }
+  .doc-stamp.accept  { color: var(--ok);  border-color: var(--ok); }
+  .doc-stamp.reserve { color: var(--warn); border-color: var(--warn); }
+  .doc-stamp.refuse  { color: var(--ko);  border-color: var(--ko); }
+
+  /* ============ PRINT ============ */
+  @media print {
+    @page { margin: 14mm; size: A4; }
+    body { background: #fff; color: #000; font-size: 11px; }
+    header, nav, .no-print, .panel-head .btn-row, footer, .toast-zone, .modal-back { display: none !important; }
+    .panel { border: none; box-shadow: none; padding: 0; margin: 0; background: transparent; }
+    .panel-body { padding: 0; }
+    .preview-doc {
+      border: none; padding: 0; margin: 0;
+      background: #fff;
     }
-  </style>
+    .preview-doc thead th {
+      background: #222 !important; color: #fff !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .preview-doc .doc-meta {
+      background: #f4f1e8 !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .doc-stamp {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .status, .crit-pill {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      border: 1px solid #888 !important;
+    }
+    .doc-section-title {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .gamme-card, .section-head { page-break-inside: avoid; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; }
+    h1, h2, h3, h4 { page-break-after: avoid; }
+  }
+</style>
 </head>
 <body>
-  <header class="no-print">
-    <div class="wrap">
-      <div style="display:flex; align-items:center; gap:15px;">
-        <a href="index.html" class="btn" style="background:rgba(255,255,255,0.1); border:none; color:white; padding:4px 10px; font-size:0.8rem; text-decoration:none;">&larr; Accueil</a>
-        <h1>Qualité — Gamme & Rapport</h1>
+
+<header class="no-print">
+  <div class="wrap">
+    <div class="header-top">
+      <div class="brand">
+        <div class="logo">Q</div>
+        <div class="brand-text">
+          <h1>Qualité — Gammes &amp; Rapports de contrôle</h1>
+          <div class="sub">Production · Réception · Conformité</div>
+        </div>
       </div>
-      <nav role="tablist">
-        <button class="tab" id="tab-lib" role="tab" aria-selected="true">Bibliothèque</button>
-        <button class="tab" id="tab-report" role="tab" aria-selected="false">Rapports</button>
-        <button class="tab" id="tab-builder" role="tab" aria-selected="false">Éditeur</button>
-      </nav>
+      <div class="header-meta">
+        <span><b id="dateNow">Lundi 18 mai 2026</b></span>
+        <span id="storageInfo"><b>3</b> gammes · <b>3</b> rapports</span>
+      </div>
     </div>
-  </header>
+    <nav role="tablist">
+      <button class="tab" id="tab-lib" role="tab" aria-selected="true"><span class="num">01</span>Bibliothèque</button>
+      <button class="tab" id="tab-report" role="tab" aria-selected="false"><span class="num">02</span>Rapport</button>
+      <button class="tab" id="tab-builder" role="tab" aria-selected="false"><span class="num">03</span>Éditeur de gamme</button>
+    </nav>
+  </div>
+</header>
 
-  <main class="wrap">
-    <!-- MODULE 1 : BIBLIOTHÈQUE -->
-    <section class="panel" id="view-lib">
-      <div class="row" style="align-items: center; margin-bottom: 16px;">
-        <h3 style="margin:0; color:var(--primary);">Vos Gammes de Contrôle</h3>
-        <button class="btn primary" id="btnNewGammeLib">+ Nouvelle Gamme</button>
-        <div style="flex-grow:1"></div>
-        <label class="btn" style="margin:0; font-weight:normal;">
-          Import JSON <input type="file" id="fileImportGamme" accept=".json,application/json" style="display:none;" />
-        </label>
+<main class="wrap">
+
+  <!-- ====================== MODULE 1 : BIBLIOTHÈQUE ====================== -->
+  <section id="view-lib" class="">
+
+    <!-- KPI globaux -->
+    <div class="kpi-row no-print">
+      <div class="kpi gold"><div class="bar"></div><div class="lbl">Gammes</div><div class="val" id="kpiGammes">3</div><div class="delta">Référentiels actifs</div></div>
+      <div class="kpi"><div class="bar"></div><div class="lbl">Rapports</div><div class="val" id="kpiRapports">3</div><div class="delta">Historique total</div></div>
+      <div class="kpi ok"><div class="bar"></div><div class="lbl">Taux conformité moyen</div><div class="val" id="kpiTaux">92%</div><div class="delta">Sur l'ensemble des rapports</div></div>
+      <div class="kpi"><div class="bar"></div><div class="lbl">Dernier contrôle</div><div class="val" id="kpiLast" style="font-size:1.2rem">10 avr. 2025</div><div class="delta" id="kpiLastInfo">RC-20250410-014 · Vis de pont à fente S08 acier 20AP</div></div>
+    </div>
+
+    <!-- Bibliothèque -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Référentiels qualité</div>
+          <h2>Bibliothèque des gammes</h2>
+          <div class="lede">Cliquez sur une gamme pour la consulter ou la modifier dans l'éditeur.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="btnNewGammeLib">+ Nouvelle gamme</button>
+          <label class="btn ghost">Importer JSON <input type="file" id="fileImportGamme" accept=".json,application/json" style="display:none"></label>
+        </div>
       </div>
-
-      <div id="gammeList"></div>
-
-      <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--border-color);">
-        <h3 style="margin:0 0 16px 0; color:var(--primary);">Historique des Rapports</h3>
-        <div class="row" style="align-items: flex-end;">
-          <div style="flex: 2;">
-            <select id="reportHistorySelect"></select>
-          </div>
-          <div>
-            <button class="btn primary" id="btnViewReport">Voir le Rapport</button>
-            <button class="btn ok" id="btnResumeReport">Modifier / Reprendre</button>
-            <button class="btn danger" id="btnDeleteReport">Supprimer</button>
+      <div class="panel-body">
+        <div class="lib-toolbar">
+          <div class="search"><input id="libSearch" placeholder="Rechercher par N°, titre, référence, désignation…"></div>
+          <div class="pill-tabs" id="libFilter">
+            <button data-f="all" aria-pressed="true">Toutes</button>
+            <button data-f="production">Production</button>
+            <button data-f="reception">Réception</button>
           </div>
         </div>
-        <div id="historyPreviewArea" class="hidden" style="margin-top:20px;"></div>
+        <div id="gammeList" class="gamme-grid">
+      <div class="gamme-card" data-idx="0">
+        <div class="top">
+          <span class="id">GM-AIG-H-01</span>
+          <span class="mode prod">Production</span>
+        </div>
+        <h3>Contrôle final aiguille des heures</h3>
+        <div class="meta">
+          <span>Aiguille des heures plaquée Rh</span>
+          <span style="color:var(--gold-deep); font-family:'IBM Plex Mono', monospace">AIG-H-200</span>
+        </div>
+        <div class="steps-count">
+          <span>11 caract. · créée 18 mai 2026</span>
+          <span class="card-actions">
+            <button class="btn sm" data-act="dupe" data-idx="0" title="Dupliquer">⎘</button>
+            <button class="btn sm danger" data-act="del" data-idx="0" title="Supprimer">✕</button>
+          </span>
+        </div>
       </div>
-    </section>
+      <div class="gamme-card" data-idx="1">
+        <div class="top">
+          <span class="id">GM-FND-316L-12</span>
+          <span class="mode recep">Réception</span>
+        </div>
+        <h3>Réception fond de montre vissé 316L</h3>
+        <div class="meta">
+          <span>Fond de montre vissé Ø36 mm 316L</span>
+          <span style="color:var(--gold-deep); font-family:'IBM Plex Mono', monospace">FND-36-316L</span>
+        </div>
+        <div class="steps-count">
+          <span>13 caract. · créée 18 mai 2026</span>
+          <span class="card-actions">
+            <button class="btn sm" data-act="dupe" data-idx="1" title="Dupliquer">⎘</button>
+            <button class="btn sm danger" data-act="del" data-idx="1" title="Supprimer">✕</button>
+          </span>
+        </div>
+      </div>
+      <div class="gamme-card" data-idx="2">
+        <div class="top">
+          <span class="id">GM-VIS-S08-07</span>
+          <span class="mode recep">Réception</span>
+        </div>
+        <h3>Réception vis de pont S08 polie</h3>
+        <div class="meta">
+          <span>Vis de pont à fente S08 acier 20AP</span>
+          <span style="color:var(--gold-deep); font-family:'IBM Plex Mono', monospace">VIS-PT-S08</span>
+        </div>
+        <div class="steps-count">
+          <span>12 caract. · créée 18 mai 2026</span>
+          <span class="card-actions">
+            <button class="btn sm" data-act="dupe" data-idx="2" title="Dupliquer">⎘</button>
+            <button class="btn sm danger" data-act="del" data-idx="2" title="Supprimer">✕</button>
+          </span>
+        </div>
+      </div></div>
+      </div>
+    </div>
 
-    <!-- MODULE 2 : RAPPORT -->
-    <section class="panel hidden" id="view-report">
-      <div class="row" style="background: var(--bg-color); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color);">
-        <div style="flex: 2;">
-          <label>Nouveau rapport basé sur...</label>
-          <select id="reportGammeSelect"></select>
+    <!-- Historique rapports -->
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Traçabilité</div>
+          <h2>Historique des rapports</h2>
+          <div class="lede">Consultez, reprenez ou imprimez les rapports déjà enregistrés.</div>
+        </div>
+        <div class="btn-row">
+          <input id="historySearch" placeholder="Rechercher un rapport…" style="min-width:240px">
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="history-table-wrap" id="historyList">
+      <div class="history-row">
+        <div>
+          <div class="ref">RC-20250410-014</div>
+          <div class="dt">10 avr. 2025</div>
+        </div>
+        <div class="obj">
+          <div>Vis de pont à fente S08 acier 20AP</div>
+          <div class="dt">VIS-PT-S08 · Lot L-VIS-S08-25/14</div>
+        </div>
+        <div style="text-align:center"><span class="status warn">RÉS.</span></div>
+        <div style="text-align:center" class="dt">92%</div>
+        <div class="btn-row" style="justify-content:flex-end">
+          <button class="btn sm" data-h-act="view" data-idx="2">Voir</button>
+          <button class="btn sm danger" data-h-act="del" data-idx="2">✕</button>
+        </div>
+      </div>
+      <div class="history-row">
+        <div>
+          <div class="ref">RC-20250402-007</div>
+          <div class="dt">02 avr. 2025</div>
+        </div>
+        <div class="obj">
+          <div>Fond de montre vissé Ø36 mm 316L</div>
+          <div class="dt">FND-36-316L · Lot L-FND-2503-12</div>
+        </div>
+        <div style="text-align:center"><span class="status ko">REFUSÉ</span></div>
+        <div style="text-align:center" class="dt">85%</div>
+        <div class="btn-row" style="justify-content:flex-end">
+          <button class="btn sm" data-h-act="view" data-idx="1">Voir</button>
+          <button class="btn sm danger" data-h-act="del" data-idx="1">✕</button>
+        </div>
+      </div>
+      <div class="history-row">
+        <div>
+          <div class="ref">RC-20250318-001</div>
+          <div class="dt">18 mars 2025</div>
+        </div>
+        <div class="obj">
+          <div>Aiguille des heures plaquée Rh</div>
+          <div class="dt">AIG-H-200 · Lot L-AIG-2503-A</div>
+        </div>
+        <div style="text-align:center"><span class="status ok">OK</span></div>
+        <div style="text-align:center" class="dt">100%</div>
+        <div class="btn-row" style="justify-content:flex-end">
+          <button class="btn sm" data-h-act="view" data-idx="0">Voir</button>
+          <button class="btn sm danger" data-h-act="del" data-idx="0">✕</button>
+        </div>
+      </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== MODULE 2 : RAPPORT ====================== -->
+  <section id="view-report" class="hidden">
+
+    <div class="panel no-print">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Nouveau rapport</div>
+          <h2 id="reportTitle">Rapport de contrôle</h2>
+          <div class="lede" id="reportSub">Sélectionnez une gamme pour démarrer ou reprenez un rapport existant.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="btnResetReport">↺ Réinitialiser</button>
+          <button class="btn" id="btnExportReportCSV">↓ CSV</button>
+          <button class="btn" id="btnExportReportJSON">↓ JSON</button>
+          <button class="btn" id="btnPreviewReport">👁 Aperçu</button>
+          <button class="btn" id="btnPrint">🖶 Imprimer</button>
+          <button class="btn gold" id="btnSaveReport">✓ Enregistrer</button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+        <!-- Sélection gamme -->
+        <div class="config-bar" id="gammePicker">
+          <span class="lbl">Gamme de référence</span>
+          <select id="reportGammeSelect" style="flex:1; min-width:240px"><option value="0">GM-AIG-H-01 — Contrôle final aiguille des heures</option><option value="1">GM-FND-316L-12 — Réception fond de montre vissé 316L</option><option value="2">GM-VIS-S08-07 — Réception vis de pont S08 polie</option></select>
+          <button class="btn primary" id="btnUseGammeForReport">Charger</button>
+          <span class="hint">Définit les caractéristiques à contrôler.</span>
+        </div>
+
+        <!-- En-tête du rapport -->
+        <div class="meta-block" id="reportHeaderBlock">
+          <div class="ttl">En-tête du rapport</div>
+          <div class="grid">
+            <div><label class="fld">Réf. Rapport</label><input id="reportNo" class="mono"></div>
+            <div><label class="fld">Date</label><input id="reportDate" type="date"></div>
+            <div><label class="fld">Lot / N° série</label><input id="repLot" class="mono"></div>
+            <div><label class="fld">Quantité</label><input id="repQty" inputmode="numeric"></div>
+            <div><label class="fld">Désignation</label><input id="repDesignation" readonly=""></div>
+            <div><label class="fld">Référence</label><input id="repReference" readonly=""></div>
+            <div><label class="fld">Client / Affaire</label><input id="repClient"></div>
+            <div><label class="fld">Fournisseur</label><input id="repSupplier"></div>
+            <div><label class="fld">Contrôleur</label><input id="repController"></div>
+            <div><label class="fld">Validation Qualité</label><input id="repValidator"></div>
+            <div style="grid-column: 1 / -1"><label class="fld">Commentaire global</label><textarea id="repGeneralComment"></textarea></div>
+          </div>
+        </div>
+
+        <!-- KPI du rapport -->
+        <div class="kpi-row" id="reportKpiRow" style="margin-top: 22px;">
+          <div class="kpi ok"><div class="bar"></div><div class="lbl">OK</div><div class="val" id="kReportOk">0</div><div class="delta">Conformes</div></div>
+          <div class="kpi ko"><div class="bar"></div><div class="lbl">KO</div><div class="val" id="kReportKo">0</div><div class="delta">Non conformes</div></div>
+          <div class="kpi"><div class="bar"></div><div class="lbl">NA</div><div class="val" id="kReportNa">0</div><div class="delta">Non renseignés</div></div>
+          <div class="kpi gold"><div class="bar"></div><div class="lbl">Taux conformité</div><div class="val" id="kReportRate">—</div><div class="delta" id="kReportTotal">0 caract.</div></div>
+        </div>
+
+        <!-- Sections de résultats -->
+        <div id="reportSectionsArea"></div>
+
+        <!-- Conclusion -->
+        <div id="reportConclusion"></div>
+      </div>
+    </div>
+
+    <!-- Aperçu impression -->
+    <div id="reportPreview" class="hidden"></div>
+  </section>
+
+  <!-- ====================== MODULE 3 : ÉDITEUR ====================== -->
+  <section id="view-builder" class="hidden">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="eyebrow">Éditeur de référentiel</div>
+          <h2 id="builderTitle">Édition · Contrôle final aiguille des heures</h2>
+          <div class="lede">Définissez les caractéristiques produit à contrôler, classées en 4 familles.</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn danger" id="btnNewGamme">Tout effacer</button>
+          <button class="btn" id="btnExportBuiltGamme">↓ Export JSON</button>
+          <button class="btn gold" id="btnSaveBuiltGamme">✓ Enregistrer la gamme</button>
+        </div>
+      </div>
+
+      <div class="panel-body">
+
+        <!-- Bandeau mode -->
+        <div class="config-bar">
+          <span class="lbl">Mode de contrôle</span>
+          <select id="bControlType">
+            <option value="production">Production — colonne « Fréquence »</option>
+            <option value="reception">Réception — colonne « Taille d'échantillon »</option>
+          </select>
+          <span class="hint">Définit la structure des colonnes pour cette gamme.</span>
+        </div>
+
+        <!-- En-tête -->
+        <div class="meta-block">
+          <div class="ttl">En-tête de la gamme</div>
+          <div class="grid">
+            <div><label class="fld">Titre de la gamme</label><input id="bTitle" placeholder="ex. Contrôle final boîtier"></div>
+            <div><label class="fld">N° gamme (ID)</label><input id="bGammeNo" class="mono" placeholder="GM-XXX-00"></div>
+            <div><label class="fld">Auteur</label><input id="bAuthorName"></div>
+            <div><label class="fld">Désignation produit</label><input id="bDesignation"></div>
+            <div><label class="fld">Référence</label><input id="bReference" class="mono"></div>
+            <div><label class="fld">Plan / Indice</label><input id="bPlan" class="mono"></div>
+            <div><label class="fld">Normes</label><input id="bNorms"></div>
+            <div><label class="fld">Indice révision</label><input id="bRevision" class="mono" placeholder="A, B, 01…"></div>
+          </div>
+        </div>
+
+        <!-- 4 sections -->
+        <div id="builderSectionsArea"><div class="section-block">
+      <div class="section-head">
+        <div class="left">
+          <span class="num">01</span>
+          <h4>Contrôle documentaire</h4>
         </div>
         <div>
-          <button class="btn primary" id="btnUseGammeForReport">Nouveau Rapport</button>
-          <button class="btn" id="btnResetReport">Réinitialiser</button>
+          <button class="btn sm gold" data-add="doc">+ Ajouter une caractéristique</button>
         </div>
       </div>
-
-      <h3 style="margin-top: 30px; border-bottom: 2px solid var(--accent); display: inline-block;">En-tête Rapport</h3>
-      <div class="grid-4">
-        <div><label>Réf. Rapport</label><input id="reportNo" placeholder="Auto" /></div>
-        <div><label>Date</label><input id="reportDate" type="date" /></div>
-        <div><label>Produit</label><input id="repDesignation" readonly style="background:#f9f9f9" /></div>
-        <div><label>Référence</label><input id="repReference" readonly style="background:#f9f9f9" /></div>
-        <div><label>Lot / Série</label><input id="repLot" /></div>
-        <div><label>Quantité</label><input id="repQty" inputmode="numeric" /></div>
-        <div><label>Contrôleur</label><input id="repController" /></div>
-        <div><label>Commentaire Global</label><input id="repGeneralComment" /></div>
-      </div>
-
-      <div id="reportSectionsArea"></div>
-
-      <div class="row" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
-        <button class="btn primary" id="btnSaveReport">Enregistrer</button>
-        <button class="btn" id="btnPreviewReport">Aperçu</button>
-        <button class="btn" id="btnPrint">Imprimer</button>
-        <button class="btn" id="btnExportReportCSV">CSV</button>
-      </div>
-
-      <div id="reportPreview" class="hidden"></div>
-    </section>
-
-    <!-- MODULE 3 : BUILDER (EDITEUR) -->
-    <section class="panel hidden" id="view-builder">
-      <div class="row" style="margin-bottom: 20px;">
-        <button class="btn danger" id="btnNewGamme">Tout Effacer</button>
-        <div style="flex-grow:1"></div>
-        <button class="btn ok" id="btnSaveBuiltGamme">Enregistrer la Gamme</button>
-        <button class="btn" id="btnExportBuiltGamme">Export JSON</button>
-      </div>
-
-      <!-- BANDEAU CONFIGURATION HAUT DE PAGE -->
-      <div class="config-bar">
-         <label style="margin:0; font-size:0.9rem; color:var(--primary); white-space:nowrap;">MODE DE CONTRÔLE :</label>
-         <select id="bControlType" style="max-width:300px; font-weight:bold; color:var(--primary); border:2px solid var(--accent);">
-            <option value="production">Production (Colonne Fréquence)</option>
-            <option value="reception">Réception (Colonne Échantillon)</option>
-         </select>
-         <div class="mini" style="margin-left:auto;">Définit la structure des colonnes pour cette gamme.</div>
-      </div>
-
-      <!-- EN-TETE DE GAMME -->
-      <div class="compact-header-area">
-        <div class="section-header" style="background:var(--primary);">En-tête de la Gamme</div>
-        <div class="grid-4">
-          <div><label>Titre Gamme</label><input id="bTitle" /></div>
-          <div><label>N° Gamme (ID)</label><input id="bGammeNo" /></div>
-          <div><label>Auteur</label><input id="bAuthorName" /></div>
-          <div><label>Désignation</label><input id="bDesignation" /></div>
-          <div><label>Référence</label><input id="bReference" /></div>
-          <div><label>Plan / Indice</label><input id="bPlan" /></div>
-          <div><label>Normes</label><input id="bNorms" /></div>
+    <div class="table-scroll"><table><thead><tr><th style="width:50px">Seq</th><th style="width:90px">Critic.</th><th>Caractéristique</th><th>Résultat attendu</th><th>Méthode / commentaire</th><th style="width:90px"></th></tr></thead><tbody><tr>
+          <td><input data-idx="0" data-f="seqNo" value="10" class="mono"></td>
+          <td><select data-idx="0" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur" selected="">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="0" data-f="characteristic" value="Conformité OF &amp; plan en vigueur"></td><td><input data-idx="0" data-f="expectedResult" value="OF présent, plan ind. B, gamme à jour"></td><td><input data-idx="0" data-f="methodComment" value="Vérification documentaire poste"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="0" disabled="" style="opacity:.3">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="0" disabled="" style="opacity:.3">↓</button>
+          <button class="btn icon sm danger" data-del="0">✕</button>
+        </td></tr></tbody></table></div></div><div class="section-block">
+      <div class="section-head">
+        <div class="left">
+          <span class="num">02</span>
+          <h4>Contrôle esthétique</h4>
+        </div>
+        <div>
+          <button class="btn sm gold" data-add="aes">+ Ajouter une caractéristique</button>
         </div>
       </div>
+    <div class="table-scroll"><table><thead><tr><th style="width:50px">Seq</th><th style="width:90px">Critic.</th><th>Caractéristique</th><th>Résultat attendu</th><th>Méthode / commentaire</th><th style="width:120px">Fréquence</th><th style="width:90px"></th></tr></thead><tbody><tr>
+          <td><input data-idx="1" data-f="seqNo" value="10" class="mono"></td>
+          <td><select data-idx="1" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur" selected="">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="1" data-f="characteristic" value="Couleur &amp; brillance plaquage rhodié"></td><td><input data-idx="1" data-f="expectedResult" value="Conforme étalon visuel REF-RH-01"></td><td><input data-idx="1" data-f="methodComment" value="Comparaison sous lumière D65"></td><td><input data-idx="1" data-f="freq" value="1/10"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="1" disabled="" style="opacity:.3">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="1">↓</button>
+          <button class="btn icon sm danger" data-del="1">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="2" data-f="seqNo" value="20" class="mono"></td>
+          <td><select data-idx="2" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur">Majeur</option><option value="Critique" selected="">Critique</option></select></td>
+          <td><input data-idx="2" data-f="characteristic" value="Rayures / coups sur face vue"></td><td><input data-idx="2" data-f="expectedResult" value="Aucun défaut visible à la bino x20"></td><td><input data-idx="2" data-f="methodComment" value="Inspection binoculaire"></td><td><input data-idx="2" data-f="freq" value="100%"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="2">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="2">↓</button>
+          <button class="btn icon sm danger" data-del="2">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="3" data-f="seqNo" value="30" class="mono"></td>
+          <td><select data-idx="3" data-f="criticality"><option value="">—</option><option value="Mineur" selected="">Mineur</option><option value="Majeur">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="3" data-f="characteristic" value="Bavures sur arêtes &amp; canon"></td><td><input data-idx="3" data-f="expectedResult" value="Absence de bavures, ébavurage propre"></td><td><input data-idx="3" data-f="methodComment" value="Binoculaire x40"></td><td><input data-idx="3" data-f="freq" value="100%"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="3">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="3" disabled="" style="opacity:.3">↓</button>
+          <button class="btn icon sm danger" data-del="3">✕</button>
+        </td></tr></tbody></table></div></div><div class="section-block">
+      <div class="section-head">
+        <div class="left">
+          <span class="num">03</span>
+          <h4>Contrôle fonctionnel</h4>
+        </div>
+        <div>
+          <button class="btn sm gold" data-add="func">+ Ajouter une caractéristique</button>
+        </div>
+      </div>
+    <div class="table-scroll"><table><thead><tr><th style="width:50px">Seq</th><th style="width:90px">Critic.</th><th>Caractéristique</th><th>Résultat attendu</th><th>Méthode / commentaire</th><th>Moyen de contrôle</th><th style="width:120px">Fréquence</th><th style="width:90px"></th></tr></thead><tbody><tr>
+          <td><input data-idx="4" data-f="seqNo" value="10" class="mono"></td>
+          <td><select data-idx="4" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur">Majeur</option><option value="Critique" selected="">Critique</option></select></td>
+          <td><input data-idx="4" data-f="characteristic" value="Tenue du canon (force d'arrachement)"></td><td><input data-idx="4" data-f="expectedResult" value="F ≥ 1,5 N sur tige Ø1.20"></td><td><input data-idx="4" data-f="methodComment" value="Test sur 5 pièces, banc dynamométrique"></td><td>
+            <input data-idx="4" data-f="instrumentName" value="Dynamomètre 0-10N" placeholder="Nom">
+            <input data-idx="4" data-f="instrumentId" value="DYN-AIG-02" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="4" data-f="freq" value="1/100"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="4" disabled="" style="opacity:.3">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="4">↓</button>
+          <button class="btn icon sm danger" data-del="4">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="5" data-f="seqNo" value="20" class="mono"></td>
+          <td><select data-idx="5" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur" selected="">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="5" data-f="characteristic" value="Planéité aiguille"></td><td><input data-idx="5" data-f="expectedResult" value="Flèche ≤ 0,02 mm sur longueur"></td><td><input data-idx="5" data-f="methodComment" value="Pose à plat sur marbre + comparateur"></td><td>
+            <input data-idx="5" data-f="instrumentName" value="Comparateur 0,001" placeholder="Nom">
+            <input data-idx="5" data-f="instrumentId" value="COMP-08" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="5" data-f="freq" value="1/20"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="5">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="5" disabled="" style="opacity:.3">↓</button>
+          <button class="btn icon sm danger" data-del="5">✕</button>
+        </td></tr></tbody></table></div></div><div class="section-block">
+      <div class="section-head">
+        <div class="left">
+          <span class="num">04</span>
+          <h4>Contrôle dimensionnel</h4>
+        </div>
+        <div>
+          <button class="btn sm gold" data-add="dim">+ Ajouter une caractéristique</button>
+        </div>
+      </div>
+    <div class="table-scroll"><table><thead><tr><th style="width:50px">Seq</th><th style="width:90px">Critic.</th><th>Caractéristique</th><th style="width:90px">Nominal</th><th style="width:90px">Tol. -</th><th style="width:90px">Tol. +</th><th style="width:90px">Lim. inf.</th><th style="width:90px">Lim. sup.</th><th>Méthode / commentaire</th><th>Moyen de contrôle</th><th style="width:120px">Fréquence</th><th style="width:90px"></th></tr></thead><tbody><tr>
+          <td><input data-idx="6" data-f="seqNo" value="10" class="mono"></td>
+          <td><select data-idx="6" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur" selected="">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="6" data-f="characteristic" value="Longueur totale aiguille"></td>
+            <td><input data-idx="6" data-f="nominal" value="5.8" class="mono"></td>
+            <td><input data-idx="6" data-f="tolLower" value="-0.03" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="6" data-f="tolUpper" value="0.03" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="6" data-f="lowerLimit" value="5.77" class="mono calc" readonly=""></td>
+            <td><input data-idx="6" data-f="upperLimit" value="5.83" class="mono calc" readonly=""></td><td><input data-idx="6" data-f="methodComment" value="Mesure entre extrémités"></td><td>
+            <input data-idx="6" data-f="instrumentName" value="Projecteur de profil" placeholder="Nom">
+            <input data-idx="6" data-f="instrumentId" value="PROJ-01" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="6" data-f="freq" value="1/10"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="6" disabled="" style="opacity:.3">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="6">↓</button>
+          <button class="btn icon sm danger" data-del="6">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="7" data-f="seqNo" value="20" class="mono"></td>
+          <td><select data-idx="7" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur">Majeur</option><option value="Critique" selected="">Critique</option></select></td>
+          <td><input data-idx="7" data-f="characteristic" value="Ø extérieur canon"></td>
+            <td><input data-idx="7" data-f="nominal" value="1.5" class="mono"></td>
+            <td><input data-idx="7" data-f="tolLower" value="0" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="7" data-f="tolUpper" value="0.005" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="7" data-f="lowerLimit" value="1.5" class="mono calc" readonly=""></td>
+            <td><input data-idx="7" data-f="upperLimit" value="1.505" class="mono calc" readonly=""></td><td><input data-idx="7" data-f="methodComment" value="3 mesures à 120°"></td><td>
+            <input data-idx="7" data-f="instrumentName" value="Micromètre centésimal" placeholder="Nom">
+            <input data-idx="7" data-f="instrumentId" value="MIC-CT-04" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="7" data-f="freq" value="100%"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="7">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="7">↓</button>
+          <button class="btn icon sm danger" data-del="7">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="8" data-f="seqNo" value="30" class="mono"></td>
+          <td><select data-idx="8" data-f="criticality"><option value="">—</option><option value="Mineur">Mineur</option><option value="Majeur">Majeur</option><option value="Critique" selected="">Critique</option></select></td>
+          <td><input data-idx="8" data-f="characteristic" value="Ø alésage canon"></td>
+            <td><input data-idx="8" data-f="nominal" value="1.2" class="mono"></td>
+            <td><input data-idx="8" data-f="tolLower" value="0.003" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="8" data-f="tolUpper" value="0.01" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="8" data-f="lowerLimit" value="1.203" class="mono calc" readonly=""></td>
+            <td><input data-idx="8" data-f="upperLimit" value="1.21" class="mono calc" readonly=""></td><td><input data-idx="8" data-f="methodComment" value="Jauge tampon entre / n'entre pas"></td><td>
+            <input data-idx="8" data-f="instrumentName" value="Jauge tampon 1.20+" placeholder="Nom">
+            <input data-idx="8" data-f="instrumentId" value="JAUGE-12" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="8" data-f="freq" value="100%"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="8">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="8">↓</button>
+          <button class="btn icon sm danger" data-del="8">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="9" data-f="seqNo" value="40" class="mono"></td>
+          <td><select data-idx="9" data-f="criticality"><option value="">—</option><option value="Mineur" selected="">Mineur</option><option value="Majeur">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="9" data-f="characteristic" value="Hauteur du canon"></td>
+            <td><input data-idx="9" data-f="nominal" value="0.8" class="mono"></td>
+            <td><input data-idx="9" data-f="tolLower" value="-0.02" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="9" data-f="tolUpper" value="0.02" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="9" data-f="lowerLimit" value="0.78" class="mono calc" readonly=""></td>
+            <td><input data-idx="9" data-f="upperLimit" value="0.82" class="mono calc" readonly=""></td><td><input data-idx="9" data-f="methodComment" value="Mesure axiale"></td><td>
+            <input data-idx="9" data-f="instrumentName" value="Projecteur de profil" placeholder="Nom">
+            <input data-idx="9" data-f="instrumentId" value="PROJ-01" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="9" data-f="freq" value="1/10"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="9">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="9">↓</button>
+          <button class="btn icon sm danger" data-del="9">✕</button>
+        </td></tr><tr>
+          <td><input data-idx="10" data-f="seqNo" value="50" class="mono"></td>
+          <td><select data-idx="10" data-f="criticality"><option value="">—</option><option value="Mineur" selected="">Mineur</option><option value="Majeur">Majeur</option><option value="Critique">Critique</option></select></td>
+          <td><input data-idx="10" data-f="characteristic" value="Épaisseur du corps"></td>
+            <td><input data-idx="10" data-f="nominal" value="0.2" class="mono"></td>
+            <td><input data-idx="10" data-f="tolLower" value="-0.01" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="10" data-f="tolUpper" value="0.01" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="10" data-f="lowerLimit" value="0.19" class="mono calc" readonly=""></td>
+            <td><input data-idx="10" data-f="upperLimit" value="0.21" class="mono calc" readonly=""></td><td><input data-idx="10" data-f="methodComment" value="Mesure au point le plus mince"></td><td>
+            <input data-idx="10" data-f="instrumentName" value="Micromètre centésimal" placeholder="Nom">
+            <input data-idx="10" data-f="instrumentId" value="MIC-CT-04" placeholder="ID" class="mono" style="margin-top:3px">
+          </td><td><input data-idx="10" data-f="freq" value="1/10"></td><td>
+          <button class="btn icon sm" data-move="up" data-idx="10">↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="10" disabled="" style="opacity:.3">↓</button>
+          <button class="btn icon sm danger" data-del="10">✕</button>
+        </td></tr></tbody></table></div></div></div>
+      </div>
+    </div>
+  </section>
 
-      <!-- CORPS DE LA GAMME (4 PARTIES) -->
-      <div id="builderSectionsArea"></div>
-      
-    </section>
-  </main>
+</main>
+
+<!-- Zone toast & modale -->
+<div class="toast-zone" id="toastZone"></div>
+<div id="modalRoot"></div>
 
 <script>
-const LS_KEY = "qc_app_library_v3"; 
-const $ = (id)=>document.getElementById(id);
+/* =========================================================================
+   APPLICATION QUALITÉ — Version améliorée
+   Auteur initial : N. Derobert | Refonte technique & design
+   ========================================================================= */
 
-/* --- UTILS --- */
-function nowISO(){ return new Date().toISOString(); }
-function todayISO(){
-  const d = new Date(); const pad=(n)=>String(n).padStart(2,'0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-function safeParseNumber(v){
-  if(v===null||v===undefined) return null;
-  const s = String(v).trim().replace(/\s/g,'').replace(',','.');
-  if(s==="") return null;
-  const n = Number(s); return Number.isFinite(n)?n:null;
-}
-function fmtNumber(n){
-  if(n===null||n===undefined) return "";
-  if(typeof n!=="number") n=safeParseNumber(n);
-  return n===null ? "" : new Intl.NumberFormat('fr-FR',{maximumFractionDigits:6}).format(n);
-}
-function escapeHtml(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function downloadText(f,t,m="application/json"){
-  const b=new Blob([t],{type:m}); const u=URL.createObjectURL(b);
-  const a=document.createElement("a"); a.href=u; a.download=f;
-  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
-}
+/* ---------- CONSTANTES ---------- */
+const LS_KEY = "qc_app_library_v5";
+const $ = (id) => document.getElementById(id);
 
-/* --- STORAGE --- */
-function loadLibrary(){
-  try{
-    const raw=localStorage.getItem(LS_KEY);
-    if(!raw) return {gammes:[], reports:[]};
-    return JSON.parse(raw);
-  }catch(e){ return {gammes:[], reports:[]}; }
-}
-function saveLibrary(l){ localStorage.setItem(LS_KEY, JSON.stringify(l)); }
-
-/* --- SEED DATA --- */
-function seedIfEmpty(){
-  const lib = loadLibrary();
-  if(lib.gammes.length > 0) return;
-  
-  // 1. Gamme Usinage (Production)
-  const g1 = {
-    meta:{ title:"Usinage Axe Moteur", author:{name:"Méthodes"}, gammeNo:"GM-USI-01", controlType:"production", object:{designation:"Axe Rotor", reference:"AX-200", plan:"A", norms:"ISO 2768"}, createdAt:nowISO() },
-    steps:[
-      { category:"dim", seqNo:10, characteristic:"Diamètre portée", nominal:25.00, tolLower:-0.01, tolUpper:0.01, lowerLimit:24.99, upperLimit:25.01, methodComment:"Micromètre", instrument:{name:"Micromètre"}, frequency:"100%", criticality:"Critique" },
-      { category:"dim", seqNo:20, characteristic:"Longueur totale", nominal:150.0, tolLower:-0.1, tolUpper:0.1, lowerLimit:149.9, upperLimit:150.1, methodComment:"Pied à coulisse", instrument:{name:"PAC"}, frequency:"1/10", criticality:"Majeur" },
-      { category:"aes", seqNo:30, characteristic:"Aspect filetage", expectedResult:"Pas de bavures", methodComment:"Visuel", instrument:{}, frequency:"100%", criticality:"Mineur" }
-    ]
-  };
-
-  // 2. Gamme Plasturgie (Réception)
-  const g2 = {
-    meta:{ title:"Réception Boitier", author:{name:"Qualité Fournisseur"}, gammeNo:"GM-REC-55", controlType:"reception", object:{designation:"Boitier Capteur", reference:"CPT-55", plan:"B", norms:"VDI 3400"}, createdAt:nowISO() },
-    steps:[
-      { category:"doc", seqNo:10, characteristic:"Certificat matière", expectedResult:"Présent", methodComment:"Check doc", instrument:{}, criticality:"Majeur" },
-      { category:"aes", seqNo:20, characteristic:"Aspect global", expectedResult:"Grainage homogène, pas de retassures", methodComment:"Etalon", instrument:{}, sampleSize:"AQL 1.0", criticality:"Majeur" },
-      { category:"func", seqNo:30, characteristic:"Clipsage", expectedResult:"Tenue > 50N", methodComment:"Dynamomètre", instrument:{name:"DYN-01"}, sampleSize:"5 pcs", criticality:"Critique" }
-    ]
-  };
-
-  // 3. Rapports Exemples (AVEC CATEGORIES EXPLICITES)
-  const r1 = {
-    meta: { reportNo: "RC-2023-10-01", date: "2023-10-25", object: g1.meta.object, lot: "L-9988", quantity: 500, controller: "Jean", generalComment: "RAS" },
-    gammeRef: g1.meta,
-    results: [
-      { seqNo:10, category:"dim", type:"measure", characteristic:"Diamètre portée", criteria:{nominal:25, min:24.99, max:25.01}, measuredValue:25.005, status:"OK" },
-      { seqNo:20, category:"dim", type:"measure", characteristic:"Longueur totale", criteria:{nominal:150, min:149.9, max:150.1}, measuredValue:150.05, status:"OK" },
-      { seqNo:30, category:"aes", type:"visual", characteristic:"Aspect filetage", criteria:{expectedResult:"Pas de bavures"}, measuredValue:null, status:"OK" }
-    ],
-    summary: {conclusion: "ACCEPTÉ"}
-  };
-
-  const r2 = {
-    meta: { reportNo: "RC-2023-11-12", date: "2023-11-12", object: g2.meta.object, lot: "L-PLAST-02", quantity: 2000, controller: "Sophie", generalComment: "Défaut aspect sur 2 pièces" },
-    gammeRef: g2.meta,
-    results: [
-      { seqNo:10, category:"doc", type:"visual", characteristic:"Certificat", criteria:{expectedResult:"Présent"}, status:"OK" },
-      { seqNo:20, category:"aes", type:"visual", characteristic:"Aspect global", criteria:{expectedResult:"Grainage..."}, status:"KO", comment:"Retassures zone A" },
-      { seqNo:30, category:"func", type:"functional", characteristic:"Clipsage", criteria:{expectedResult:"Tenue > 50N"}, status:"OK" }
-    ],
-    summary: {conclusion: "REFUSÉ"}
-  };
-
-  lib.gammes.push(g1, g2);
-  lib.reports.push(r1, r2);
-  saveLibrary(lib);
-}
-
-/* --- STATE --- */
-let reportGamme = null; 
-let reportResults = {}; 
-let builderSteps = []; 
-
-/* --- TABS --- */
-const tabs = [
-  {tab:$("tab-lib"), view:$("view-lib")},
-  {tab:$("tab-report"), view:$("view-report")},
-  {tab:$("tab-builder"), view:$("view-builder")},
+const CATEGORIES = [
+  { id: "doc",  label: "Contrôle documentaire", num: "01" },
+  { id: "aes",  label: "Contrôle esthétique",   num: "02" },
+  { id: "func", label: "Contrôle fonctionnel",  num: "03" },
+  { id: "dim",  label: "Contrôle dimensionnel", num: "04" }
 ];
-function switchTab(targetId){
+
+const CRIT_LEVELS = ["", "Mineur", "Majeur", "Critique"];
+
+/* ---------- UTILS ---------- */
+const nowISO = () => new Date().toISOString();
+const todayISO = () => {
+  const d = new Date(); const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+};
+const fmtDate = (s) => {
+  if (!s) return "—";
+  const d = new Date(s); if (isNaN(d)) return s;
+  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
+};
+const safeNum = (v) => {
+  if (v == null) return null;
+  const s = String(v).trim().replace(/\s/g,'').replace(',', '.');
+  if (s === "") return null;
+  const n = Number(s); return Number.isFinite(n) ? n : null;
+};
+const fmtNum = (n, dec) => {
+  if (n == null || n === "") return "";
+  if (typeof n !== "number") n = safeNum(n);
+  if (n == null) return "";
+  return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: dec ?? 6 }).format(n);
+};
+const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const downloadText = (filename, text, mime = "application/json") => {
+  const b = new Blob([text], { type: mime });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement("a"); a.href = u; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 500);
+};
+const slug = (s) => String(s||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'') || 'sans_titre';
+
+/* ---------- TOAST ---------- */
+function toast(msg, type = "ok", duration = 2800) {
+  const z = $("toastZone");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  const icons = { ok: "✓", err: "!", warn: "⚠", info: "i" };
+  el.innerHTML = `<span class="ico">${icons[type]||"·"}</span><span>${esc(msg)}</span>`;
+  z.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = "opacity .25s, transform .25s";
+    el.style.opacity = "0"; el.style.transform = "translateX(20px)";
+    setTimeout(() => el.remove(), 280);
+  }, duration);
+}
+
+/* ---------- MODAL CONFIRM ---------- */
+function modalConfirm({ title = "Confirmer", message = "", confirmLabel = "Confirmer", cancelLabel = "Annuler", danger = false } = {}) {
+  return new Promise(resolve => {
+    const root = $("modalRoot");
+    root.innerHTML = `
+      <div class="modal-back">
+        <div class="modal" role="dialog" aria-modal="true">
+          <h3>${esc(title)}</h3>
+          <p>${esc(message)}</p>
+          <div class="modal-actions">
+            <button class="btn" data-act="cancel">${esc(cancelLabel)}</button>
+            <button class="btn ${danger?'danger':'primary'}" data-act="ok">${esc(confirmLabel)}</button>
+          </div>
+        </div>
+      </div>`;
+    const close = (v) => { root.innerHTML = ""; resolve(v); };
+    root.querySelector('[data-act="cancel"]').onclick = () => close(false);
+    root.querySelector('[data-act="ok"]').onclick = () => close(true);
+    root.querySelector('.modal-back').addEventListener('click', e => {
+      if (e.target.classList.contains('modal-back')) close(false);
+    });
+  });
+}
+
+/* ---------- STORAGE ---------- */
+function loadLib() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return { gammes: [], reports: [] };
+    const o = JSON.parse(raw);
+    o.gammes = o.gammes || []; o.reports = o.reports || [];
+    return o;
+  } catch (e) { return { gammes: [], reports: [] }; }
+}
+function saveLib(l) {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(l));
+    updateStorageInfo();
+    return true;
+  } catch (e) {
+    toast("Sauvegarde impossible : " + e.message, "err", 4000);
+    return false;
+  }
+}
+function updateStorageInfo() {
+  const l = loadLib();
+  $("storageInfo").innerHTML = `<b>${l.gammes.length}</b> gammes · <b>${l.reports.length}</b> rapports`;
+}
+
+/* ---------- SEED ---------- */
+function seedIfEmpty() {
+  const lib = loadLib();
+  if (lib.gammes.length > 0 || lib.reports.length > 0) return;
+
+  /* =================================================================
+     GAMME 1 — Contrôle aiguille des heures (production interne)
+     ================================================================= */
+  const g1 = {
+    meta: {
+      title: "Contrôle final aiguille des heures",
+      gammeNo: "GM-AIG-H-01",
+      controlType: "production",
+      revision: "B",
+      author: { name: "Service Qualité Habillage" },
+      object: {
+        designation: "Aiguille des heures plaquée Rh",
+        reference: "AIG-H-200",
+        plan: "PL-AIG-H-200 ind. B",
+        norms: "NIHS 06-10 / NF EN ISO 2768-fH"
+      },
+      createdAt: nowISO()
+    },
+    steps: [
+      // Documentaire
+      { category:"doc",  seqNo:10, characteristic:"Conformité OF & plan en vigueur", expectedResult:"OF présent, plan ind. B, gamme à jour", methodComment:"Vérification documentaire poste", criticality:"Majeur" },
+
+      // Esthétique
+      { category:"aes",  seqNo:10, characteristic:"Couleur & brillance plaquage rhodié", expectedResult:"Conforme étalon visuel REF-RH-01", methodComment:"Comparaison sous lumière D65", frequency:"1/10", criticality:"Majeur" },
+      { category:"aes",  seqNo:20, characteristic:"Rayures / coups sur face vue", expectedResult:"Aucun défaut visible à la bino x20", methodComment:"Inspection binoculaire", frequency:"100%", criticality:"Critique" },
+      { category:"aes",  seqNo:30, characteristic:"Bavures sur arêtes & canon", expectedResult:"Absence de bavures, ébavurage propre", methodComment:"Binoculaire x40", frequency:"100%", criticality:"Mineur" },
+
+      // Fonctionnel
+      { category:"func", seqNo:10, characteristic:"Tenue du canon (force d'arrachement)", expectedResult:"F ≥ 1,5 N sur tige Ø1.20", methodComment:"Test sur 5 pièces, banc dynamométrique", instrument:{ name:"Dynamomètre 0-10N", id:"DYN-AIG-02" }, frequency:"1/100", criticality:"Critique" },
+      { category:"func", seqNo:20, characteristic:"Planéité aiguille", expectedResult:"Flèche ≤ 0,02 mm sur longueur", methodComment:"Pose à plat sur marbre + comparateur", instrument:{ name:"Comparateur 0,001", id:"COMP-08" }, frequency:"1/20", criticality:"Majeur" },
+
+      // Dimensionnel
+      { category:"dim",  seqNo:10, characteristic:"Longueur totale aiguille",     nominal:5.80,  tolLower:-0.030, tolUpper:0.030, lowerLimit:5.770, upperLimit:5.830, methodComment:"Mesure entre extrémités", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, frequency:"1/10", criticality:"Majeur" },
+      { category:"dim",  seqNo:20, characteristic:"Ø extérieur canon",            nominal:1.500, tolLower:0,      tolUpper:0.005, lowerLimit:1.500, upperLimit:1.505, methodComment:"3 mesures à 120°", instrument:{ name:"Micromètre centésimal", id:"MIC-CT-04" }, frequency:"100%", criticality:"Critique" },
+      { category:"dim",  seqNo:30, characteristic:"Ø alésage canon",              nominal:1.200, tolLower:0.003,  tolUpper:0.010, lowerLimit:1.203, upperLimit:1.210, methodComment:"Jauge tampon entre / n'entre pas", instrument:{ name:"Jauge tampon 1.20+", id:"JAUGE-12" }, frequency:"100%", criticality:"Critique" },
+      { category:"dim",  seqNo:40, characteristic:"Hauteur du canon",             nominal:0.80,  tolLower:-0.02,  tolUpper:0.02,  lowerLimit:0.78,  upperLimit:0.82,  methodComment:"Mesure axiale", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, frequency:"1/10", criticality:"Mineur" },
+      { category:"dim",  seqNo:50, characteristic:"Épaisseur du corps",           nominal:0.20,  tolLower:-0.01,  tolUpper:0.01,  lowerLimit:0.19,  upperLimit:0.21,  methodComment:"Mesure au point le plus mince", instrument:{ name:"Micromètre centésimal", id:"MIC-CT-04" }, frequency:"1/10", criticality:"Mineur" }
+    ]
+  };
+
+  /* =================================================================
+     GAMME 2 — Contrôle réception fond de montre (sous-traité)
+     ================================================================= */
+  const g2 = {
+    meta: {
+      title: "Réception fond de montre vissé 316L",
+      gammeNo: "GM-FND-316L-12",
+      controlType: "reception",
+      revision: "A",
+      author: { name: "Qualité Fournisseur" },
+      object: {
+        designation: "Fond de montre vissé Ø36 mm 316L",
+        reference: "FND-36-316L",
+        plan: "PL-FND-36 ind. A",
+        norms: "NF EN ISO 2859-1 / ISO 22810 (étanchéité)"
+      },
+      createdAt: nowISO()
+    },
+    steps: [
+      // Documentaire
+      { category:"doc",  seqNo:10, characteristic:"Certificat matière 316L (PV 3.1)", expectedResult:"Présent, conforme composition", methodComment:"Vérification documentaire", criticality:"Majeur" },
+      { category:"doc",  seqNo:20, characteristic:"PV dimensionnel fournisseur",    expectedResult:"Présent, cohérent avec plan",     methodComment:"Lecture rapport", criticality:"Mineur" },
+      { category:"doc",  seqNo:30, characteristic:"BL & marquage emballage",         expectedResult:"Conforme commande, lot tracé",    methodComment:"Lecture BL + étiquette", criticality:"Mineur" },
+
+      // Esthétique
+      { category:"aes",  seqNo:10, characteristic:"Polissage face extérieure",      expectedResult:"Aspect miroir, Ra ≤ 0,05 µm",     methodComment:"Comparaison étalon poli + rugotest", sampleSize:"AQL 1.0 — niv. II", criticality:"Majeur" },
+      { category:"aes",  seqNo:20, characteristic:"Brossage couronne périphérique", expectedResult:"Sens régulier, grain conforme étalon", methodComment:"Inspection visuelle directionnelle", sampleSize:"AQL 1.0 — niv. II", criticality:"Mineur" },
+      { category:"aes",  seqNo:30, characteristic:"Lisibilité gravures laser",      expectedResult:"Texte net, profondeur 30-50 µm, complet", methodComment:"Binoculaire x10, contraste vérifié", sampleSize:"AQL 1.0 — niv. II", criticality:"Majeur" },
+      { category:"aes",  seqNo:40, characteristic:"Rayures, coups, défauts surface", expectedResult:"Aucun défaut visible à l'œil nu sur faces vues", methodComment:"Inspection visuelle sous lumière rasante", sampleSize:"AQL 1.5 — niv. II", criticality:"Mineur" },
+
+      // Fonctionnel
+      { category:"func", seqNo:10, characteristic:"Étanchéité 10 ATM",              expectedResult:"Tenue 10 bar, pas de fuite (montage sur carrure étalon)", methodComment:"Test pression à sec 1 min", instrument:{ name:"Banc d'étanchéité", id:"ETA-01" }, sampleSize:"3 pcs", criticality:"Critique" },
+      { category:"func", seqNo:20, characteristic:"Couple de vissage à fond",       expectedResult:"3 à 5 N·m sans point dur", methodComment:"Vissage sur carrure étalon", instrument:{ name:"Tournevis dynamométrique", id:"DYN-FND-03" }, sampleSize:"3 pcs", criticality:"Majeur" },
+
+      // Dimensionnel
+      { category:"dim",  seqNo:10, characteristic:"Ø extérieur fond",         nominal:36.000, tolLower:-0.05, tolUpper:0,     lowerLimit:35.950, upperLimit:36.000, methodComment:"3 mesures à 120°", instrument:{ name:"Micromètre 25-50", id:"MIC-2550" }, sampleSize:"8 pcs", criticality:"Critique" },
+      { category:"dim",  seqNo:20, characteristic:"Hauteur totale",           nominal:2.50,   tolLower:-0.05, tolUpper:0.05,  lowerLimit:2.45,   upperLimit:2.55,   methodComment:"Mesure axiale", instrument:{ name:"Micromètre digital", id:"MIC-DIG-01" }, sampleSize:"8 pcs", criticality:"Majeur" },
+      { category:"dim",  seqNo:30, characteristic:"Ø portée de joint",        nominal:34.500, tolLower:-0.05, tolUpper:0.05,  lowerLimit:34.450, upperLimit:34.550, methodComment:"Mesure intérieure", instrument:{ name:"PAC numérique 150", id:"PAC-NUM-03" }, sampleSize:"5 pcs", criticality:"Majeur" },
+      { category:"dim",  seqNo:40, characteristic:"Profondeur logement joint", nominal:0.90,  tolLower:-0.05, tolUpper:0.05,  lowerLimit:0.85,   upperLimit:0.95,   methodComment:"Tige de profondeur", instrument:{ name:"PAC profondeur", id:"PAC-PRF-02" }, sampleSize:"5 pcs", criticality:"Mineur" }
+    ]
+  };
+
+  /* =================================================================
+     GAMME 3 — Contrôle réception vis de pont S08 (décolletage)
+     ================================================================= */
+  const g3 = {
+    meta: {
+      title: "Réception vis de pont S08 polie",
+      gammeNo: "GM-VIS-S08-07",
+      controlType: "reception",
+      revision: "C",
+      author: { name: "Qualité Composants" },
+      object: {
+        designation: "Vis de pont à fente S08 acier 20AP",
+        reference: "VIS-PT-S08",
+        plan: "PL-VIS-S08 ind. C",
+        norms: "NIHS 06-02 / NF ISO 1478"
+      },
+      createdAt: nowISO()
+    },
+    steps: [
+      // Documentaire
+      { category:"doc",  seqNo:10, characteristic:"PV matière acier 20AP",          expectedResult:"Présent, composition conforme", methodComment:"Lecture certificat 2.2 / 3.1", criticality:"Mineur" },
+      { category:"doc",  seqNo:20, characteristic:"PV dimensionnel fournisseur",    expectedResult:"Présent, valeurs dans tolérance",  methodComment:"Lecture rapport échantillonnage", criticality:"Mineur" },
+
+      // Esthétique
+      { category:"aes",  seqNo:10, characteristic:"Polissage tête (poli noir)",     expectedResult:"Aspect miroir uniforme, sans piqûre", methodComment:"Binoculaire x20, étalon poli", sampleSize:"AQL 1.0 — niv. II", criticality:"Majeur" },
+      { category:"aes",  seqNo:20, characteristic:"État de la fente",               expectedResult:"Arêtes vives, fond propre, sans bavure", methodComment:"Binoculaire x40", sampleSize:"AQL 1.0 — niv. II", criticality:"Critique" },
+      { category:"aes",  seqNo:30, characteristic:"Bavures sur filetage & extrémité", expectedResult:"Filets propres, pas de matière rapportée", methodComment:"Binoculaire x20", sampleSize:"AQL 2.5 — niv. II", criticality:"Mineur" },
+
+      // Fonctionnel
+      { category:"func", seqNo:10, characteristic:"Vissage / dévissage à fond",     expectedResult:"Vissage libre, pas de point dur, dévissage OK", methodComment:"Vissage sur trou étalon S08", instrument:{ name:"Calibre vissage S08", id:"GAB-S08-01" }, sampleSize:"5 pcs", criticality:"Critique" },
+      { category:"func", seqNo:20, characteristic:"Couple maxi avant rupture fente", expectedResult:"≥ 0,15 N·m sans déformation de la fente", methodComment:"Tournevis dynamométrique", instrument:{ name:"Tournevis dynamo 0-0.3 Nm", id:"DYN-VIS-01" }, sampleSize:"3 pcs", criticality:"Majeur" },
+
+      // Dimensionnel
+      { category:"dim",  seqNo:10, characteristic:"Ø nominal filetage S08",   nominal:0.800, tolLower:-0.020, tolUpper:0,      lowerLimit:0.780, upperLimit:0.800, methodComment:"3 mesures sur la longueur", instrument:{ name:"Micromètre centésimal", id:"MIC-CT-04" }, sampleSize:"10 pcs", criticality:"Critique" },
+      { category:"dim",  seqNo:20, characteristic:"Longueur sous tête",       nominal:1.50,  tolLower:-0.02,  tolUpper:0.02,   lowerLimit:1.48,  upperLimit:1.52,  methodComment:"Projecteur, mesure à l'épaulement", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, sampleSize:"10 pcs", criticality:"Majeur" },
+      { category:"dim",  seqNo:30, characteristic:"Ø tête de vis",            nominal:1.40,  tolLower:-0.02,  tolUpper:0.02,   lowerLimit:1.38,  upperLimit:1.42,  methodComment:"Projecteur", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, sampleSize:"10 pcs", criticality:"Mineur" },
+      { category:"dim",  seqNo:40, characteristic:"Hauteur de tête",          nominal:0.20,  tolLower:-0.02,  tolUpper:0.02,   lowerLimit:0.18,  upperLimit:0.22,  methodComment:"Projecteur", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, sampleSize:"10 pcs", criticality:"Mineur" },
+      { category:"dim",  seqNo:50, characteristic:"Largeur de fente",         nominal:0.15,  tolLower:-0.01,  tolUpper:0.01,   lowerLimit:0.14,  upperLimit:0.16,  methodComment:"Projecteur, mesure à mi-hauteur", instrument:{ name:"Projecteur de profil", id:"PROJ-01" }, sampleSize:"10 pcs", criticality:"Majeur" }
+    ]
+  };
+
+  /* =================================================================
+     RAPPORTS D'EXEMPLE
+     ================================================================= */
+
+  // Rapport 1 : aiguilles, lot conforme
+  const r1 = {
+    meta: {
+      reportNo: "RC-20250318-001",
+      date: "2025-03-18",
+      object: g1.meta.object,
+      lot: "L-AIG-2503-A",
+      quantity: 1200,
+      controller: "C. Müller",
+      validator: "N. Derobert",
+      client: "Atelier T2 — montage",
+      supplier: "",
+      generalComment: "Lot série standard, aspect homogène, plaquage conforme étalon."
+    },
+    gammeRef: g1.meta,
+    results: g1.steps.map(s => {
+      const base = {
+        seqNo: s.seqNo, category: s.category, characteristic: s.characteristic,
+        criticality: s.criticality, methodComment: s.methodComment,
+        frequency: s.frequency, instrument: s.instrument,
+        criteria: { nominal: s.nominal, min: s.lowerLimit, max: s.upperLimit, expectedResult: s.expectedResult }
+      };
+      if (s.category === "dim") base.measuredValue = s.nominal;
+      base.status = "OK";
+      return base;
+    }),
+    summary: { conclusion: "ACCEPTÉ" }
+  };
+
+  // Rapport 2 : fonds de montre, lot REFUSÉ (étanchéité KO sur 1 pièce + aspect majeur)
+  const r2 = {
+    meta: {
+      reportNo: "RC-20250402-007",
+      date: "2025-04-02",
+      object: g2.meta.object,
+      lot: "L-FND-2503-12",
+      quantity: 500,
+      controller: "C. Müller",
+      validator: "N. Derobert",
+      client: "",
+      supplier: "Manuf. Acier SA",
+      generalComment: "Lot refusé suite à défaut d'étanchéité sur 1 pièce de l'échantillon + défaut gravure sur fond #3."
+    },
+    gammeRef: g2.meta,
+    results: g2.steps.map((s, idx) => {
+      const base = {
+        seqNo: s.seqNo, category: s.category, characteristic: s.characteristic,
+        criticality: s.criticality, methodComment: s.methodComment,
+        sampleSize: s.sampleSize, instrument: s.instrument,
+        criteria: { nominal: s.nominal, min: s.lowerLimit, max: s.upperLimit, expectedResult: s.expectedResult }
+      };
+      if (s.category === "dim") base.measuredValue = s.nominal;
+      base.status = "OK"; base.comment = "";
+      // 2 KO ciblés
+      if (s.characteristic.includes("Étanchéité")) {
+        base.status = "KO";
+        base.comment = "Fuite détectée sur 1 pièce sur 3 — porosité fond.";
+      }
+      if (s.characteristic.includes("Lisibilité gravures")) {
+        base.status = "KO";
+        base.comment = "Gravure incomplète sur pièce #3 (logo coupé).";
+      }
+      return base;
+    }),
+    summary: { conclusion: "REFUSÉ" }
+  };
+
+  // Rapport 3 : vis, lot accepté avec réserve (1 défaut mineur)
+  const r3 = {
+    meta: {
+      reportNo: "RC-20250410-014",
+      date: "2025-04-10",
+      object: g3.meta.object,
+      lot: "L-VIS-S08-25/14",
+      quantity: 5000,
+      controller: "P. Berger",
+      validator: "N. Derobert",
+      client: "",
+      supplier: "Décolletage Précis Sàrl",
+      generalComment: "Lot accepté avec réserve : quelques bavures filetage observées, à signaler au fournisseur."
+    },
+    gammeRef: g3.meta,
+    results: g3.steps.map(s => {
+      const base = {
+        seqNo: s.seqNo, category: s.category, characteristic: s.characteristic,
+        criticality: s.criticality, methodComment: s.methodComment,
+        sampleSize: s.sampleSize, instrument: s.instrument,
+        criteria: { nominal: s.nominal, min: s.lowerLimit, max: s.upperLimit, expectedResult: s.expectedResult }
+      };
+      if (s.category === "dim") base.measuredValue = s.nominal;
+      base.status = "OK"; base.comment = "";
+      if (s.characteristic.includes("Bavures sur filetage")) {
+        base.status = "KO";
+        base.comment = "Bavures observées sur 2 pcs / 8 (mineur).";
+      }
+      return base;
+    }),
+    summary: { conclusion: "ACCEPTÉ AVEC RÉSERVE" }
+  };
+
+  lib.gammes.push(g1, g2, g3);
+  lib.reports.push(r1, r2, r3);
+  saveLib(lib);
+}
+
+/* ---------- STATE ---------- */
+let reportGamme = null;
+let reportResults = {};
+let reportMode = "edit"; // "edit" | "view"
+let builderSteps = [];
+let currentReportId = null;
+let libFilter = "all";
+let librarySearchTerm = "";
+
+/* ---------- TABS ---------- */
+const tabs = [
+  { tab: $("tab-lib"),     view: $("view-lib") },
+  { tab: $("tab-report"),  view: $("view-report") },
+  { tab: $("tab-builder"), view: $("view-builder") },
+];
+function switchTab(targetId) {
   tabs.forEach(t => {
-    const active = (t.tab.id === targetId);
+    const active = t.tab.id === targetId;
     t.tab.setAttribute("aria-selected", String(active));
     t.view.classList.toggle("hidden", !active);
   });
-  window.scrollTo({top:0, behavior:"smooth"});
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-tabs.forEach(t => t.tab.addEventListener("click", ()=>switchTab(t.tab.id)));
+tabs.forEach(t => t.tab.addEventListener("click", () => switchTab(t.tab.id)));
 
-/* =========================
-   MODULE 1: LIB & LISTING
-   ========================= */
-function refreshLibList(){
-  const lib = loadLibrary();
-  const listEl = $("gammeList");
-  listEl.innerHTML = "";
-  if(lib.gammes.length===0){ listEl.innerHTML="<div class='mini' style='text-align:center'>Vide</div>"; return; }
+/* =========================================================================
+   MODULE 1 — BIBLIOTHÈQUE
+   ========================================================================= */
 
-  lib.gammes.forEach((g, idx) => {
-    const el = document.createElement("div");
-    el.className = "gamme-item";
-    const mode = g.meta.controlType==="reception" ? "Réception" : "Production";
-    el.innerHTML = `
-      <div class="info">
-        <strong>${escapeHtml(g.meta.gammeNo)} — ${escapeHtml(g.meta.title)}</strong>
-        <span>${escapeHtml(g.meta.object.designation)} • <span style="color:var(--accent-text); font-weight:bold;">${mode}</span></span>
-      </div>
-      <button class="btn danger btn-sm" onclick="event.stopPropagation(); deleteGamme(${idx})">X</button>
-    `;
-    el.addEventListener("click", () => loadGammeToBuilder(idx));
-    listEl.appendChild(el);
+function computeReportStats(rep) {
+  let ok = 0, ko = 0, na = 0;
+  (rep.results || []).forEach(r => {
+    if (r.status === "OK") ok++;
+    else if (r.status === "KO") ko++;
+    else na++;
   });
-  refreshReportGammeSelect();
+  const total = ok + ko + na;
+  const evaluated = ok + ko;
+  const rate = evaluated > 0 ? Math.round((ok / evaluated) * 100) : null;
+  return { ok, ko, na, total, rate };
 }
 
-function deleteGamme(idx){
-  if(confirm("Supprimer ?")){
-    const lib=loadLibrary(); lib.gammes.splice(idx,1); saveLibrary(lib); refreshLibList();
+function computeReportConclusion(rep) {
+  let hasCritKO = false, hasMajKO = false, hasMinKO = false, hasNA = false;
+  (rep.results || []).forEach(r => {
+    if (r.status === "KO") {
+      const c = (r.criticality||"").toLowerCase();
+      if (c === "critique") hasCritKO = true;
+      else if (c === "majeur") hasMajKO = true;
+      else hasMinKO = true;
+    } else if (r.status !== "OK") hasNA = true;
+  });
+  if (hasCritKO || hasMajKO) return { code: "refuse", label: "REFUSÉ", detail: hasCritKO ? "Non-conformité critique détectée." : "Non-conformité majeure détectée." };
+  if (hasMinKO) return { code: "reserve", label: "ACCEPTÉ AVEC RÉSERVE", detail: "Non-conformités mineures à traiter." };
+  if (hasNA) return { code: "na", label: "EN COURS", detail: "Caractéristiques non renseignées." };
+  return { code: "accept", label: "ACCEPTÉ", detail: "Toutes les caractéristiques sont conformes." };
+}
+
+function refreshDashboardKPIs() {
+  const lib = loadLib();
+  $("kpiGammes").textContent = lib.gammes.length;
+  $("kpiRapports").textContent = lib.reports.length;
+
+  if (lib.reports.length === 0) {
+    $("kpiTaux").textContent = "—";
+    $("kpiLast").textContent = "—"; $("kpiLastInfo").textContent = "Aucun";
+    return;
+  }
+  let totalOk = 0, totalEval = 0;
+  let last = null;
+  lib.reports.forEach(r => {
+    const s = computeReportStats(r);
+    totalOk += s.ok; totalEval += (s.ok + s.ko);
+    if (!last || new Date(r.meta.date) > new Date(last.meta.date)) last = r;
+  });
+  $("kpiTaux").textContent = totalEval > 0 ? Math.round(totalOk / totalEval * 100) + "%" : "—";
+  if (last) {
+    $("kpiLast").textContent = fmtDate(last.meta.date);
+    $("kpiLastInfo").textContent = `${last.meta.reportNo} · ${last.meta.object?.designation || "—"}`;
   }
 }
 
-function loadGammeToBuilder(idx){
-  const lib = loadLibrary();
-  const g = lib.gammes[idx];
-  if(!g) return;
-  $("bTitle").value = g.meta.title||"";
-  $("bGammeNo").value = g.meta.gammeNo||"";
-  $("bAuthorName").value = g.meta.author?.name||"";
+function refreshLibList() {
+  const lib = loadLib();
+  const term = librarySearchTerm.toLowerCase();
+  const filtered = lib.gammes.filter(g => {
+    if (libFilter !== "all" && g.meta.controlType !== libFilter) return false;
+    if (!term) return true;
+    const haystack = `${g.meta.gammeNo} ${g.meta.title} ${g.meta.object?.designation||""} ${g.meta.object?.reference||""}`.toLowerCase();
+    return haystack.includes(term);
+  });
+
+  const listEl = $("gammeList");
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div class="icon">∅</div>
+        <div><b>Aucune gamme trouvée.</b></div>
+        <div class="mute">${lib.gammes.length === 0 ? "Créez votre première gamme via le bouton ci-dessus." : "Ajustez vos filtres ou votre recherche."}</div>
+      </div>`;
+    return;
+  }
+  listEl.innerHTML = filtered.map(g => {
+    const idx = lib.gammes.indexOf(g);
+    const mode = g.meta.controlType === "reception" ? "Réception" : "Production";
+    const modeCls = g.meta.controlType === "reception" ? "recep" : "prod";
+    const stepCount = (g.steps || []).length;
+    const created = g.meta.createdAt ? fmtDate(g.meta.createdAt) : "—";
+    return `
+      <div class="gamme-card" data-idx="${idx}">
+        <div class="top">
+          <span class="id">${esc(g.meta.gammeNo)}</span>
+          <span class="mode ${modeCls}">${mode}</span>
+        </div>
+        <h3>${esc(g.meta.title)}</h3>
+        <div class="meta">
+          <span>${esc(g.meta.object?.designation || "—")}</span>
+          <span style="color:var(--gold-deep); font-family:'IBM Plex Mono', monospace">${esc(g.meta.object?.reference || "")}</span>
+        </div>
+        <div class="steps-count">
+          <span>${stepCount} caract. · créée ${created}</span>
+          <span class="card-actions">
+            <button class="btn sm" data-act="dupe" data-idx="${idx}" title="Dupliquer">⎘</button>
+            <button class="btn sm danger" data-act="del" data-idx="${idx}" title="Supprimer">✕</button>
+          </span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+$("libSearch").addEventListener("input", (e) => { librarySearchTerm = e.target.value; refreshLibList(); });
+$("libFilter").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  $("libFilter").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false"));
+  b.setAttribute("aria-pressed", "true"); libFilter = b.dataset.f; refreshLibList();
+});
+
+$("gammeList").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if (btn) {
+    e.stopPropagation();
+    const idx = +btn.dataset.idx;
+    if (btn.dataset.act === "del") {
+      const ok = await modalConfirm({ title: "Supprimer cette gamme", message: "Cette opération est irréversible. Les rapports déjà créés à partir de cette gamme seront conservés.", confirmLabel: "Supprimer", danger: true });
+      if (ok) {
+        const lib = loadLib(); lib.gammes.splice(idx, 1); saveLib(lib);
+        refreshLibList(); refreshDashboardKPIs(); refreshReportGammeSelect();
+        toast("Gamme supprimée.", "ok");
+      }
+    }
+    if (btn.dataset.act === "dupe") {
+      const lib = loadLib();
+      const src = lib.gammes[idx];
+      const copy = JSON.parse(JSON.stringify(src));
+      copy.meta.gammeNo = src.meta.gammeNo + "-COPIE";
+      copy.meta.title = src.meta.title + " (copie)";
+      copy.meta.createdAt = nowISO();
+      lib.gammes.push(copy); saveLib(lib);
+      refreshLibList(); refreshDashboardKPIs(); refreshReportGammeSelect();
+      toast("Gamme dupliquée.", "ok");
+    }
+    return;
+  }
+  const card = e.target.closest(".gamme-card");
+  if (card) loadGammeToBuilder(+card.dataset.idx);
+});
+
+function loadGammeToBuilder(idx) {
+  const lib = loadLib(); const g = lib.gammes[idx];
+  if (!g) return;
+  $("bTitle").value = g.meta.title || "";
+  $("bGammeNo").value = g.meta.gammeNo || "";
+  $("bAuthorName").value = g.meta.author?.name || "";
   $("bControlType").value = g.meta.controlType || "production";
-  $("bDesignation").value = g.meta.object?.designation||"";
-  $("bReference").value = g.meta.object?.reference||"";
-  $("bPlan").value = g.meta.object?.plan||"";
-  $("bNorms").value = g.meta.object?.norms||"";
-  
-  builderSteps = JSON.parse(JSON.stringify(g.steps||[])).map(s => ({...s, category: s.category || "dim"}));
+  $("bDesignation").value = g.meta.object?.designation || "";
+  $("bReference").value = g.meta.object?.reference || "";
+  $("bPlan").value = g.meta.object?.plan || "";
+  $("bNorms").value = g.meta.object?.norms || "";
+  $("bRevision").value = g.meta.revision || "";
+
+  builderSteps = JSON.parse(JSON.stringify(g.steps || [])).map(s => ({ ...s, category: s.category || "dim" }));
+  $("builderTitle").textContent = `Édition · ${g.meta.title}`;
   renderBuilderSections();
   switchTab("tab-builder");
 }
 
-$("btnNewGammeLib").addEventListener("click", ()=>{
-  $("bTitle").value=""; $("bGammeNo").value=""; $("bAuthorName").value=""; 
-  $("bDesignation").value=""; $("bReference").value=""; $("bPlan").value=""; $("bNorms").value="";
+$("btnNewGammeLib").addEventListener("click", () => {
+  ["bTitle","bGammeNo","bAuthorName","bDesignation","bReference","bPlan","bNorms","bRevision"].forEach(id => $(id).value = "");
+  $("bControlType").value = "production";
   builderSteps = [];
+  $("builderTitle").textContent = "Construire une gamme de contrôle";
   renderBuilderSections();
   switchTab("tab-builder");
 });
 
-$("btnNewGamme").addEventListener("click", ()=>{
-   if(confirm("Tout effacer ?")){ builderSteps=[]; renderBuilderSections(); }
+$("btnNewGamme").addEventListener("click", async () => {
+  const ok = await modalConfirm({ title: "Tout effacer ?", message: "Toutes les modifications non enregistrées de la gamme seront perdues.", confirmLabel: "Effacer", danger: true });
+  if (ok) { builderSteps = []; renderBuilderSections(); toast("Gamme réinitialisée."); }
 });
 
-$("fileImportGamme").addEventListener("change", async (e)=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  try{
-    const t=await f.text(); const g=JSON.parse(t);
-    const lib=loadLibrary(); lib.gammes.push(g); saveLibrary(lib); refreshLibList();
-  }catch(e){alert("Erreur JSON");}
+$("fileImportGamme").addEventListener("change", async (e) => {
+  const f = e.target.files?.[0]; if (!f) return;
+  try {
+    const txt = await f.text(); const g = JSON.parse(txt);
+    if (!g.meta || !g.steps) throw new Error("Structure invalide");
+    const lib = loadLib(); lib.gammes.push(g); saveLib(lib);
+    refreshLibList(); refreshDashboardKPIs(); refreshReportGammeSelect();
+    toast("Gamme importée avec succès.", "ok");
+  } catch (err) { toast("Erreur d'import : " + err.message, "err"); }
+  e.target.value = "";
 });
 
-/* =========================
-   MODULE 3: BUILDER (4 SECTIONS)
-   ========================= */
-const CATEGORIES = [
-  { id: "doc", label: "1. Contrôle Documentaire", cols: ["seq","crit","char","exp","meth","ok"] },
-  { id: "aes", label: "2. Contrôle Esthétique", cols: ["seq","crit","char","exp","meth","freq","ok"] },
-  { id: "func", label: "3. Contrôle Fonctionnel", cols: ["seq","crit","char","exp","meth","inst","freq","ok"] },
-  { id: "dim", label: "4. Contrôle Dimensionnel", cols: ["seq","crit","char","nom","tol","lim","meth","inst","freq","ok"] }
-];
+/* ---------- Historique rapports ---------- */
+function refreshHistoryList() {
+  const lib = loadLib();
+  const term = ($("historySearch").value || "").toLowerCase();
+  const filtered = lib.reports.map((r, i) => ({...r, _idx: i})).filter(r => {
+    if (!term) return true;
+    const h = `${r.meta.reportNo} ${r.meta.object?.designation||""} ${r.meta.object?.reference||""} ${r.meta.lot||""}`.toLowerCase();
+    return h.includes(term);
+  });
+  filtered.sort((a,b) => (b.meta.date||"").localeCompare(a.meta.date||""));
 
-function renderBuilderSections(){
-  const area = $("builderSectionsArea");
-  area.innerHTML = "";
+  const el = $("historyList");
+  if (filtered.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="icon">∅</div><div>Aucun rapport enregistré.</div></div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(r => {
+    const stats = computeReportStats(r);
+    const conc = computeReportConclusion(r);
+    const stCls = { accept:"ok", reserve:"warn", refuse:"ko", na:"" }[conc.code] || "";
+    const stPill = { accept:"OK", reserve:"RÉS.", refuse:"REFUSÉ", na:"COURS" }[conc.code] || "—";
+    return `
+      <div class="history-row">
+        <div>
+          <div class="ref">${esc(r.meta.reportNo)}</div>
+          <div class="dt">${fmtDate(r.meta.date)}</div>
+        </div>
+        <div class="obj">
+          <div>${esc(r.meta.object?.designation || "—")}</div>
+          <div class="dt">${esc(r.meta.object?.reference||"")} · Lot ${esc(r.meta.lot||"—")}</div>
+        </div>
+        <div style="text-align:center"><span class="status ${stCls}">${stPill}</span></div>
+        <div style="text-align:center" class="dt">${stats.rate != null ? stats.rate + "%" : "—"}</div>
+        <div class="btn-row" style="justify-content:flex-end">
+          <button class="btn sm" data-h-act="view" data-idx="${r._idx}">Voir</button>
+          <button class="btn sm danger" data-h-act="del" data-idx="${r._idx}">✕</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+$("historySearch").addEventListener("input", refreshHistoryList);
+$("historyList").addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-h-act]"); if (!btn) return;
+  const idx = +btn.dataset.idx;
+  const lib = loadLib();
+  if (btn.dataset.hAct === "del") {
+    const ok = await modalConfirm({ title: "Supprimer ce rapport", message: "Action irréversible.", confirmLabel: "Supprimer", danger: true });
+    if (ok) { lib.reports.splice(idx, 1); saveLib(lib); refreshHistoryList(); refreshDashboardKPIs(); toast("Rapport supprimé."); }
+    return;
+  }
+  if (btn.dataset.hAct === "view") {
+    loadReportToView(lib.reports[idx], idx);
+  }
+});
+
+/* =========================================================================
+   MODULE 3 — BUILDER
+   ========================================================================= */
+
+function renderBuilderSections() {
+  const area = $("builderSectionsArea"); area.innerHTML = "";
   const controlType = $("bControlType").value;
-  const freqLabel = controlType === "reception" ? "Taille Échantillon" : "Fréquence";
+  const freqLabel = controlType === "reception" ? "Taille échant." : "Fréquence";
 
   CATEGORIES.forEach(cat => {
     const stepsInCat = builderSteps.map((s, i) => ({...s, globalIdx: i})).filter(s => s.category === cat.id);
-    
     const wrapper = document.createElement("div");
     wrapper.className = "section-block";
-    
     wrapper.innerHTML = `
-      <div class="section-header">
-        <span>${cat.label}</span>
-        <button class="btn btn-sm" onclick="addStep('${cat.id}')" style="color:#000">+ Ajouter</button>
+      <div class="section-head">
+        <div class="left">
+          <span class="num">${cat.num}</span>
+          <h4>${cat.label}</h4>
+        </div>
+        <div>
+          <button class="btn sm gold" data-add="${cat.id}">+ Ajouter une caractéristique</button>
+        </div>
       </div>
     `;
 
-    if(stepsInCat.length === 0){
-      wrapper.innerHTML += `<div class="mini" style="padding:10px; border:1px dashed #ccc;">Aucune séquence.</div>`;
+    if (stepsInCat.length === 0) {
+      wrapper.innerHTML += `<div class="empty-sub">Aucune caractéristique dans cette famille.</div>`;
     } else {
-      let thead = `<th>Seq</th><th>Crit</th><th>Caractéristique</th>`;
-      if(cat.id === "dim") {
-        thead += `<th>Nominale</th><th>Tol (-/+)</th><th>Lim (Inf/Sup)</th>`;
-      } else {
-        thead += `<th>Résultat Attendu</th>`;
-      }
-      thead += `<th>Méthode</th>`;
-      if(cat.id !== "doc" && cat.id !== "aes") thead += `<th>Moyen</th>`;
-      if(cat.id !== "doc") thead += `<th>${freqLabel}</th>`;
-      thead += `<th></th>`;
+      let thead = `<th style="width:50px">Seq</th><th style="width:90px">Critic.</th><th>Caractéristique</th>`;
+      if (cat.id === "dim") thead += `<th style="width:90px">Nominal</th><th style="width:90px">Tol. -</th><th style="width:90px">Tol. +</th><th style="width:90px">Lim. inf.</th><th style="width:90px">Lim. sup.</th>`;
+      else thead += `<th>Résultat attendu</th>`;
+      thead += `<th>Méthode / commentaire</th>`;
+      if (cat.id !== "doc" && cat.id !== "aes") thead += `<th>Moyen de contrôle</th>`;
+      if (cat.id !== "doc") thead += `<th style="width:120px">${freqLabel}</th>`;
+      thead += `<th style="width:90px"></th>`;
 
-      const rows = stepsInCat.map(s => {
+      const rows = stepsInCat.map((s, posInCat) => {
         const i = s.globalIdx;
-        let cells = `<td><input data-idx="${i}" class="b-seq" value="${s.seqNo||""}" style="width:40px"></td>
-                     <td><input data-idx="${i}" class="b-crit" value="${s.criticality||""}" placeholder="Min/Maj"></td>
-                     <td><input data-idx="${i}" class="b-char" value="${s.characteristic||""}"></td>`;
-        
-        if(cat.id === "dim") {
+        let cells = `
+          <td><input data-idx="${i}" data-f="seqNo" value="${esc(s.seqNo)||""}" class="mono"></td>
+          <td><select data-idx="${i}" data-f="criticality">${CRIT_LEVELS.map(c => `<option value="${c}" ${s.criticality===c?"selected":""}>${c || "—"}</option>`).join("")}</select></td>
+          <td><input data-idx="${i}" data-f="characteristic" value="${esc(s.characteristic)||""}"></td>`;
+        if (cat.id === "dim") {
           cells += `
-            <td><input data-idx="${i}" class="b-nom" value="${s.nominal||""}" style="width:60px" onchange="autoCalc(${i})"></td>
-            <td>
-              <input data-idx="${i}" class="b-tl" value="${s.tolLower||""}" style="width:50px; margin-bottom:2px" placeholder="-" onchange="autoCalc(${i})"><br>
-              <input data-idx="${i}" class="b-tu" value="${s.tolUpper||""}" style="width:50px" placeholder="+" onchange="autoCalc(${i})">
-            </td>
-            <td>
-              <input data-idx="${i}" class="b-min auto-calc" value="${s.lowerLimit||""}" style="width:50px; margin-bottom:2px" readonly><br>
-              <input data-idx="${i}" class="b-max auto-calc" value="${s.upperLimit||""}" style="width:50px" readonly>
-            </td>
-          `;
+            <td><input data-idx="${i}" data-f="nominal" value="${s.nominal??""}" class="mono"></td>
+            <td><input data-idx="${i}" data-f="tolLower" value="${s.tolLower??""}" class="mono" placeholder="-0.01"></td>
+            <td><input data-idx="${i}" data-f="tolUpper" value="${s.tolUpper??""}" class="mono" placeholder="+0.01"></td>
+            <td><input data-idx="${i}" data-f="lowerLimit" value="${s.lowerLimit??""}" class="mono calc" readonly></td>
+            <td><input data-idx="${i}" data-f="upperLimit" value="${s.upperLimit??""}" class="mono calc" readonly></td>`;
         } else {
-          cells += `<td><input data-idx="${i}" class="b-exp" value="${s.expectedResult||""}"></td>`;
+          cells += `<td><input data-idx="${i}" data-f="expectedResult" value="${esc(s.expectedResult)||""}"></td>`;
         }
-
-        cells += `<td><input data-idx="${i}" class="b-meth" value="${s.methodComment||""}"></td>`;
-
-        if(cat.id !== "doc" && cat.id !== "aes") {
-           cells += `<td><input data-idx="${i}" class="b-inst" value="${s.instrument?.name||""}" placeholder="Nom"><br>
-                     <input data-idx="${i}" class="b-inst-id" value="${s.instrument?.id||""}" placeholder="ID" class="mini"></td>`;
+        cells += `<td><input data-idx="${i}" data-f="methodComment" value="${esc(s.methodComment)||""}"></td>`;
+        if (cat.id !== "doc" && cat.id !== "aes") {
+          cells += `<td>
+            <input data-idx="${i}" data-f="instrumentName" value="${esc(s.instrument?.name)||""}" placeholder="Nom">
+            <input data-idx="${i}" data-f="instrumentId" value="${esc(s.instrument?.id)||""}" placeholder="ID" class="mono" style="margin-top:3px">
+          </td>`;
         }
-
-        if(cat.id !== "doc") {
-           // Si mode reception, on bind sampleSize, sinon frequency
-           const val = controlType === "reception" ? (s.sampleSize||"") : (s.frequency||"");
-           cells += `<td><input data-idx="${i}" class="b-freq" value="${val}"></td>`;
+        if (cat.id !== "doc") {
+          const v = controlType === "reception" ? (s.sampleSize||"") : (s.frequency||"");
+          cells += `<td><input data-idx="${i}" data-f="freq" value="${esc(v)}"></td>`;
         }
-
-        cells += `<td><button class="btn danger btn-sm" onclick="delStep(${i})">X</button></td>`;
+        const isFirst = posInCat === 0;
+        const isLast = posInCat === stepsInCat.length - 1;
+        cells += `<td>
+          <button class="btn icon sm" data-move="up" data-idx="${i}" ${isFirst?"disabled style='opacity:.3'":""}>↑</button>
+          <button class="btn icon sm" data-move="down" data-idx="${i}" ${isLast?"disabled style='opacity:.3'":""}>↓</button>
+          <button class="btn icon sm danger" data-del="${i}">✕</button>
+        </td>`;
         return `<tr>${cells}</tr>`;
       }).join("");
 
@@ -574,209 +1940,286 @@ function renderBuilderSections(){
     }
     area.appendChild(wrapper);
   });
-  
-  // Rebind
-  area.querySelectorAll("input").forEach(el => {
-    el.addEventListener("input", e => {
-      const i = e.target.dataset.idx; const f = e.target.className; const v = e.target.value;
-      if(!builderSteps[i]) return;
-      if(f.includes("b-seq")) builderSteps[i].seqNo = v;
-      if(f.includes("b-crit")) builderSteps[i].criticality = v;
-      if(f.includes("b-char")) builderSteps[i].characteristic = v;
-      if(f.includes("b-nom")) builderSteps[i].nominal = v;
-      if(f.includes("b-tl")) builderSteps[i].tolLower = v;
-      if(f.includes("b-tu")) builderSteps[i].tolUpper = v;
-      if(f.includes("b-exp")) builderSteps[i].expectedResult = v;
-      if(f.includes("b-meth")) builderSteps[i].methodComment = v;
-      if(f.includes("b-inst")) { builderSteps[i].instrument = builderSteps[i].instrument||{}; builderSteps[i].instrument.name = v; }
-      if(f.includes("b-inst-id")) { builderSteps[i].instrument = builderSteps[i].instrument||{}; builderSteps[i].instrument.id = v; }
-      if(f.includes("b-freq")) {
-         if(controlType === "reception") builderSteps[i].sampleSize = v;
-         else builderSteps[i].frequency = v;
+
+  // Bind row inputs
+  area.querySelectorAll("input, select").forEach(el => {
+    el.addEventListener("input", (e) => {
+      const i = +e.target.dataset.idx; const f = e.target.dataset.f; const v = e.target.value;
+      if (!builderSteps[i]) return;
+      if (f === "instrumentName") { builderSteps[i].instrument = builderSteps[i].instrument || {}; builderSteps[i].instrument.name = v; return; }
+      if (f === "instrumentId")   { builderSteps[i].instrument = builderSteps[i].instrument || {}; builderSteps[i].instrument.id = v; return; }
+      if (f === "freq") {
+        if (controlType === "reception") builderSteps[i].sampleSize = v;
+        else builderSteps[i].frequency = v;
+        return;
+      }
+      builderSteps[i][f] = v;
+      // Recalc limites pour dim
+      if (["nominal","tolLower","tolUpper"].includes(f) && builderSteps[i].category === "dim") {
+        const n = safeNum(builderSteps[i].nominal);
+        const tl = safeNum(builderSteps[i].tolLower);
+        const tu = safeNum(builderSteps[i].tolUpper);
+        if (n != null && tl != null) builderSteps[i].lowerLimit = +(n + tl).toFixed(6);
+        if (n != null && tu != null) builderSteps[i].upperLimit = +(n + tu).toFixed(6);
+        // update only the calc cells in DOM, no full re-render to keep focus
+        const row = e.target.closest("tr");
+        if (row) {
+          const li = row.querySelector('[data-f="lowerLimit"]');
+          const ui = row.querySelector('[data-f="upperLimit"]');
+          if (li) li.value = builderSteps[i].lowerLimit ?? "";
+          if (ui) ui.value = builderSteps[i].upperLimit ?? "";
+        }
       }
     });
   });
+
+  // Bind buttons
+  area.querySelectorAll("button[data-add]").forEach(b => b.onclick = () => addStep(b.dataset.add));
+  area.querySelectorAll("button[data-del]").forEach(b => b.onclick = () => {
+    builderSteps.splice(+b.dataset.del, 1); renderBuilderSections();
+  });
+  area.querySelectorAll("button[data-move]").forEach(b => b.onclick = () => moveStep(+b.dataset.idx, b.dataset.move));
 }
 
-window.autoCalc = (i) => {
-  const s = builderSteps[i];
-  const n = safeParseNumber(s.nominal);
-  const tl = safeParseNumber(s.tolLower);
-  const tu = safeParseNumber(s.tolUpper);
-  if(n !== null && tl !== null) s.lowerLimit = Number((n + tl).toFixed(3));
-  if(n !== null && tu !== null) s.upperLimit = Number((n + tu).toFixed(3));
-  renderBuilderSections();
-}
-
-window.addStep = (cat) => {
-  const stepsInCat = builderSteps.filter(s => s.category === cat);
+function addStep(catId) {
+  const stepsInCat = builderSteps.filter(s => s.category === catId);
   const lastSeq = stepsInCat.length ? Math.max(...stepsInCat.map(s => parseInt(s.seqNo)||0)) : 0;
-  builderSteps.push({ 
-    category: cat, seqNo: lastSeq + 10, 
-    type: cat === "dim" ? "measure" : (cat === "aes" || cat === "doc" ? "visual" : "functional"), 
-    characteristic: "", instrument: {} 
+  builderSteps.push({
+    category: catId,
+    seqNo: lastSeq + 10,
+    type: catId === "dim" ? "measure" : (catId === "func" ? "functional" : "visual"),
+    characteristic: "",
+    criticality: "Mineur",
+    instrument: {}
   });
   renderBuilderSections();
 }
-window.delStep = (i) => { builderSteps.splice(i,1); renderBuilderSections(); };
+
+function moveStep(globalIdx, dir) {
+  const step = builderSteps[globalIdx];
+  if (!step) return;
+  // Trouver index voisin de même catégorie
+  const siblings = builderSteps
+    .map((s, i) => ({s, i}))
+    .filter(x => x.s.category === step.category);
+  const pos = siblings.findIndex(x => x.i === globalIdx);
+  const targetPos = dir === "up" ? pos - 1 : pos + 1;
+  if (targetPos < 0 || targetPos >= siblings.length) return;
+  const targetIdx = siblings[targetPos].i;
+  // Swap global
+  [builderSteps[globalIdx], builderSteps[targetIdx]] = [builderSteps[targetIdx], builderSteps[globalIdx]];
+  renderBuilderSections();
+}
 
 $("bControlType").addEventListener("change", renderBuilderSections);
 
-$("btnSaveBuiltGamme").addEventListener("click", ()=>{
+$("btnSaveBuiltGamme").addEventListener("click", async () => {
+  const gNo = $("bGammeNo").value.trim();
+  const title = $("bTitle").value.trim();
+  if (!gNo) { toast("Le N° de gamme est obligatoire.", "err"); $("bGammeNo").focus(); return; }
+  if (!title) { toast("Le titre est obligatoire.", "err"); $("bTitle").focus(); return; }
+
   const g = {
     meta: {
-      title: $("bTitle").value, gammeNo: $("bGammeNo").value, controlType: $("bControlType").value,
+      title, gammeNo: gNo, controlType: $("bControlType").value,
+      revision: $("bRevision").value,
       author: { name: $("bAuthorName").value },
-      object: { designation: $("bDesignation").value, reference: $("bReference").value, plan: $("bPlan").value, norms: $("bNorms").value },
+      object: {
+        designation: $("bDesignation").value,
+        reference: $("bReference").value,
+        plan: $("bPlan").value,
+        norms: $("bNorms").value
+      },
       createdAt: nowISO()
     },
-    steps: builderSteps.map(s => ({...s, nominal: safeParseNumber(s.nominal), tolLower: safeParseNumber(s.tolLower), tolUpper: safeParseNumber(s.tolUpper)}))
+    steps: builderSteps.map(s => ({
+      ...s,
+      nominal: safeNum(s.nominal),
+      tolLower: safeNum(s.tolLower),
+      tolUpper: safeNum(s.tolUpper),
+      lowerLimit: safeNum(s.lowerLimit),
+      upperLimit: safeNum(s.upperLimit)
+    }))
   };
-  if(!g.meta.gammeNo) { alert("Numéro requis"); return; }
-  const lib = loadLibrary();
+
+  const lib = loadLib();
   const idx = lib.gammes.findIndex(x => x.meta.gammeNo === g.meta.gammeNo);
-  if(idx >= 0) { if(!confirm("Écraser ?")) return; lib.gammes[idx] = g; } 
-  else { lib.gammes.push(g); }
-  saveLibrary(lib); refreshLibList(); alert("Sauvegardé");
+  if (idx >= 0) {
+    const ok = await modalConfirm({ title: "Écraser la gamme existante", message: `Une gamme avec le N° ${g.meta.gammeNo} existe déjà. La remplacer ?`, confirmLabel: "Remplacer", danger: false });
+    if (!ok) return;
+    g.meta.createdAt = lib.gammes[idx].meta.createdAt;
+    lib.gammes[idx] = g;
+  } else lib.gammes.push(g);
+
+  saveLib(lib); refreshLibList(); refreshDashboardKPIs(); refreshReportGammeSelect();
+  toast("Gamme enregistrée.", "ok");
 });
 
-/* =========================
-   MODULE 2: REPORT RENDERING
-   ========================= */
-function refreshReportGammeSelect(){
-  const lib = loadLibrary(); const sel = $("reportGammeSelect"); sel.innerHTML="";
-  if(!lib.gammes.length) return;
-  lib.gammes.forEach((g,i) => {
-    const opt = document.createElement("option"); opt.value = i;
-    opt.textContent = `${g.meta.gammeNo} - ${g.meta.title}`; sel.appendChild(opt);
-  });
-}
-function refreshHistorySelect(){
-  const lib = loadLibrary(); const sel=$("reportHistorySelect"); sel.innerHTML="";
-  lib.reports.forEach((r,i)=>{
-    const opt=document.createElement("option"); opt.value=i; opt.textContent=`${r.meta.reportNo} (${r.meta.date})`; sel.appendChild(opt);
+$("btnExportBuiltGamme").addEventListener("click", () => {
+  const gNo = $("bGammeNo").value.trim() || "gamme";
+  const data = {
+    meta: {
+      title: $("bTitle").value, gammeNo: gNo, controlType: $("bControlType").value,
+      revision: $("bRevision").value,
+      author: { name: $("bAuthorName").value },
+      object: {
+        designation: $("bDesignation").value,
+        reference: $("bReference").value,
+        plan: $("bPlan").value,
+        norms: $("bNorms").value
+      },
+      createdAt: nowISO()
+    },
+    steps: builderSteps
+  };
+  downloadText(`gamme_${slug(gNo)}.json`, JSON.stringify(data, null, 2));
+  toast("Gamme exportée en JSON.");
+});
+
+/* =========================================================================
+   MODULE 2 — RAPPORT
+   ========================================================================= */
+
+function refreshReportGammeSelect() {
+  const lib = loadLib(); const sel = $("reportGammeSelect"); sel.innerHTML = "";
+  if (!lib.gammes.length) { sel.innerHTML = `<option>Aucune gamme disponible</option>`; return; }
+  lib.gammes.forEach((g, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `${g.meta.gammeNo} — ${g.meta.title}`;
+    sel.appendChild(opt);
   });
 }
 
-// View Mode (History) vs Edit Mode (New)
-function loadReportToView(rep) {
-  reportGamme = { meta: rep.gammeRef, steps: rep.results.map(r=>({
-    ...r, category: r.category || (r.type==="measure"?"dim":"visual") // fallback
-  })) }; 
-  reportResults = {};
-  rep.results.forEach((r, i) => {
-    reportResults[i] = { measuredValue: r.measuredValue, status: r.status, comment: r.comment };
-  });
-  
-  // Fill Header
-  $("reportNo").value = rep.meta.reportNo;
-  $("reportDate").value = rep.meta.date;
-  $("repDesignation").value = rep.meta.object.designation;
-  $("repReference").value = rep.meta.object.reference;
-  $("repLot").value = rep.meta.lot;
-  $("repQty").value = rep.meta.quantity;
-  $("repController").value = rep.meta.controller;
-  $("repGeneralComment").value = rep.meta.generalComment;
+$("btnUseGammeForReport").addEventListener("click", () => {
+  const idx = $("reportGammeSelect").value;
+  const lib = loadLib();
+  const g = lib.gammes[idx];
+  if (!g) { toast("Sélectionnez une gamme.", "err"); return; }
+  reportGamme = g; reportResults = {}; reportMode = "edit"; currentReportId = null;
+
+  $("repDesignation").value = g.meta.object?.designation || "";
+  $("repReference").value = g.meta.object?.reference || "";
+  if (!$("reportDate").value) $("reportDate").value = todayISO();
+  $("reportNo").value = `RC-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(lib.reports.length+1).padStart(3,'0')}`;
+  $("reportTitle").textContent = `Rapport · ${g.meta.title}`;
+  $("reportSub").textContent = `Gamme ${g.meta.gammeNo} · ${g.meta.controlType === "reception" ? "Réception" : "Production"}`;
 
   renderReportSections();
-  switchTab("tab-report");
-}
-
-$("btnViewReport").addEventListener("click", ()=>{
-  const idx = $("reportHistorySelect").value; if(idx==="") return;
-  const lib = loadLibrary();
-  loadReportToView(lib.reports[idx]);
-  // Disable inputs for view mode could be added here, but leaving editable for "Correction"
-  alert("Rapport chargé. Vous pouvez le modifier ou l'imprimer.");
+  toast("Gamme chargée. Saisissez les mesures.", "ok");
 });
 
-$("btnResumeReport").addEventListener("click", ()=>{
-  $("btnViewReport").click(); 
+$("btnResetReport").addEventListener("click", async () => {
+  const ok = await modalConfirm({ title: "Réinitialiser le rapport", message: "Toutes les saisies non enregistrées seront perdues.", confirmLabel: "Réinitialiser", danger: true });
+  if (!ok) return;
+  reportGamme = null; reportResults = {}; reportMode = "edit"; currentReportId = null;
+  ["reportNo","reportDate","repDesignation","repReference","repLot","repQty","repClient","repSupplier","repController","repValidator","repGeneralComment"].forEach(id => $(id).value = "");
+  $("reportSectionsArea").innerHTML = "";
+  $("reportConclusion").innerHTML = "";
+  $("reportPreview").classList.add("hidden");
+  $("reportTitle").textContent = "Rapport de contrôle";
+  $("reportSub").textContent = "Sélectionnez une gamme pour démarrer ou reprenez un rapport existant.";
+  updateReportKPIs();
 });
 
-$("btnUseGammeForReport").addEventListener("click", ()=>{
-  const idx = $("reportGammeSelect").value; if(idx==="") return;
-  const lib = loadLibrary();
-  reportGamme = lib.gammes[idx];
-  reportResults = {};
-  
-  $("repDesignation").value = reportGamme.meta.object.designation;
-  $("repReference").value = reportGamme.meta.object.reference;
-  if(!$("reportDate").value) $("reportDate").value = todayISO();
-  $("reportNo").value = `RC-${Date.now().toString().slice(-6)}`;
-  
-  renderReportSections();
-});
-
-function renderReportSections(){
+function renderReportSections() {
   const area = $("reportSectionsArea"); area.innerHTML = "";
-  if(!reportGamme) return;
-
+  if (!reportGamme) { updateReportKPIs(); return; }
   const controlType = reportGamme.meta.controlType || "production";
-  const freqLabel = controlType === "reception" ? "Taille Échantillon" : "Fréquence";
-
-  let ok=0, ko=0, na=0;
+  const freqLabel = controlType === "reception" ? "Taille échant." : "Fréquence";
 
   CATEGORIES.forEach(cat => {
-    const stepsInCat = (reportGamme.steps||[]).map((s,i)=>({...s, globalIdx:i})).filter(s => (s.category||"dim") === cat.id);
-    if(stepsInCat.length === 0) return;
+    const stepsInCat = (reportGamme.steps||[]).map((s, i) => ({...s, globalIdx: i})).filter(s => (s.category||"dim") === cat.id);
+    if (stepsInCat.length === 0) return;
+
+    // Stats par section
+    let ok=0, ko=0, na=0;
+    stepsInCat.forEach(s => {
+      const i = s.globalIdx; const res = reportResults[i] || {};
+      const st = autoStatus(s, res);
+      if (st === "OK") ok++; else if (st === "KO") ko++; else na++;
+    });
 
     const wrapper = document.createElement("div");
     wrapper.className = "section-block";
-    wrapper.innerHTML = `<div class="section-header"><span>${cat.label}</span></div>`;
+    wrapper.innerHTML = `
+      <div class="section-head">
+        <div class="left">
+          <span class="num">${cat.num}</span>
+          <h4>${cat.label}</h4>
+        </div>
+        <div class="stats">
+          <span class="pip ok">${ok} OK</span>
+          <span class="pip ko">${ko} KO</span>
+          <span class="pip na">${na} NA</span>
+        </div>
+      </div>
+    `;
 
-    let thead = `<th>Seq</th><th>Caractéristique</th><th>Critères</th>`;
-    if(cat.id !== "doc") thead += `<th>${freqLabel}</th>`;
-    thead += `<th>Résultat</th><th>Statut</th><th>Obs</th>`;
+    let thead = `<th style="width:50px">Seq</th><th>Caractéristique</th><th>Critères</th>`;
+    if (cat.id !== "doc") thead += `<th style="width:100px">${freqLabel}</th>`;
+    thead += `<th style="width:180px">Résultat</th><th style="width:90px">Statut</th><th>Observation</th>`;
 
     const rows = stepsInCat.map(s => {
       const i = s.globalIdx;
       const res = reportResults[i] || {};
-      
-      let st = "NA";
-      if(s.category === "dim"){
-        const v = safeParseNumber(res.measuredValue);
-        // Utiliser les limites stockées dans le step (si report rechargé) ou calculer
-        const min = s.lowerLimit !== undefined ? s.lowerLimit : (s.criteria?.min);
-        const max = s.upperLimit !== undefined ? s.upperLimit : (s.criteria?.max);
-        
-        if(v!==null && min!==null && max!==null) st = (v >= min && v <= max) ? "OK" : "KO";
-      } else {
-        st = (res.status === "OK" || res.status === "KO") ? res.status : "NA";
-      }
-      if(st==="OK") ok++; else if(st==="KO") ko++; else na++;
+      const status = autoStatus(s, res);
+      const crit = (s.criticality||"").toLowerCase();
+      const critPill = s.criticality ? `<span class="crit-pill ${crit}">${s.criticality}</span>` : "";
 
-      let crit = "";
-      if(s.category === "dim") {
-         const n = s.nominal ?? s.criteria?.nominal;
-         const min = s.lowerLimit ?? s.criteria?.min;
-         const max = s.upperLimit ?? s.criteria?.max;
-         crit = `${fmtNumber(n)} [${min}; ${max}]`;
+      // Critères
+      let critereCell = "";
+      if (s.category === "dim") {
+        const n = s.nominal ?? s.criteria?.nominal;
+        const min = s.lowerLimit ?? s.criteria?.min;
+        const max = s.upperLimit ?? s.criteria?.max;
+        critereCell = `<div style="font-family:'IBM Plex Mono',monospace; font-size:.8rem">${fmtNum(n,4)} <span style="color:var(--ink-mute)">[${fmtNum(min,4)} ; ${fmtNum(max,4)}]</span></div>`;
       } else {
-         crit = s.expectedResult ?? s.criteria?.expectedResult;
+        critereCell = `<div style="font-size:.84rem">${esc((s.expectedResult ?? s.criteria?.expectedResult) || "—")}</div>`;
+      }
+      critereCell = `${critPill}<div style="margin-top:2px">${critereCell}</div>`;
+
+      // Saisie résultat
+      let resultCell = "";
+      if (s.category === "dim") {
+        const v = safeNum(res.measuredValue);
+        const min = s.lowerLimit ?? s.criteria?.min;
+        const max = s.upperLimit ?? s.criteria?.max;
+        let bar = "";
+        if (v != null && min != null && max != null && max > min) {
+          const range = max - min;
+          let pct = (v - min) / range * 100;
+          let cls = ""; let clamp = pct;
+          if (pct < 0) { cls = "out-l"; clamp = 0; }
+          else if (pct > 100) { cls = "out-r"; clamp = 100; }
+          bar = `
+            <div class="tol-bar" title="Position dans IT : ${pct.toFixed(0)}%">
+              <div class="target"></div>
+              <div class="mark" style="left:${clamp}%; background:${pct<0||pct>100?'var(--ko)':'var(--ok)'}"></div>
+            </div>`;
+        }
+        resultCell = `
+          <input data-idx="${i}" data-f="val" value="${res.measuredValue ?? ""}" class="mono" placeholder="Mesure" ${reportMode==='view'?'readonly':''}>
+          ${bar}`;
+      } else {
+        resultCell = `
+          <select data-idx="${i}" data-f="status" ${reportMode==='view'?'disabled':''}>
+            <option value="" ${!res.status||res.status==='NA'?"selected":""}>— Non renseigné —</option>
+            <option value="OK" ${res.status==="OK"?"selected":""}>Conforme</option>
+            <option value="KO" ${res.status==="KO"?"selected":""}>Non conforme</option>
+          </select>`;
       }
 
-      let inputHtml = "";
-      if(s.category === "dim"){
-        inputHtml = `<input data-idx="${i}" class="rep-val" value="${res.measuredValue||""}" style="width:80px; text-align:right">`;
-      } else {
-        inputHtml = `<select data-idx="${i}" class="rep-st">
-           <option value="NA" ${!res.status?"selected":""}>-</option>
-           <option value="OK" ${res.status==="OK"?"selected":""}>OK</option>
-           <option value="KO" ${res.status==="KO"?"selected":""}>KO</option>
-         </select>`;
-      }
-
-      const valFreq = controlType==="reception" ? (s.sampleSize) : (s.frequency);
+      const valFreq = controlType === "reception" ? (s.sampleSize) : (s.frequency);
 
       return `<tr>
-        <td><b>${s.seqNo}</b></td>
-        <td>${s.characteristic}</td>
-        <td class="mini">${crit}</td>
-        ${cat.id!=="doc" ? `<td>${valFreq||""}</td>` : ""}
-        <td>${inputHtml}</td>
-        <td style="text-align:center"><span class="status ${st.toLowerCase()}">${st}</span></td>
-        <td><input data-idx="${i}" class="rep-com" value="${res.comment||""}"></td>
+        <td class="mono">${esc(s.seqNo)||""}</td>
+        <td><strong>${esc(s.characteristic)||""}</strong><div class="mute" style="font-size:.75rem">${esc(s.methodComment||"")}</div></td>
+        <td>${critereCell}</td>
+        ${cat.id!=="doc" ? `<td class="mono" style="font-size:.78rem">${esc(valFreq||"—")}</td>` : ""}
+        <td>${resultCell}</td>
+        <td style="text-align:center"><span class="status ${status.toLowerCase()}">${status}</span></td>
+        <td><input data-idx="${i}" data-f="comment" value="${esc(res.comment)||""}" placeholder="Observation…" ${reportMode==='view'?'readonly':''}></td>
       </tr>`;
     }).join("");
 
@@ -784,88 +2227,364 @@ function renderReportSections(){
     area.appendChild(wrapper);
   });
 
-  // KPI update (on pourrait afficher ça dans des cards)
+  updateReportKPIs();
+  updateReportConclusion();
 }
 
-// Event bindings for report (delegation)
-$("reportSectionsArea").addEventListener("input", (e)=>{
-  if(e.target.classList.contains("rep-val")){
-    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
-    reportResults[i].measuredValue = e.target.value; renderReportSections();
+function autoStatus(step, res) {
+  if (step.category === "dim") {
+    const v = safeNum(res.measuredValue);
+    const min = step.lowerLimit ?? step.criteria?.min;
+    const max = step.upperLimit ?? step.criteria?.max;
+    if (v == null || min == null || max == null) return "NA";
+    return (v >= min && v <= max) ? "OK" : "KO";
   }
-  if(e.target.classList.contains("rep-com")){
-    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
-    reportResults[i].comment = e.target.value; 
+  return (res.status === "OK" || res.status === "KO") ? res.status : "NA";
+}
+
+function updateReportKPIs() {
+  let ok=0, ko=0, na=0;
+  if (reportGamme) {
+    (reportGamme.steps||[]).forEach((s, i) => {
+      const st = autoStatus(s, reportResults[i]||{});
+      if (st === "OK") ok++; else if (st === "KO") ko++; else na++;
+    });
   }
+  const total = ok+ko+na;
+  const evaluated = ok+ko;
+  $("kReportOk").textContent = ok;
+  $("kReportKo").textContent = ko;
+  $("kReportNa").textContent = na;
+  $("kReportRate").textContent = evaluated > 0 ? Math.round(ok/evaluated*100) + "%" : "—";
+  $("kReportTotal").textContent = `${total} caract.`;
+}
+
+function updateReportConclusion() {
+  if (!reportGamme) { $("reportConclusion").innerHTML = ""; return; }
+  const fakeRep = {
+    results: (reportGamme.steps||[]).map((s,i) => {
+      const res = reportResults[i]||{};
+      return { status: autoStatus(s, res), criticality: s.criticality };
+    })
+  };
+  const c = computeReportConclusion(fakeRep);
+  const cls = c.code === "accept" ? "accept" : (c.code === "reserve" ? "reserve" : (c.code === "refuse" ? "refuse" : "reserve"));
+  $("reportConclusion").innerHTML = `
+    <div class="conclusion-block ${cls}">
+      <div>
+        <div class="ttl">Conclusion automatique</div>
+        <div class="val">${c.label}</div>
+      </div>
+      <div class="det">${esc(c.detail)}</div>
+    </div>`;
+}
+
+// Bindings rapport
+$("reportSectionsArea").addEventListener("input", (e) => {
+  if (reportMode === "view") return;
+  const i = +e.target.dataset.idx;
+  const f = e.target.dataset.f;
+  if (isNaN(i) || !f) return;
+  reportResults[i] = reportResults[i] || {};
+  if (f === "val")     reportResults[i].measuredValue = e.target.value;
+  if (f === "comment") reportResults[i].comment = e.target.value;
+  if (f === "val") renderReportSections();
+  else { updateReportKPIs(); updateReportConclusion(); }
 });
-$("reportSectionsArea").addEventListener("change", (e)=>{
-  if(e.target.classList.contains("rep-st")){
-    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
-    reportResults[i].status = e.target.value; renderReportSections();
+$("reportSectionsArea").addEventListener("change", (e) => {
+  if (reportMode === "view") return;
+  const i = +e.target.dataset.idx;
+  if (e.target.dataset.f === "status") {
+    reportResults[i] = reportResults[i] || {};
+    reportResults[i].status = e.target.value || "NA";
+    renderReportSections();
   }
 });
 
-$("btnSaveReport").addEventListener("click", ()=>{
-  const lib=loadLibrary();
-  // Map results to explicit structure
-  const results = (reportGamme.steps||[]).map((s,i) => {
-     const r = reportResults[i]||{};
-     return {
-       seqNo: s.seqNo, category: s.category, type: s.type, characteristic: s.characteristic,
-       criteria: { nominal:s.nominal, min:s.lowerLimit, max:s.upperLimit, expectedResult:s.expectedResult },
-       measuredValue: r.measuredValue, status: r.status || "NA", comment: r.comment
-     };
+/* ---------- Charger un rapport (mode view ou edit) ---------- */
+function loadReportToView(rep, reportIdx = null) {
+  // Reconstruire reportGamme avec les criteria
+  reportGamme = {
+    meta: rep.gammeRef,
+    steps: rep.results.map(r => ({
+      seqNo: r.seqNo,
+      category: r.category || (r.type === "measure" ? "dim" : "aes"),
+      characteristic: r.characteristic,
+      criticality: r.criticality,
+      nominal: r.criteria?.nominal,
+      lowerLimit: r.criteria?.min,
+      upperLimit: r.criteria?.max,
+      expectedResult: r.criteria?.expectedResult,
+      methodComment: r.methodComment || "",
+      frequency: r.frequency, sampleSize: r.sampleSize,
+      instrument: r.instrument || {}
+    }))
+  };
+  reportResults = {};
+  rep.results.forEach((r, i) => {
+    reportResults[i] = { measuredValue: r.measuredValue, status: r.status, comment: r.comment };
   });
+  reportMode = "edit"; // ouvre en édition pour permettre correction
+  currentReportId = reportIdx;
 
-  const rep = {
-    meta: { 
-      reportNo: $("reportNo").value, date: $("reportDate").value, 
-      object: reportGamme.meta.object, 
-      lot: $("repLot").value, quantity: $("repQty").value, controller: $("repController").value, generalComment: $("repGeneralComment").value 
+  $("reportNo").value = rep.meta.reportNo || "";
+  $("reportDate").value = rep.meta.date || "";
+  $("repDesignation").value = rep.meta.object?.designation || "";
+  $("repReference").value = rep.meta.object?.reference || "";
+  $("repLot").value = rep.meta.lot || "";
+  $("repQty").value = rep.meta.quantity || "";
+  $("repController").value = rep.meta.controller || "";
+  $("repValidator").value = rep.meta.validator || "";
+  $("repClient").value = rep.meta.client || "";
+  $("repSupplier").value = rep.meta.supplier || "";
+  $("repGeneralComment").value = rep.meta.generalComment || "";
+
+  $("reportTitle").textContent = `Rapport · ${rep.meta.reportNo}`;
+  $("reportSub").textContent = `${rep.gammeRef?.title || ""} · ${rep.gammeRef?.controlType === "reception" ? "Réception" : "Production"}`;
+
+  renderReportSections();
+  switchTab("tab-report");
+  toast("Rapport chargé.", "ok");
+}
+
+/* ---------- Construire un rapport prêt-à-enregistrer ---------- */
+function buildCurrentReport() {
+  if (!reportGamme) return null;
+  const results = (reportGamme.steps||[]).map((s, i) => {
+    const r = reportResults[i] || {};
+    return {
+      seqNo: s.seqNo, category: s.category, characteristic: s.characteristic,
+      criticality: s.criticality,
+      methodComment: s.methodComment,
+      frequency: s.frequency, sampleSize: s.sampleSize,
+      instrument: s.instrument,
+      criteria: { nominal: s.nominal, min: s.lowerLimit, max: s.upperLimit, expectedResult: s.expectedResult },
+      measuredValue: r.measuredValue,
+      status: autoStatus(s, r),
+      comment: r.comment
+    };
+  });
+  return {
+    meta: {
+      reportNo: $("reportNo").value,
+      date: $("reportDate").value,
+      object: reportGamme.meta.object,
+      lot: $("repLot").value,
+      quantity: $("repQty").value,
+      controller: $("repController").value,
+      validator: $("repValidator").value,
+      client: $("repClient").value,
+      supplier: $("repSupplier").value,
+      generalComment: $("repGeneralComment").value
     },
     gammeRef: reportGamme.meta,
-    results: results
+    results,
+    summary: { conclusion: computeReportConclusion({ results }).label }
   };
-  
-  // Update or push
-  const existingIdx = lib.reports.findIndex(x=>x.meta.reportNo === rep.meta.reportNo);
-  if(existingIdx>=0 && confirm("Mettre à jour ?")) lib.reports[existingIdx] = rep;
-  else lib.reports.push(rep);
-  
-  saveLibrary(lib); refreshHistorySelect(); alert("Sauvegardé");
+}
+
+/* ---------- Save ---------- */
+$("btnSaveReport").addEventListener("click", async () => {
+  const rep = buildCurrentReport();
+  if (!rep) { toast("Aucune gamme chargée.", "err"); return; }
+  if (!rep.meta.reportNo) { toast("Renseignez le N° de rapport.", "err"); $("reportNo").focus(); return; }
+  if (!rep.meta.date) { toast("Renseignez la date.", "err"); $("reportDate").focus(); return; }
+
+  const lib = loadLib();
+  const idx = lib.reports.findIndex(x => x.meta.reportNo === rep.meta.reportNo);
+  if (idx >= 0 && idx !== currentReportId) {
+    const ok = await modalConfirm({ title: "Rapport existant", message: `Un rapport ${rep.meta.reportNo} existe déjà. Le remplacer ?`, confirmLabel: "Remplacer" });
+    if (!ok) return;
+    lib.reports[idx] = rep;
+  } else if (idx >= 0) {
+    lib.reports[idx] = rep;
+  } else if (currentReportId != null && lib.reports[currentReportId]) {
+    lib.reports[currentReportId] = rep;
+  } else {
+    lib.reports.push(rep);
+    currentReportId = lib.reports.length - 1;
+  }
+  saveLib(lib);
+  refreshHistoryList(); refreshDashboardKPIs();
+  toast("Rapport enregistré.", "ok");
 });
 
-function renderReportPreview(rep){
-  const rows = rep.results.map(r => `<tr>
-    <td>${r.seqNo}</td><td>${r.characteristic}</td>
-    <td>${r.measuredValue || "-"}</td>
-    <td><strong>${r.status}</strong></td>
-    <td>${r.comment||""}</td>
-  </tr>`).join("");
+/* ---------- Export CSV ---------- */
+$("btnExportReportCSV").addEventListener("click", () => {
+  const rep = buildCurrentReport();
+  if (!rep) { toast("Aucun rapport à exporter.", "err"); return; }
+  const sep = ";";
+  const header = ["Catégorie","Seq","Caractéristique","Criticité","Critère / Tolérance","Méthode","Moyen","Fréquence/Échant.","Mesure","Statut","Observation"];
+  const lines = [header.join(sep)];
+
+  rep.results.forEach(r => {
+    const catLbl = CATEGORIES.find(c => c.id === r.category)?.label || r.category;
+    let critere = "";
+    if (r.category === "dim") {
+      critere = `${fmtNum(r.criteria.nominal)} [${fmtNum(r.criteria.min)} ; ${fmtNum(r.criteria.max)}]`;
+    } else critere = r.criteria.expectedResult || "";
+    const moyen = [r.instrument?.name, r.instrument?.id].filter(Boolean).join(" / ");
+    const freq = r.sampleSize || r.frequency || "";
+    const escCsv = (v) => `"${String(v??"").replace(/"/g,'""')}"`;
+    lines.push([catLbl, r.seqNo, r.characteristic, r.criticality||"", critere, r.methodComment||"", moyen, freq, r.measuredValue||"", r.status, r.comment||""].map(escCsv).join(sep));
+  });
+
+  const meta = [
+    "",
+    `# Rapport ${rep.meta.reportNo}`,
+    `# Date: ${rep.meta.date}`,
+    `# Produit: ${rep.meta.object?.designation} (${rep.meta.object?.reference})`,
+    `# Lot: ${rep.meta.lot}  Quantité: ${rep.meta.quantity}`,
+    `# Contrôleur: ${rep.meta.controller}`,
+    `# Conclusion: ${rep.summary?.conclusion}`,
+  ].join("\n");
+
+  // BOM UTF-8 pour Excel
+  const csv = "\ufeff" + lines.join("\n") + "\n" + meta;
+  downloadText(`rapport_${slug(rep.meta.reportNo)}.csv`, csv, "text/csv;charset=utf-8");
+  toast("Rapport exporté en CSV.", "ok");
+});
+
+/* ---------- Export JSON ---------- */
+$("btnExportReportJSON").addEventListener("click", () => {
+  const rep = buildCurrentReport();
+  if (!rep) { toast("Aucun rapport.", "err"); return; }
+  downloadText(`rapport_${slug(rep.meta.reportNo)}.json`, JSON.stringify(rep, null, 2));
+  toast("Rapport exporté en JSON.", "ok");
+});
+
+/* ---------- Preview & Print ---------- */
+function buildPreviewHTML(rep) {
+  const conc = computeReportConclusion(rep);
+  const stats = computeReportStats(rep);
+  const stampCls = { accept:"accept", reserve:"reserve", refuse:"refuse", na:"reserve" }[conc.code];
+
+  let sectionsHTML = "";
+  CATEGORIES.forEach(cat => {
+    const lines = rep.results.filter(r => r.category === cat.id);
+    if (!lines.length) return;
+    let thead = `<th style="width:40px">Seq</th><th>Caractéristique</th><th>Crit.</th><th>Critère</th>`;
+    if (cat.id === "dim") thead += `<th>Mesure</th>`;
+    thead += `<th>Statut</th><th>Observation</th>`;
+    const rows = lines.map(r => {
+      let critere = r.category === "dim"
+        ? `${fmtNum(r.criteria.nominal,4)} <span style="color:#777">[${fmtNum(r.criteria.min,4)} ; ${fmtNum(r.criteria.max,4)}]</span>`
+        : (r.criteria.expectedResult || "—");
+      const measCell = r.category === "dim"
+        ? `<td style="font-family:'IBM Plex Mono',monospace"><strong>${fmtNum(safeNum(r.measuredValue),4)||"—"}</strong></td>` : "";
+      return `<tr>
+        <td>${esc(r.seqNo)}</td>
+        <td><strong>${esc(r.characteristic)}</strong>${r.methodComment?`<div style="color:#888; font-size:.75rem">${esc(r.methodComment)}</div>`:""}</td>
+        <td><span class="crit-pill ${(r.criticality||"").toLowerCase()}">${esc(r.criticality||"—")}</span></td>
+        <td style="font-family:'IBM Plex Mono', monospace; font-size:.78rem">${critere}</td>
+        ${measCell}
+        <td><span class="status ${(r.status||"").toLowerCase()}">${esc(r.status||"NA")}</span></td>
+        <td>${esc(r.comment||"")}</td>
+      </tr>`;
+    }).join("");
+    sectionsHTML += `
+      <div class="doc-section-title">${cat.num}. ${cat.label}</div>
+      <table><thead><tr>${thead}</tr></thead><tbody>${rows}</tbody></table>
+    `;
+  });
+
   return `
-    <div style="border-bottom:2px solid var(--primary); padding-bottom:10px; margin-bottom:20px; display:flex; justify-content:space-between">
-      <div><h2>Rapport ${rep.meta.reportNo}</h2></div>
-      <div style="text-align:right">Date: ${rep.meta.date}<br>Ctrl: ${rep.meta.controller}</div>
+    <div class="preview-doc">
+      <div class="doc-head">
+        <div class="left">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:2px; color:var(--gold-deep); text-transform:uppercase">Rapport de contrôle qualité</div>
+          <h1>${esc(rep.meta.object?.designation || "—")}</h1>
+          <div class="id">${esc(rep.meta.reportNo)} · ${esc(rep.gammeRef?.gammeNo||"")} · ${esc(rep.gammeRef?.controlType==="reception"?"Réception":"Production")}</div>
+        </div>
+        <div class="right">
+          <div class="logo">Q</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--ink-mute); margin-top:8px">${fmtDate(rep.meta.date)}</div>
+        </div>
+      </div>
+
+      <div class="doc-meta">
+        <div class="cell"><div class="lbl">Référence produit</div><div class="val">${esc(rep.meta.object?.reference||"—")}</div></div>
+        <div class="cell"><div class="lbl">Plan / Indice</div><div class="val">${esc(rep.meta.object?.plan||"—")}</div></div>
+        <div class="cell"><div class="lbl">Lot / N° série</div><div class="val">${esc(rep.meta.lot||"—")}</div></div>
+        <div class="cell"><div class="lbl">Quantité</div><div class="val">${esc(rep.meta.quantity||"—")}</div></div>
+        <div class="cell"><div class="lbl">Normes</div><div class="val">${esc(rep.gammeRef?.object?.norms||"—")}</div></div>
+        <div class="cell"><div class="lbl">Client / Affaire</div><div class="val">${esc(rep.meta.client||"—")}</div></div>
+        <div class="cell"><div class="lbl">Fournisseur</div><div class="val">${esc(rep.meta.supplier||"—")}</div></div>
+        <div class="cell"><div class="lbl">Contrôleur</div><div class="val">${esc(rep.meta.controller||"—")}</div></div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:14px 18px; background:var(--paper-2); border-radius:var(--r-sm); margin-bottom:18px;">
+        <div style="display:flex; gap:24px; font-size:.85rem">
+          <div><b style="color:var(--ok)">${stats.ok}</b> conformes</div>
+          <div><b style="color:var(--ko)">${stats.ko}</b> non conformes</div>
+          <div><b style="color:var(--ink-mute)">${stats.na}</b> non renseignés</div>
+          <div><b>${stats.rate != null ? stats.rate+'%' : "—"}</b> conformité</div>
+        </div>
+        <div class="doc-stamp ${stampCls}">${conc.label}</div>
+      </div>
+
+      ${sectionsHTML}
+
+      ${rep.meta.generalComment ? `
+        <div class="doc-section-title">Commentaire global</div>
+        <div style="padding:10px 14px; background:#fbfaf6; border-left:3px solid var(--gold); border-radius:3px; font-size:.88rem">${esc(rep.meta.generalComment)}</div>
+      ` : ""}
+
+      <div class="doc-cachet">
+        <div class="sig">
+          <b>Contrôleur</b>
+          ${esc(rep.meta.controller || "—")}<br>
+          <span style="color:#aaa">Date : ${fmtDate(rep.meta.date)}</span>
+        </div>
+        <div class="sig">
+          <b>Validation Qualité</b>
+          ${esc(rep.meta.validator || "—")}<br>
+          <span style="color:#aaa">Visa :</span>
+        </div>
+        <div class="sig" style="text-align:right">
+          <b>Conclusion</b>
+          <span style="color:${conc.code==='accept'?'var(--ok)':(conc.code==='refuse'?'var(--ko)':'var(--warn)')}; font-weight:600">${conc.label}</span><br>
+          <span style="color:#aaa">${esc(conc.detail)}</span>
+        </div>
+      </div>
     </div>
-    <div style="background:#f9f9f9; padding:15px; margin-bottom:20px">
-      <strong>${rep.meta.object.designation}</strong> (${rep.meta.object.reference}) - Lot: ${rep.meta.lot}
-    </div>
-    <table style="width:100%; border-collapse:collapse; font-size:12px;">
-      <thead style="background:#eee"><tr><th>Seq</th><th>Quoi</th><th>Mesure</th><th>Statut</th><th>Obs</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
   `;
 }
-$("btnPreviewReport").addEventListener("click", ()=>{
-  // Quick preview logic re-using object build could go here
-  $("reportPreview").innerHTML = "<div class='mini'>Sauvegardez d'abord pour voir l'aperçu complet.</div>";
-  $("reportPreview").classList.remove("hidden");
+
+$("btnPreviewReport").addEventListener("click", () => {
+  const rep = buildCurrentReport();
+  if (!rep) { toast("Aucun rapport.", "err"); return; }
+  const el = $("reportPreview");
+  el.innerHTML = buildPreviewHTML(rep);
+  el.classList.remove("hidden");
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-/* Init */
-seedIfEmpty();
-refreshLibList();
-refreshHistorySelect();
+$("btnPrint").addEventListener("click", () => {
+  const rep = buildCurrentReport();
+  if (!rep) { toast("Aucun rapport.", "err"); return; }
+  const el = $("reportPreview");
+  el.innerHTML = buildPreviewHTML(rep);
+  el.classList.remove("hidden");
+  setTimeout(() => window.print(), 80);
+});
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+function init() {
+  seedIfEmpty();
+  $("dateNow").textContent = new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'2-digit', month:'long', year:'numeric' }).replace(/^./, c=>c.toUpperCase());
+  updateStorageInfo();
+  refreshDashboardKPIs();
+  refreshLibList();
+  refreshHistoryList();
+  refreshReportGammeSelect();
+  $("reportDate").value = todayISO();
+}
+init();
 </script>
-</body>
-</html>
+
+
+
+</body></html>
