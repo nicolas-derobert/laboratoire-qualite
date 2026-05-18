@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Le Laboratoire Qualité | CPH-HR-08</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary: #1e3a8a;
+  --primary-light: #3b82f6;
+  --secondary: #0891b2;
+  --accent: #8b5cf6;
+  --success: #059669;
+  --error: #dc2626;
+  --warning: #d97706;
+  --bg-light: #f8fafc;
+  --bg-card: #ffffff;
+  --text-dark: #0f172a;
+  --text-medium: #475569;
+  --text-light: #94a3b8;
+  --border: #e2e8f0;
+  --gradient: linear-gradient(135deg, #1e3a8a 0%, #0891b2 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  --gradient-shimmer: linear-gradient(90deg, #1e3a8a, #3b82f6, #06b6d4, #1e3a8a);
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.app {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ========== HEADER ========== */
+header {
+  background: var(--gradient);
+  color: white;
+  padding: 32px 28px;
+  border-radius: 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(30, 58, 138, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: "";
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 220px; height: 220px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+  animation: floatSlow 8s ease-in-out infinite;
+}
+header::after {
+  content: "";
+  position: absolute;
+  bottom: -80px; left: -30px;
+  width: 280px; height: 280px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+  animation: floatSlow 10s ease-in-out infinite reverse;
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, 20px) scale(1.05); }
+}
+header h1 {
+  font-size: 2em;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+}
+header p {
+  opacity: 0.95;
+  position: relative;
+  z-index: 1;
+  font-size: 1.05em;
+}
+.header-ref {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  margin-top: 10px;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+}
+
+/* ========== GLOBAL PROGRESS ========== */
+.global-progress {
+  background: var(--bg-card);
+  padding: 22px 26px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.progress-label {
+  font-weight: 600;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05em;
+}
+.progress-stats {
+  display: flex;
+  gap: 18px;
+  font-size: 0.92em;
+  color: var(--text-medium);
+  flex-wrap: wrap;
+}
+.progress-stats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.progress-stats strong { color: var(--primary); font-weight: 700; }
+
+.progress-bar-container {
+  height: 14px;
+  background: var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--gradient-shimmer);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+  animation: shimmer 3s linear infinite;
+  position: relative;
+}
+@keyframes shimmer {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: progressShine 2.5s infinite;
+}
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ========== INTRO ========== */
+.intro-text {
+  background: var(--bg-card);
+  padding: 22px 24px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  animation: slideInLeft 0.6s ease;
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.intro-text h2 {
+  color: var(--primary);
+  margin-bottom: 8px;
+  font-size: 1.2em;
+}
+.intro-text p { color: var(--text-medium); font-size: 0.97em; }
+
+/* ========== CHAPTERS GRID ========== */
+.chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.chapter-card {
+  background: var(--bg-card);
+  padding: 22px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  position: relative;
+  overflow: hidden;
+  animation: cardFadeIn 0.5s ease backwards;
+}
+.chapter-card:nth-child(1) { animation-delay: 0.05s; }
+.chapter-card:nth-child(2) { animation-delay: 0.1s; }
+.chapter-card:nth-child(3) { animation-delay: 0.15s; }
+.chapter-card:nth-child(4) { animation-delay: 0.2s; }
+.chapter-card:nth-child(5) { animation-delay: 0.25s; }
+.chapter-card:nth-child(n+6) { animation-delay: 0.3s; }
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chapter-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.08), transparent);
+  transition: left 0.6s ease;
+}
+.chapter-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 14px 30px rgba(30, 58, 138, 0.15);
+  border-color: var(--primary-light);
+}
+.chapter-card:hover::before { left: 100%; }
+.chapter-card.completed {
+  border-color: var(--success);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+.chapter-num {
+  display: inline-block;
+  background: var(--gradient);
+  color: white;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  text-align: center;
+  line-height: 40px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-size: 1.1em;
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);
+  transition: transform 0.3s ease;
+}
+.chapter-card:hover .chapter-num { transform: rotate(-8deg) scale(1.1); }
+.chapter-card.completed .chapter-num {
+  background: var(--gradient-success);
+  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
+}
+.chapter-title {
+  font-weight: 600;
+  font-size: 1.05em;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+.chapter-pages {
+  font-size: 0.85em;
+  color: var(--text-light);
+  margin-bottom: 12px;
+}
+.chapter-progress-mini {
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.chapter-progress-mini-fill {
+  height: 100%;
+  background: var(--gradient-success);
+  border-radius: 6px;
+  width: 0%;
+  transition: width 1s ease;
+}
+.chapter-status {
+  font-size: 0.92em;
+  color: var(--text-medium);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+.chapter-status.done { color: var(--success); font-weight: 600; }
+
+/* ========== QUIZ VIEW ========== */
+.quiz-view, .results-view { display: none; }
+.quiz-view.active, .results-view.active {
+  display: block;
+  animation: fadeInUp 0.5s ease;
+}
+.home-view.hidden { display: none; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.quiz-header {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.95em;
+  margin-bottom: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease;
+}
+.back-btn:hover { transform: translateX(-4px); }
+.quiz-title {
+  font-size: 1.5em;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+.quiz-meta {
+  display: flex;
+  gap: 18px;
+  font-size: 0.92em;
+  color: var(--text-medium);
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.quiz-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-light);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* DOTS PROGRESS */
+.dots-progress {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.dot {
+  flex: 1;
+  min-width: 18px;
+  height: 8px;
+  background: var(--border);
+  border-radius: 6px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dot.active {
+  background: var(--gradient);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+.dot.correct { background: var(--success); }
+.dot.incorrect { background: var(--error); }
+.dot.current {
+  background: var(--primary);
+  transform: scaleY(1.4);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+}
+
+/* ========== QUESTION CARD ========== */
+.question-card {
+  background: var(--bg-card);
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  animation: questionSlide 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes questionSlide {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.question-num {
+  display: inline-block;
+  background: var(--bg-light);
+  color: var(--primary);
+  padding: 5px 14px;
+  border-radius: 14px;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.question-text {
+  font-size: 1.18em;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 24px;
+  line-height: 1.55;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.option {
+  background: var(--bg-light);
+  padding: 15px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.99em;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.option::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+.option:hover:not(.disabled) {
+  background: #eff6ff;
+  border-color: var(--primary-light);
+  transform: translateX(6px);
+}
+.option:hover:not(.disabled)::before { left: 100%; }
+.option.correct {
+  background: #d1fae5;
+  border-color: var(--success);
+  animation: correctPulse 0.6s ease;
+}
+.option.incorrect {
+  background: #fee2e2;
+  border-color: var(--error);
+  animation: shake 0.5s ease;
+}
+.option.disabled { cursor: default; }
+.option-letter {
+  background: white;
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 34px;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+  font-size: 0.95em;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.option:hover:not(.disabled) .option-letter {
+  background: var(--primary);
+  color: white;
+  transform: rotate(-6deg);
+}
+.option.correct .option-letter {
+  background: var(--success);
+  color: white;
+  animation: bounceIn 0.5s ease;
+}
+.option.incorrect .option-letter {
+  background: var(--error);
+  color: white;
+}
+.option-text { flex: 1; }
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(5, 150, 105, 0.15); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+@keyframes bounceIn {
+  0% { transform: scale(0) rotate(0); }
+  60% { transform: scale(1.2) rotate(15deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ========== FEEDBACK ========== */
+.feedback {
+  margin-top: 18px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  display: none;
+}
+.feedback.show {
+  display: block;
+  animation: feedbackSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes feedbackSlide {
+  from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+  to { opacity: 1; transform: translateY(0); max-height: 500px; }
+}
+.feedback.correct {
+  background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+  border-left: 4px solid var(--success);
+}
+.feedback.incorrect {
+  background: linear-gradient(135deg, #fee2e2 0%, #fef2f2 100%);
+  border-left: 4px solid var(--error);
+}
+.feedback-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.05em;
+}
+.feedback.correct .feedback-title { color: var(--success); }
+.feedback.incorrect .feedback-title { color: var(--error); }
+.feedback-text {
+  color: var(--text-dark);
+  font-size: 0.96em;
+  line-height: 1.55;
+}
+.feedback-ref {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 8px;
+  font-size: 0.88em;
+  color: var(--text-medium);
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.feedback-ref strong { color: var(--primary); font-style: normal; }
+
+/* ========== BUTTONS / NAV ========== */
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+.btn {
+  padding: 13px 28px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary {
+  background: var(--gradient);
+  color: white;
+  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.25);
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(30, 58, 138, 0.35);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: white;
+  color: var(--text-medium);
+  border: 2px solid var(--border);
+}
+.btn-secondary:hover {
+  background: var(--bg-light);
+  border-color: var(--primary-light);
+}
+
+/* ========== RESULTS ========== */
+.results-card {
+  background: var(--bg-card);
+  padding: 44px 32px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+.results-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+  animation: rotateSlow 20s linear infinite;
+}
+@keyframes rotateSlow {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+.results-content {
+  position: relative;
+  z-index: 1;
+}
+.results-emoji {
+  font-size: 5em;
+  margin-bottom: 16px;
+  animation: celebrate 1s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+@keyframes celebrate {
+  0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+  60% { transform: scale(1.3) rotate(20deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+.results-title {
+  font-size: 1.9em;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+.results-score-container {
+  margin: 24px auto;
+  max-width: 340px;
+  position: relative;
+}
+.results-score-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+}
+.results-score-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.results-score-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 12;
+}
+.results-score-fg {
+  fill: none;
+  stroke: url(#scoreGradient);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-dasharray: 0 502;
+  transition: stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.results-score-text {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.results-score-num {
+  font-size: 2.8em;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+.results-score-label {
+  color: var(--text-medium);
+  font-size: 0.9em;
+  margin-top: 4px;
+  font-weight: 500;
+}
+.results-message {
+  color: var(--text-medium);
+  margin-bottom: 24px;
+  font-size: 1.05em;
+  max-width: 460px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.results-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+/* CONFETTI */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-light);
+  font-size: 0.85em;
+  margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .app { padding: 12px; }
+  header { padding: 24px 18px; }
+  header h1 { font-size: 1.5em; }
+  .question-card { padding: 22px; }
+  .question-text { font-size: 1.05em; }
+  .btn { padding: 11px 20px; font-size: 0.95em; }
+  .progress-header { flex-direction: column; align-items: stretch; }
+  .progress-stats { justify-content: space-between; }
+  .results-card { padding: 32px 20px; }
+  .results-score-circle { width: 150px; height: 150px; }
+  .results-score-num { font-size: 2.2em; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <h1>🔬 Le Laboratoire Qualité</h1>
+    <p>Quiz interactif – Testez vos connaissances chapitre par chapitre</p>
+    <span class="header-ref">CPH-HR-08 · N. DEROBERT</span>
+  </header>
+
+  <!-- HOME VIEW -->
+  <div class="home-view" id="homeView">
+
+    <div class="global-progress">
+      <div class="progress-header">
+        <div class="progress-label">📊 Votre progression globale</div>
+        <div class="progress-stats">
+          <span>📚 Chapitres : <strong><span id="completedCount">0</span>/<span id="totalChapters">0</span></strong></span>
+          <span>✅ Bonnes réponses : <strong><span id="globalScore">0</span>/<span id="globalMax">0</span></strong></span>
+          <span>📈 <strong><span id="globalPct">0</span>%</strong></span>
+        </div>
+      </div>
+      <div class="progress-bar-container"><div class="progress-bar" id="globalProgressBar"></div></div>
+    </div>
+
+    <div class="intro-text">
+      <h2>👋 Bienvenue !</h2>
+      <p>Cette application reprend les notions clés du cours sur le laboratoire qualité, la métrologie, le contrôle et l'amélioration continue. Chaque chapitre propose un mini-quiz QCM avec retour pédagogique et référence aux pages du cours. Bonne exploration !</p>
+    </div>
+
+    <div class="chapters-grid" id="chaptersGrid"></div>
+
+  </div>
+
+  <!-- QUIZ VIEW -->
+  <div class="quiz-view" id="quizView">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goHome()">← Retour aux chapitres</button>
+      <div class="quiz-title" id="quizTitle"></div>
+      <div class="quiz-meta">
+        <span>📄 <span id="quizPages"></span></span>
+        <span>❓ Question <span id="qCurrent">1</span> / <span id="qTotal">1</span></span>
+        <span>🎯 <span id="quizScore">0</span> bonnes réponses</span>
+      </div>
+      <div class="dots-progress" id="dotsProgress"></div>
+    </div>
+
+    <div id="questionContainer"></div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-secondary" onclick="goHome()">Quitter</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Suivant →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS VIEW -->
+  <div class="results-view" id="resultsView">
+    <div class="results-card">
+      <div class="results-content">
+        <div class="results-emoji" id="resultsEmoji">🎉</div>
+        <div class="results-title" id="resultsTitle">Bravo !</div>
+        
+        <div class="results-score-container">
+          <div class="results-score-circle">
+            <svg class="results-score-svg" viewBox="0 0 180 180">
+              <defs>
+                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#1e3a8a" />
+                  <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <circle class="results-score-bg" cx="90" cy="90" r="80"></circle>
+              <circle class="results-score-fg" id="scoreCircle" cx="90" cy="90" r="80"></circle>
+            </svg>
+            <div class="results-score-text">
+              <div class="results-score-num"><span id="resultsScore">0</span>/<span id="resultsMax">0</span></div>
+              <div class="results-score-label" id="resultsPct">0%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="results-message" id="resultsMessage"></div>
+
+        <div class="results-actions">
+          <button class="btn btn-secondary" onclick="retryQuiz()">🔄 Rejouer ce chapitre</button>
+          <button class="btn btn-primary" onclick="goHome()">📚 Retour aux chapitres</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Application pédagogique – Quiz Le Laboratoire Qualité · CPH-HR-08
+  </footer>
+
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// ========== DATA: QUIZ CONTENT (QCM uniquement) ==========
+const chapters = [
+  {
+    id: 1,
+    title: "Organisation et rôle d'un laboratoire qualité",
+    pages: "p. 1 à 5",
+    questions: [
+      {
+        q: "Quelle est la fonction principale d'un laboratoire qualité dans l'entreprise ?",
+        options: [
+          "Produire les pièces en série",
+          "Fournir des résultats de mesure fiables et analyses objectives pour guider les décisions",
+          "Gérer les ressources humaines",
+          "Concevoir les nouveaux produits"
+        ],
+        correct: 1,
+        explain: "Le laboratoire qualité guide les décisions stratégiques et opérationnelles grâce à des résultats fiables et des analyses objectives.",
+        ref: "p. 1 – Pourquoi un laboratoire qualité ?"
+      },
+      {
+        q: "Parmi les fonctions principales du laboratoire qualité, laquelle NE fait PAS partie de la liste ?",
+        options: [
+          "Gérer la métrologie",
+          "Mesurer et contrôler",
+          "Vendre les produits aux clients",
+          "Soutenir les démarches d'amélioration continue"
+        ],
+        correct: 2,
+        explain: "La vente n'est pas une fonction du laboratoire qualité. Ses 6 fonctions sont : gérer la métrologie, mesurer, contrôler, analyser, soutenir l'amélioration continue, et former.",
+        ref: "p. 2-3 – Les fonctions du laboratoire qualité"
+      },
+      {
+        q: "Quel est l'avantage principal d'un laboratoire INTERNE par rapport à un laboratoire externe ?",
+        options: [
+          "Il est toujours moins cher",
+          "Il garantit la confidentialité et permet une réaction rapide en cas de problème",
+          "Il dispense d'avoir des spécialistes qualifiés",
+          "Il évite tout investissement"
+        ],
+        correct: 1,
+        explain: "Le laboratoire interne offre confidentialité et réactivité. En contrepartie, il exige un investissement conséquent et des spécialistes qualifiés.",
+        ref: "p. 3 – Laboratoire interne et externe"
+      },
+      {
+        q: "Dans la pyramide « De la réalité à la décision », quel est le niveau le plus élevé ?",
+        options: [
+          "Données",
+          "Information",
+          "Connaissance",
+          "Décision & Action"
+        ],
+        correct: 3,
+        explain: "Le sommet de la pyramide est « Décision & Action ». Le processus complet : Identifier → Mesurer → Analyser → Interpréter → Décider.",
+        ref: "p. 3-5 – De la réalité à la décision"
+      },
+      {
+        q: "Au niveau 2 « Données » de la pyramide, quels sont les verbes d'action principaux ?",
+        options: [
+          "Observer, Identifier, Prélever",
+          "Mesurer, Collecter, Vérifier",
+          "Organiser, Comparer, Analyser",
+          "Synthétiser, Recommander, Décider"
+        ],
+        correct: 1,
+        explain: "Au niveau « Données », on Mesure, on Collecte et on Vérifie. L'enjeu est de produire des mesures fiables et traçables.",
+        ref: "p. 4 – Niveau 2 Données"
+      },
+      {
+        q: "Quelle action fait partie des fonctions du laboratoire qualité ?",
+        options: [
+          "Concevoir le packaging marketing",
+          "Former le personnel aux bonnes pratiques de mesure",
+          "Établir les contrats commerciaux",
+          "Gérer les ressources humaines"
+        ],
+        correct: 1,
+        explain: "La formation du personnel aux bonnes pratiques de mesure fait bien partie des 6 fonctions principales du laboratoire qualité.",
+        ref: "p. 3 – Fonction 6 : Formation"
+      }
+    ]
+  },
+
+  {
+    id: 2,
+    title: "Inventaire des moyens de mesure",
+    pages: "p. 6",
+    questions: [
+      {
+        q: "Pourquoi réaliser un inventaire des moyens de mesure ?",
+        options: [
+          "Uniquement pour compter le nombre d'instruments",
+          "Pour avoir une vision claire du parc, organiser les étalonnages et assurer la traçabilité",
+          "Pour décider de jeter les anciens instruments",
+          "Pour préparer les fêtes de l'entreprise"
+        ],
+        correct: 1,
+        explain: "L'inventaire permet d'avoir une vision à jour, d'organiser les étalonnages, d'assurer la traçabilité et de répondre aux audits.",
+        ref: "p. 6 – Pourquoi faire un inventaire ?"
+      },
+      {
+        q: "Quel élément NE figure PAS obligatoirement dans un inventaire d'instrument ?",
+        options: [
+          "Numéro d'identification (n° de série)",
+          "Date du prochain étalonnage prévu",
+          "Prix d'achat en euros",
+          "Emplacement (lieu de rangement)"
+        ],
+        correct: 2,
+        explain: "Le prix d'achat n'est pas listé parmi les éléments obligatoires d'un inventaire métrologique.",
+        ref: "p. 6 – Éléments que doit contenir un inventaire"
+      },
+      {
+        q: "À quoi sert principalement la traçabilité documentée dans l'inventaire (certificats, dates) ?",
+        options: [
+          "À décorer les classeurs",
+          "À répondre aux audits qualité et garantir la fiabilité des mesures",
+          "À fixer le prix de vente des produits",
+          "Cela ne sert à rien"
+        ],
+        correct: 1,
+        explain: "Documenter les données de traçabilité (certificats, dates de vérification) est essentiel pour répondre aux audits et assurer la fiabilité.",
+        ref: "p. 6 – Pourquoi faire un inventaire ?"
+      },
+      {
+        q: "Que désigne le « numéro d'inventaire » d'un instrument ?",
+        options: [
+          "Le numéro de série du fabricant",
+          "Un numéro interne à l'entreprise",
+          "Le numéro du certificat d'étalonnage",
+          "Un code-barres standard international"
+        ],
+        correct: 1,
+        explain: "Le numéro d'inventaire est interne à l'entreprise. Il se distingue du numéro de série du fabricant.",
+        ref: "p. 6 – Éléments de l'inventaire"
+      },
+      {
+        q: "Lors d'un suivi périodique des équipements, quelles décisions peuvent être prises ?",
+        options: [
+          "Réparation, déclassement ou réforme du moyen",
+          "Vente immédiate à un concurrent",
+          "Donner l'instrument au stagiaire",
+          "Aucune action n'est possible"
+        ],
+        correct: 0,
+        explain: "Le suivi peut conduire à 3 décisions : réparation, déclassement ou réforme du moyen de mesure.",
+        ref: "p. 2 – Gestionnaire des matériels"
+      },
+      {
+        q: "Quel élément doit OBLIGATOIREMENT figurer dans l'inventaire d'un instrument ?",
+        options: [
+          "La couleur de l'appareil",
+          "L'état (Conforme ou Non-conforme) et la date du dernier étalonnage",
+          "Le nom du livreur",
+          "La marque préférée du chef d'atelier"
+        ],
+        correct: 1,
+        explain: "L'état (Conforme / Non-conforme) et les dates d'étalonnage font partie des informations indispensables.",
+        ref: "p. 6 – Éléments de l'inventaire"
+      }
+    ]
+  },
+
+  {
+    id: 3,
+    title: "La métrologie",
+    pages: "p. 7",
+    questions: [
+      {
+        q: "Qu'est-ce que la métrologie ?",
+        options: [
+          "La science des matériaux",
+          "La science de la mesure",
+          "L'étude du climat",
+          "La gestion des stocks"
+        ],
+        correct: 1,
+        explain: "La métrologie est la science de la mesure. Elle englobe tous les aspects théoriques et pratiques des mesures.",
+        ref: "p. 7 – La métrologie"
+      },
+      {
+        q: "Où se trouve le BIPM (Bureau International des Poids et Mesures) ?",
+        options: [
+          "Genève (Suisse)",
+          "Berlin (Allemagne)",
+          "Sèvres (France)",
+          "Londres (Royaume-Uni)"
+        ],
+        correct: 2,
+        explain: "Le BIPM est localisé à Sèvres, en France. Il assure la cohérence de la métrologie entre les pays.",
+        ref: "p. 7 – Organisation de la métrologie internationale"
+      },
+      {
+        q: "Comment s'appelle le laboratoire national de métrologie suisse ?",
+        options: [
+          "LNE",
+          "PTB",
+          "METAS",
+          "NIST"
+        ],
+        correct: 2,
+        explain: "METAS est l'Institut fédéral de métrologie suisse. Le LNE est français et le PTB est allemand.",
+        ref: "p. 7 – Laboratoires nationaux"
+      },
+      {
+        q: "Quel est le principal rôle du BIPM au niveau international ?",
+        options: [
+          "Vendre des instruments de mesure",
+          "Assurer la cohérence de la métrologie entre les pays et la reconnaissance mutuelle des certificats",
+          "Former les opérateurs en horlogerie",
+          "Contrôler les frontières"
+        ],
+        correct: 1,
+        explain: "Le BIPM permet la cohérence internationale : les certificats émis par les laboratoires nationaux sont ainsi reconnus entre pays.",
+        ref: "p. 7 – Métrologie internationale"
+      },
+      {
+        q: "Le LNE est le laboratoire national de métrologie de quel pays ?",
+        options: [
+          "Suisse",
+          "France",
+          "Allemagne",
+          "Belgique"
+        ],
+        correct: 1,
+        explain: "LNE = Laboratoire National de métrologie et d'Essais (France).",
+        ref: "p. 7 – Laboratoires nationaux"
+      },
+      {
+        q: "Le PTB est le laboratoire national de métrologie de quel pays ?",
+        options: [
+          "Italie",
+          "Espagne",
+          "Allemagne",
+          "Pays-Bas"
+        ],
+        correct: 2,
+        explain: "PTB = Physikalisch-Technische Bundesanstalt, l'établissement fédéral de technique physique allemand.",
+        ref: "p. 7 – Laboratoires nationaux"
+      }
+    ]
+  },
+
+  {
+    id: 4,
+    title: "Étalonnage et vérification",
+    pages: "p. 8 à 10",
+    questions: [
+      {
+        q: "Qu'est-ce que l'étalonnage d'un instrument ?",
+        options: [
+          "Un jugement de conformité avec verdict",
+          "La comparaison de l'instrument avec un étalon de référence",
+          "Un nettoyage de l'instrument",
+          "Le remplacement de pièces usées"
+        ],
+        correct: 1,
+        explain: "L'étalonnage est la comparaison d'un instrument avec un étalon de référence. C'est un « bilan de santé » qui ne donne PAS de verdict conforme/non conforme.",
+        ref: "p. 8 – Étalonnage"
+      },
+      {
+        q: "Le certificat d'étalonnage est :",
+        options: [
+          "Un document décisionnel qui statue sur la conformité",
+          "Un document descriptif qui ne donne pas de verdict",
+          "Une simple étiquette autocollante",
+          "Une facture d'achat"
+        ],
+        correct: 1,
+        explain: "Le certificat d'étalonnage est DESCRIPTIF (valeurs mesurées, erreurs, incertitudes) et ne donne PAS de verdict conforme/non conforme.",
+        ref: "p. 8 – Certificat d'étalonnage"
+      },
+      {
+        q: "Qu'est-ce que la vérification d'un instrument ?",
+        options: [
+          "Une simple inspection visuelle",
+          "L'évaluation de la conformité par rapport à une Erreur Maximale Tolérée (EMT)",
+          "Le réglage automatique de l'instrument",
+          "L'inventaire des accessoires"
+        ],
+        correct: 1,
+        explain: "La vérification évalue la conformité par rapport à une EMT définie par l'utilisateur. Elle aboutit à un verdict : Conforme ou Non conforme.",
+        ref: "p. 9 – Vérification"
+      },
+      {
+        q: "Le constat de vérification est un document :",
+        options: [
+          "Purement descriptif sans décision",
+          "Décisionnel qui conclut « Conforme » ou « Non conforme »",
+          "De marketing pour vendre les instruments",
+          "Confidentiel jamais transmis"
+        ],
+        correct: 1,
+        explain: "C'est la grande différence avec le certificat d'étalonnage : le constat de vérification donne une décision explicite.",
+        ref: "p. 9 – Constat de vérification"
+      },
+      {
+        q: "Quelle norme est associée à l'accréditation des laboratoires de métrologie ?",
+        options: [
+          "ISO 9001",
+          "ISO 14001",
+          "ISO/CEI 17025",
+          "ISO 45001"
+        ],
+        correct: 2,
+        explain: "ISO/CEI 17025 est la norme d'accréditation pour les laboratoires d'étalonnage et d'essais (SAS en Suisse).",
+        ref: "p. 8 – Informations administratives du certificat"
+      },
+      {
+        q: "Dans la comparaison étalonnage / vérification, lequel apporte une DÉCISION explicite ?",
+        options: [
+          "L'étalonnage",
+          "La vérification",
+          "Les deux",
+          "Aucun des deux"
+        ],
+        correct: 1,
+        explain: "Seule la vérification apporte une décision explicite (conforme / non conforme). L'étalonnage donne uniquement des données (erreurs + incertitudes).",
+        ref: "p. 10 – Comparaison étalonnage et vérification"
+      }
+    ]
+  },
+
+  {
+    id: 5,
+    title: "Erreur de mesure et justesse",
+    pages: "p. 10 à 12",
+    questions: [
+      {
+        q: "Qu'est-ce qu'une erreur de mesure ?",
+        options: [
+          "Un écart inconnu qu'on ne peut pas corriger",
+          "Un écart connu entre une mesure et la valeur de référence, que l'on peut corriger",
+          "Un défaut grave de l'instrument",
+          "Une faute de l'opérateur"
+        ],
+        correct: 1,
+        explain: "Une erreur est un écart CONNU entre la mesure et la référence : elle peut donc être corrigée.",
+        ref: "p. 10 – Erreur de mesure"
+      },
+      {
+        q: "À quoi est liée la justesse d'un instrument ?",
+        options: [
+          "À sa dispersion",
+          "À l'erreur systématique (biais)",
+          "À sa résolution",
+          "À sa résistance aux chocs"
+        ],
+        correct: 1,
+        explain: "La justesse est liée à l'erreur systématique (un écart qui se répète toujours dans le même sens, appelé biais).",
+        ref: "p. 10 – Justesse"
+      },
+      {
+        q: "Un micromètre mesure 5 fois une cale étalon de 10,000 mm. Les mesures sont : 10,003 / 10,004 / 10,003 / 10,004 / 10,003. Que peut-on dire ?",
+        options: [
+          "Le micromètre est parfaitement juste",
+          "Le micromètre présente un biais de +0,0034 mm",
+          "Le micromètre est cassé",
+          "Les mesures sont aléatoires"
+        ],
+        correct: 1,
+        explain: "Moyenne = 10,0034 mm. Écart à la référence = 0,0034 mm. Le micromètre mesure en moyenne 0,0034 mm trop grand : c'est un biais.",
+        ref: "p. 11 – Exemple simple de justesse"
+      },
+      {
+        q: "Quel procédé permet d'évaluer la justesse d'un instrument ?",
+        options: [
+          "Le contrôle par échantillonnage",
+          "L'étalonnage",
+          "L'audit financier",
+          "Le contrôle esthétique"
+        ],
+        correct: 1,
+        explain: "L'étalonnage compare les indications de l'instrument à des valeurs de référence et révèle les erreurs (donc le défaut de justesse).",
+        ref: "p. 12 – Lien avec l'étalonnage"
+      },
+      {
+        q: "Parmi les causes suivantes, laquelle n'est PAS une cause classique de manque de justesse ?",
+        options: [
+          "Instrument mal étalonné",
+          "Mauvais réglage du zéro",
+          "Température non maîtrisée",
+          "Couleur de la pièce trop foncée"
+        ],
+        correct: 3,
+        explain: "La couleur de la pièce n'est pas une cause classique. Les vraies causes sont liées aux 5M : moyen, méthode, milieu, main-d'œuvre, matière.",
+        ref: "p. 11 – Causes possibles d'un manque de justesse"
+      },
+      {
+        q: "Un instrument est dit « juste » lorsque :",
+        options: [
+          "Sa moyenne de mesures est proche de la valeur de référence",
+          "Toutes ses mesures sont identiques entre elles",
+          "Il est cher",
+          "Il est neuf"
+        ],
+        correct: 0,
+        explain: "La justesse caractérise la capacité à donner, EN MOYENNE, un résultat proche de la valeur de référence.",
+        ref: "p. 10-11 – Justesse"
+      }
+    ]
+  },
+
+  {
+    id: 6,
+    title: "Fidélité, incertitude et tolérance",
+    pages: "p. 13 à 17",
+    questions: [
+      {
+        q: "Que caractérise la fidélité d'un système de mesure ?",
+        options: [
+          "Sa proximité avec la valeur vraie",
+          "La dispersion des résultats lors de mesures répétées",
+          "Sa robustesse mécanique",
+          "Sa rapidité d'exécution"
+        ],
+        correct: 1,
+        explain: "La fidélité caractérise la DISPERSION des résultats obtenus lors de mesures répétées dans des conditions identiques.",
+        ref: "p. 13 – Fidélité"
+      },
+      {
+        q: "L'incertitude de mesure (U) est :",
+        options: [
+          "Une erreur connue à corriger",
+          "Un paramètre non négatif qui caractérise la dispersion des valeurs",
+          "Une valeur toujours nulle",
+          "Une caractéristique uniquement du fabricant"
+        ],
+        correct: 1,
+        explain: "Selon le VIM, l'incertitude est un paramètre non négatif qui caractérise la dispersion des valeurs attribuées à un mesurande.",
+        ref: "p. 14 – Définition VIM"
+      },
+      {
+        q: "Quel est le rapport IDÉAL en laboratoire entre incertitude U et tolérance T ?",
+        options: [
+          "U ≤ T/3",
+          "U ≤ T/5",
+          "U ≤ T/10",
+          "U = T"
+        ],
+        correct: 2,
+        explain: "En situation idéale, on vise U ≤ T/10 (rapport 10:1) : l'instrument est ~10× plus précis que l'exigence.",
+        ref: "p. 15-16 – Règle de base : U vs T"
+      },
+      {
+        q: "Quel est le rapport MINIMUM acceptable entre U et T en production ?",
+        options: [
+          "U ≤ T/2",
+          "U ≤ T/3",
+          "U ≤ T/5",
+          "U ≤ T/10"
+        ],
+        correct: 1,
+        explain: "Le minimum acceptable est U ≤ T/3. Au-delà (par exemple U = T/2), la mesure est jugée inacceptable.",
+        ref: "p. 16 – Visualisation des rapports U/T"
+      },
+      {
+        q: "Quelle affirmation est CORRECTE concernant justesse et fidélité ?",
+        options: [
+          "Elles sont strictement identiques",
+          "Un instrument fidèle est forcément juste",
+          "Un instrument peut être fidèle sans être juste, ou juste sans être fidèle",
+          "Aucun lien entre les deux notions"
+        ],
+        correct: 2,
+        explain: "Justesse et fidélité sont deux concepts complémentaires mais INDÉPENDANTS. L'idéal est d'avoir les deux.",
+        ref: "p. 16 – Lien entre justesse et fidélité"
+      },
+      {
+        q: "Une mesure indiquée « 150,2 cm ± 0,1 cm (k=2) » signifie que :",
+        options: [
+          "La table mesure exactement 150,2 cm",
+          "La vraie valeur est entre 150,1 et 150,3 cm avec un niveau de confiance de 95 %",
+          "La table mesure 0,1 cm",
+          "L'erreur est de 100 %"
+        ],
+        correct: 1,
+        explain: "Avec k=2 et un niveau de confiance de 95 %, la grandeur réelle se trouve entre (150,2 - 0,1) et (150,2 + 0,1) cm.",
+        ref: "p. 14 – Comment s'exprime l'incertitude"
+      },
+      {
+        q: "Quelles sont les 5 sources d'incertitude (les 5M) ?",
+        options: [
+          "Moyen, Marque, Marché, Méthode, Matière",
+          "Moyen, Main-d'œuvre, Méthode, Milieu, Matière",
+          "Mesure, Métrologie, Machine, Méthode, Maintenance",
+          "Modèle, Mesure, Méthode, Milieu, Marque"
+        ],
+        correct: 1,
+        explain: "Les 5M : Moyen (instrument), Main-d'œuvre (opérateur), Méthode (procédure), Milieu (environnement), Matière (pièce).",
+        ref: "p. 15 – Sources de l'incertitude (5M)"
+      }
+    ]
+  },
+
+  {
+    id: 7,
+    title: "Tests R&R (Répétabilité & Reproductibilité)",
+    pages: "p. 18 à 23",
+    questions: [
+      {
+        q: "Que signifie R&R dans « test R&R » ?",
+        options: [
+          "Risque et Rendement",
+          "Répétabilité et Reproductibilité",
+          "Recherche et Résultats",
+          "Réglage et Réparation"
+        ],
+        correct: 1,
+        explain: "R&R = Répétabilité et Reproductibilité. Ces tests évaluent la fidélité du système de mesure complet.",
+        ref: "p. 18 – Validation du système de mesure"
+      },
+      {
+        q: "La RÉPÉTABILITÉ correspond à la fidélité dans des conditions :",
+        options: [
+          "Différentes (autres opérateurs, autres instruments)",
+          "Identiques (même opérateur, même instrument, même lieu, intervalle court)",
+          "Aléatoires",
+          "De laboratoires différents"
+        ],
+        correct: 1,
+        explain: "Répétabilité = conditions IDENTIQUES. Reproductibilité = conditions DIFFÉRENTES (notamment opérateurs différents).",
+        ref: "p. 19 – La répétabilité"
+      },
+      {
+        q: "Que comprend un « système de mesure » ?",
+        options: [
+          "Uniquement l'instrument de mesure",
+          "L'instrument, l'opérateur, la méthode, le milieu et la matière",
+          "Seulement le logiciel d'analyse",
+          "Uniquement le certificat d'étalonnage"
+        ],
+        correct: 1,
+        explain: "Un système de mesure ne se limite pas à l'instrument : il comprend les 5M (moyen, main-d'œuvre, méthode, milieu, matière).",
+        ref: "p. 19 – Le système de mesure"
+      },
+      {
+        q: "Un résultat de % R&R de 15 % est jugé :",
+        options: [
+          "Satisfaisant sans réserve",
+          "Discutable mais acceptable selon le contexte",
+          "Non acceptable",
+          "Excellent"
+        ],
+        correct: 1,
+        explain: "Entre 10 % et 30 %, le système de mesure est discutable mais acceptable selon le contexte. ≤ 10 % = satisfaisant. > 30 % = non acceptable.",
+        ref: "p. 21 – Interprétation du % R&R"
+      },
+      {
+        q: "Quelle affirmation est CORRECTE à propos du test R&R ?",
+        options: [
+          "Il remplace totalement l'étalonnage et la vérification",
+          "Il complète l'étalonnage et la vérification en évaluant le système complet",
+          "Il sert uniquement à étalonner l'instrument",
+          "Il ne sert qu'à former les opérateurs"
+        ],
+        correct: 1,
+        explain: "Le test R&R COMPLÈTE l'étalonnage et la vérification. Il évalue le système de mesure complet (instrument + opérateur + méthode + milieu + matière).",
+        ref: "p. 21 – Différence entre étalonnage, vérification et R&R"
+      },
+      {
+        q: "Tolérance totale = 0,020 mm. Variation du système de mesure = 0,004 mm. Quel est le % R&R ?",
+        options: [
+          "5 %",
+          "10 %",
+          "20 %",
+          "40 %"
+        ],
+        correct: 2,
+        explain: "% R&R = (0,004 / 0,020) × 100 = 20 %. Cela place le système dans la zone discutable (acceptable selon le contexte).",
+        ref: "p. 22 – Exemple simple R&R"
+      },
+      {
+        q: "Une mauvaise REPRODUCTIBILITÉ signifie principalement que :",
+        options: [
+          "L'instrument est cassé",
+          "La mesure dépend trop de la personne qui mesure",
+          "La pièce est défectueuse",
+          "L'étalonnage est expiré"
+        ],
+        correct: 1,
+        explain: "Une mauvaise reproductibilité indique que la mesure dépend trop de la personne ou de la manière dont la méthode est appliquée.",
+        ref: "p. 20 – La reproductibilité"
+      }
+    ]
+  },
+
+  {
+    id: 8,
+    title: "Choix des instruments de mesure",
+    pages: "p. 24 à 26",
+    questions: [
+      {
+        q: "Quels sont les 3 facteurs principaux pour choisir un moyen de mesure ?",
+        options: [
+          "Prix, marque, couleur",
+          "Nature de la grandeur, conditions pratiques, incertitude exigée",
+          "Pays d'origine, garantie, poids",
+          "Vitesse, dimensions, autonomie"
+        ],
+        correct: 1,
+        explain: "On analyse : (1) la nature de la grandeur à mesurer, (2) les conditions pratiques, (3) l'incertitude exigée.",
+        ref: "p. 24 – Processus de choix"
+      },
+      {
+        q: "Pour mesurer un filetage, quel instrument est recommandé ?",
+        options: [
+          "Micromètre 2 touches",
+          "Tampon fileté de contrôle",
+          "Pied à coulisse vernier",
+          "Réglette"
+        ],
+        correct: 1,
+        explain: "Pour un filetage ou un taraudage, on utilise un tampon fileté de contrôle.",
+        ref: "p. 24 – Nature de la grandeur à mesurer"
+      },
+      {
+        q: "Quelle est l'incertitude typique d'un micromètre ?",
+        options: [
+          "± 0,5 mm",
+          "± 0,05 mm",
+          "± 0,003 mm",
+          "± 0,0001 mm"
+        ],
+        correct: 2,
+        explain: "Un micromètre offre une incertitude typique de ± 0,003 mm avec une résolution de 0,001 mm.",
+        ref: "p. 25 – Tableau précision et résolution"
+      },
+      {
+        q: "Quelle est l'incertitude typique d'un pied à coulisse digital ?",
+        options: [
+          "± 0,5 mm",
+          "± 0,02 mm",
+          "± 0,001 mm",
+          "± 0,0001 mm"
+        ],
+        correct: 1,
+        explain: "Le pied à coulisse digital a une incertitude de ± 0,02 mm pour une résolution de 0,01 mm.",
+        ref: "p. 25 – Précision et résolution"
+      },
+      {
+        q: "Avant d'utiliser un instrument en production, quelle vérification est INDISPENSABLE ?",
+        options: [
+          "Vérifier sa couleur et son design",
+          "S'assurer qu'il dispose d'un certificat d'étalonnage valide et raccordé au SI",
+          "Demander l'avis du commercial",
+          "Le repeindre"
+        ],
+        correct: 1,
+        explain: "La traçabilité métrologique (certificat valide, raccordement au SI via ISO/CEI 17025) est indispensable pour utiliser un instrument en production.",
+        ref: "p. 26 – Traçabilité métrologique"
+      },
+      {
+        q: "Pour mesurer un rayon ou un angle, quel instrument est privilégié ?",
+        options: [
+          "Micromètre",
+          "Projecteur de profil",
+          "Réglette",
+          "Pied à coulisse vernier"
+        ],
+        correct: 1,
+        explain: "Pour rayons, chanfreins et angles, on utilise un projecteur de profil.",
+        ref: "p. 24 – Nature de la grandeur"
+      }
+    ]
+  },
+
+  {
+    id: 9,
+    title: "Contrôle esthétique",
+    pages: "p. 27 à 40",
+    questions: [
+      {
+        q: "Quelle température de couleur est recommandée pour l'éclairage direct d'un poste de contrôle esthétique ?",
+        options: [
+          "2 000 K (lumière chaude)",
+          "5 000 K (lumière proche du jour)",
+          "8 000 K (lumière froide)",
+          "Peu importe"
+        ],
+        correct: 1,
+        explain: "L'éclairage direct doit être autour de 5 000 K, similaire à la lumière naturelle, pour restituer toutes les couleurs.",
+        ref: "p. 28 – Environnement de contrôle"
+      },
+      {
+        q: "Quelles sont les 4 étapes du processus d'analyse sensorielle ?",
+        options: [
+          "Exploration, Évaluation, Décision, Archivage",
+          "Formation, Exploration, Évaluation, Constat",
+          "Mesure, Comparaison, Validation, Livraison",
+          "Observation, Analyse, Test, Rapport"
+        ],
+        correct: 1,
+        explain: "Les 4 étapes sont : Formation, Exploration, Évaluation, Constat.",
+        ref: "p. 30 – Le processus d'analyse sensorielle"
+      },
+      {
+        q: "Quels sont les 3 effets de lumière à utiliser pour un contrôle complet ?",
+        options: [
+          "Direct, indirect, diffus",
+          "Effet noir, brillance, miroir",
+          "UV, infrarouge, visible",
+          "Faible, moyen, fort"
+        ],
+        correct: 1,
+        explain: "Pour un contrôle complet, on observe la surface avec 3 effets : effet noir, brillance et miroir.",
+        ref: "p. 30 – Les effets de lumière"
+      },
+      {
+        q: "Que signifient les 5 descripteurs RMDTU ?",
+        options: [
+          "Rayure, Marque, Déformation, Tache, Uniformité",
+          "Rouille, Métal, Défaut, Texture, Usure",
+          "Rapport, Mesure, Document, Test, Utilisateur",
+          "Réception, Manutention, Distribution, Transport, Utilisation"
+        ],
+        correct: 0,
+        explain: "Les 5 descripteurs usuels : R = Raye, M = Marque, D = Déformation, T = Tache, U = Uniformité.",
+        ref: "p. 34 – Les descripteurs"
+      },
+      {
+        q: "Comment se fait l'évaluation finale d'une anomalie esthétique ?",
+        options: [
+          "Toujours avec un microscope électronique",
+          "À l'œil nu, pour rester comparable à la perception du client",
+          "Avec une caméra thermique",
+          "Avec un capteur ultrason"
+        ],
+        correct: 1,
+        explain: "On peut s'aider d'une loupe pour caractériser, mais l'évaluation FINALE se fait à l'œil nu (comme le client).",
+        ref: "p. 27 – Différence avec la métrologie dimensionnelle"
+      },
+      {
+        q: "Sur une montre, la Zone A correspond à :",
+        options: [
+          "Le dos de la montre (peu visible)",
+          "Le côté (moyennement exposé)",
+          "Le dessus de la montre (cadran, extrêmement visible)",
+          "Le bracelet"
+        ],
+        correct: 2,
+        explain: "Zone A = zone très exposée (cadran, dessus de la montre), associée à l'affichage de l'heure. Plus la zone est visible, moins on tolère d'anomalies.",
+        ref: "p. 37 – Étape Constat / Zones"
+      },
+      {
+        q: "À quel stade d'observation parle-t-on d'« anomalie » plutôt que de « défaut » ?",
+        options: [
+          "Au moment de la détection (avant l'évaluation)",
+          "Après la décision finale",
+          "Lors du contrôle dimensionnel",
+          "Jamais"
+        ],
+        correct: 0,
+        explain: "À la détection, on parle d'anomalie car on ne sait pas encore si elle est conforme ou non. Le « défaut » est confirmé après évaluation et constat.",
+        ref: "p. 32 – La détection"
+      },
+      {
+        q: "L'échelle sémantique d'intensité comporte combien de niveaux ?",
+        options: [
+          "3 niveaux",
+          "5 niveaux (Aucune à Forte)",
+          "7 niveaux",
+          "10 niveaux"
+        ],
+        correct: 1,
+        explain: "L'échelle est sur 5 points : 1-Aucune, 2-Très légère, 3-Légère, 4-Modérée, 5-Forte.",
+        ref: "p. 35 – Intensité"
+      }
+    ]
+  },
+
+  {
+    id: 10,
+    title: "Gamme et rapport de contrôle",
+    pages: "p. 41 à 45",
+    questions: [
+      {
+        q: "Qu'est-ce qu'une gamme de contrôle ?",
+        options: [
+          "Un instrument de mesure",
+          "Un document décrivant la succession des contrôles à effectuer et les moyens nécessaires",
+          "Un test de couleur",
+          "Une norme ISO"
+        ],
+        correct: 1,
+        explain: "La gamme de contrôle est un document qui liste, dans l'ordre, les contrôles à réaliser avec leurs moyens. C'est l'équivalent de la gamme de fabrication.",
+        ref: "p. 41 – La gamme de contrôle"
+      },
+      {
+        q: "Lequel de ces éléments NE figure PAS dans l'en-tête d'une gamme de contrôle ?",
+        options: [
+          "Numéro de gamme",
+          "Objet du contrôle (désignation, référence)",
+          "Valeurs mesurées sur les pièces",
+          "Identification du rédacteur"
+        ],
+        correct: 2,
+        explain: "Les valeurs mesurées apparaissent dans le RAPPORT de contrôle, pas dans la gamme. La gamme décrit ce qu'il faut faire, le rapport consigne ce qui a été fait.",
+        ref: "p. 41-44 – Contenu de la gamme et du rapport"
+      },
+      {
+        q: "Quelle est la principale différence entre une gamme et un rapport de contrôle ?",
+        options: [
+          "Aucune, ce sont des synonymes",
+          "Le rapport reprend la gamme et y ajoute les valeurs mesurées et le statut de conformité",
+          "Le rapport est plus court que la gamme",
+          "La gamme est facultative, le rapport est obligatoire"
+        ],
+        correct: 1,
+        explain: "Le rapport reprend la structure de la gamme et y ajoute les résultats mesurés, les conformités par caractéristique, les commentaires et la conclusion.",
+        ref: "p. 44 – Le rapport de mesure"
+      },
+      {
+        q: "Le rapport de contrôle sert principalement à :",
+        options: [
+          "Vendre les pièces plus cher",
+          "Tracer les contrôles, prouver la conformité, et servir de preuve en cas d'audit",
+          "Décorer les bureaux",
+          "Remplacer la gamme de fabrication"
+        ],
+        correct: 1,
+        explain: "Le rapport assure la traçabilité, informe les parties prenantes du statut de conformité, et constitue une preuve documentaire.",
+        ref: "p. 44 – Objectifs du rapport"
+      },
+      {
+        q: "Une instruction de contrôle (IC) sert à :",
+        options: [
+          "Remplacer la gamme",
+          "Décrire le mode opératoire détaillé : comment positionner, quel outil, quelle lecture",
+          "Définir le prix de vente",
+          "Lister les fournisseurs"
+        ],
+        correct: 1,
+        explain: "L'IC détaille le mode opératoire pour garantir des contrôles uniformes et reproductibles, quelle que soit la personne.",
+        ref: "p. 43 – Instructions de contrôle"
+      },
+      {
+        q: "Dans le corps d'une gamme de contrôle, que doit-on indiquer pour une caractéristique dimensionnelle ?",
+        options: [
+          "Uniquement la cote nominale",
+          "Cote nominale, tolérances, moyen de contrôle et fréquence ou taille d'échantillon",
+          "Le prénom du contrôleur",
+          "La couleur de la pièce"
+        ],
+        correct: 1,
+        explain: "Pour une mesure : N° séquence, caractéristique, cote nominale, tolérance, tol. min/max, moyen de contrôle, fréquence ou taille d'échantillon.",
+        ref: "p. 42 – Contenu du corps de la gamme"
+      }
+    ]
+  },
+
+  {
+    id: 11,
+    title: "Contrôle par échantillonnage",
+    pages: "p. 46 à 55",
+    questions: [
+      {
+        q: "Le principe du contrôle par échantillonnage est :",
+        options: [
+          "Contrôler 100 % des pièces",
+          "Tirer des conclusions sur un lot à partir d'un échantillon prélevé",
+          "Ne pas contrôler du tout",
+          "Détruire le lot pour l'analyser"
+        ],
+        correct: 1,
+        explain: "Le contrôle par échantillonnage permet de juger un lot à partir d'un échantillon. C'est plus rapide et plus économique que le 100 %.",
+        ref: "p. 46 – Les fondements"
+      },
+      {
+        q: "Quelle norme s'applique aux contrôles par ATTRIBUTS ?",
+        options: [
+          "ISO 9001",
+          "ISO 2859",
+          "ISO 3951",
+          "ISO 14001"
+        ],
+        correct: 1,
+        explain: "ISO 2859 = contrôles par attributs (conforme/non conforme). ISO 3951 = contrôles par mesures.",
+        ref: "p. 48 – Les normes"
+      },
+      {
+        q: "Quelle norme s'applique aux contrôles par MESURES ?",
+        options: [
+          "ISO 2859",
+          "ISO 3951",
+          "ISO 17025",
+          "ISO 9001"
+        ],
+        correct: 1,
+        explain: "ISO 3951 = contrôles par mesures (valeurs numériques). ISO 2859 = contrôles par attributs.",
+        ref: "p. 48 – Les normes"
+      },
+      {
+        q: "Quel est le risque CLIENT (risque β) ?",
+        options: [
+          "Le risque d'accepter à tort un lot non conforme",
+          "Le risque de refuser à tort un lot conforme",
+          "Le risque de perdre des clients",
+          "Le risque d'incendie au laboratoire"
+        ],
+        correct: 0,
+        explain: "Le risque client β = accepter à tort un lot non conforme (usuellement 5 %). Le risque fournisseur α = refuser à tort un lot conforme (usuellement 10 %).",
+        ref: "p. 53 – Risque client et risque fournisseur"
+      },
+      {
+        q: "Que représente le NQA (Niveau de Qualité Acceptable) ?",
+        options: [
+          "Le nombre d'instruments dans le laboratoire",
+          "Le pourcentage maximum de défauts qu'on accepte",
+          "La taille obligatoire du lot",
+          "Le temps de contrôle en minutes"
+        ],
+        correct: 1,
+        explain: "Le NQA (ou AQL) est le pourcentage maximum d'individus non conformes que l'on accepte (ex : NQA = 1 %).",
+        ref: "p. 50 – Étape 4 : Choisir le NQA"
+      },
+      {
+        q: "Dans un plan d'échantillonnage, que signifient « Ac » et « Re » ?",
+        options: [
+          "Accessoires et Remplacements",
+          "Acceptation et Rejet : Ac = nombre max de NC pour accepter, Re = nombre de NC à partir duquel on rejette",
+          "Aluminium et Résine",
+          "Actif et Réserve"
+        ],
+        correct: 1,
+        explain: "Ac = nombre maximum de pièces non conformes pour accepter le lot. Re = nombre à partir duquel on rejette le lot.",
+        ref: "p. 51 – Étape 7 : Ac et Re"
+      },
+      {
+        q: "Pourquoi le contrôle par échantillonnage est-il plus efficient que le 100 % ?",
+        options: [
+          "Il garantit zéro défaut",
+          "Il diminue les coûts et le temps de contrôle, tout en gardant une décision fiable",
+          "Il remplace totalement la production",
+          "Il n'a aucun avantage"
+        ],
+        correct: 1,
+        explain: "Le contrôle par échantillonnage est moins coûteux et plus rapide. L'énergie des contrôleurs est mieux utilisée, même s'il prend un risque statistique.",
+        ref: "p. 46-47 – Efficience"
+      }
+    ]
+  },
+
+  {
+    id: 12,
+    title: "Capabilités (Cp, Cpk, Pp, Ppk)",
+    pages: "p. 56 à 61",
+    questions: [
+      {
+        q: "À quelle question répond l'étude de capabilité ?",
+        options: [
+          "Le procédé est-il capable de produire dans les tolérances de façon reproductible ?",
+          "L'opérateur est-il diplômé ?",
+          "L'instrument est-il neuf ?",
+          "Le prix de vente est-il correct ?"
+        ],
+        correct: 0,
+        explain: "La capabilité compare la dispersion naturelle du procédé (6σ) avec la largeur des tolérances.",
+        ref: "p. 57 – Principe d'utilisation"
+      },
+      {
+        q: "À quoi correspond la dispersion naturelle d'un procédé ?",
+        options: [
+          "1 σ",
+          "3 σ",
+          "6 σ (intervalle ±3σ autour de la moyenne)",
+          "10 σ"
+        ],
+        correct: 2,
+        explain: "Par convention, la dispersion = 6σ, soit ±3σ autour de la moyenne. À ±3σ, 99,7 % de la production est incluse.",
+        ref: "p. 57 – La dispersion"
+      },
+      {
+        q: "Quelle est la formule du Cp ?",
+        options: [
+          "Cp = (Tol max + Tol min) / 6σ",
+          "Cp = (Tol max - Tol min) / 6σ",
+          "Cp = moyenne / écart-type",
+          "Cp = 6σ × tolérance"
+        ],
+        correct: 1,
+        explain: "Cp = (Tol. max - Tol. min) / 6σ. Cp évalue la capacité POTENTIELLE en supposant le procédé centré.",
+        ref: "p. 57 – Indice Cp"
+      },
+      {
+        q: "Quelle est la différence essentielle entre Cp et Cpk ?",
+        options: [
+          "Cpk est toujours plus grand que Cp",
+          "Cpk tient compte du centrage du procédé, pas Cp",
+          "Cp s'applique aux instruments, Cpk aux opérateurs",
+          "Il n'y a aucune différence"
+        ],
+        correct: 1,
+        explain: "Cp évalue la dispersion seule (potentiel théorique). Cpk intègre dispersion ET centrage. Un procédé décalé peut avoir un bon Cp mais un mauvais Cpk.",
+        ref: "p. 58-59 – Cp et Cpk"
+      },
+      {
+        q: "Une valeur de Cpk = 1,5 est jugée :",
+        options: [
+          "Mauvaise",
+          "Moyenne",
+          "Bonne",
+          "Excellente"
+        ],
+        correct: 2,
+        explain: "1,33 ≤ Cpk < 2,00 → Bonne. ≥ 2,00 → Excellente. 1,00-1,33 → Moyenne. < 1,00 → Mauvaise.",
+        ref: "p. 60 – Interprétation"
+      },
+      {
+        q: "Quelle affirmation distingue Cp/Cpk et Pp/Ppk ?",
+        options: [
+          "Cp/Cpk = court terme (lot homogène) ; Pp/Ppk = long terme (dérives, équipes)",
+          "Cp/Cpk = long terme ; Pp/Ppk = court terme",
+          "Les 4 indicateurs sont identiques",
+          "Pp/Ppk concernent l'esthétique uniquement"
+        ],
+        correct: 0,
+        explain: "Cp/Cpk = capabilité court terme (procédé stable). Pp/Ppk = performance long terme (intègre dérives, changements d'équipe, etc.).",
+        ref: "p. 60-61 – Pp et Ppk"
+      },
+      {
+        q: "À ±2σ autour de la moyenne, quel pourcentage de la production est inclus ?",
+        options: [
+          "50 %",
+          "68 %",
+          "95 %",
+          "99,7 %"
+        ],
+        correct: 2,
+        explain: "À ±1σ → 68 %, à ±2σ → 95 %, à ±3σ → 99,7 %. C'est la fameuse règle « 68-95-99,7 » de la loi normale.",
+        ref: "p. 57 – La dispersion"
+      }
+    ]
+  },
+
+  {
+    id: 13,
+    title: "Traitement des non-conformités",
+    pages: "p. 62 à 65",
+    questions: [
+      {
+        q: "Qu'est-ce qu'une non-conformité (NC) ?",
+        options: [
+          "Un produit fini parfait",
+          "Un écart entre ce qui est exigé et ce qui est constaté",
+          "Une amélioration apportée au procédé",
+          "Une mesure validée"
+        ],
+        correct: 1,
+        explain: "Une non-conformité = écart entre ce qui est exigé (spécification) et ce qui est constaté (réalité).",
+        ref: "p. 62 – Définition"
+      },
+      {
+        q: "Quelle est la PREMIÈRE étape pour traiter une non-conformité ?",
+        options: [
+          "Trouver les solutions immédiatement",
+          "Poser clairement le problème",
+          "Sanctionner l'opérateur",
+          "Refaire le lot complet"
+        ],
+        correct: 1,
+        explain: "Avant tout, il faut DÉFINIR PRÉCISÉMENT le problème (Quoi, Où, Quand, Combien, Conditions). Tant qu'il n'est pas posé, on ne cherche pas de solutions.",
+        ref: "p. 63 – Poser le problème"
+      },
+      {
+        q: "Quel outil permet de remonter à la cause racine en posant plusieurs fois la même question ?",
+        options: [
+          "Diagramme de Gantt",
+          "Méthode des 5 Pourquoi",
+          "Histogramme",
+          "Pareto"
+        ],
+        correct: 1,
+        explain: "Les 5 Pourquoi : on demande « pourquoi ? » plusieurs fois pour remonter à la cause racine.",
+        ref: "p. 64 – Rechercher les causes"
+      },
+      {
+        q: "Que signifie le principe « Sangenshugi » du TPS ?",
+        options: [
+          "Décider depuis le bureau",
+          "Aller voir sur le terrain (lieu réel, objet réel, faits réels)",
+          "Demander aux clients par mail",
+          "Confier la décision à l'informatique"
+        ],
+        correct: 1,
+        explain: "Sangenshugi = 3 Gen : Genba (lieu réel), Genbutsu (objet réel), Genjitsu (faits réels). On décide à partir de ce qu'on observe directement.",
+        ref: "p. 63 – Sangenshugi"
+      },
+      {
+        q: "Quelle est la DERNIÈRE étape essentielle dans le traitement d'une non-conformité ?",
+        options: [
+          "Oublier l'incident",
+          "Vérifier l'efficacité des actions et mettre à jour les standards",
+          "Sanctionner les opérateurs",
+          "Augmenter la cadence"
+        ],
+        correct: 1,
+        explain: "Sans cette étape, le problème n'est pas vraiment résolu. Il faut vérifier, mettre à jour les standards, et capitaliser le retour d'expérience.",
+        ref: "p. 65 – Vérifier et capitaliser"
+      },
+      {
+        q: "Quel diagramme correspond aux 5M (causes : Matière, Méthode, Main-d'œuvre, Moyens, Milieu) ?",
+        options: [
+          "Diagramme de Pareto",
+          "Diagramme d'Ishikawa (en arête de poisson)",
+          "Diagramme circulaire",
+          "Diagramme de Venn"
+        ],
+        correct: 1,
+        explain: "Le diagramme d'Ishikawa (ou « arête de poisson ») classe les causes selon les 5M : Matière, Méthode, Main-d'œuvre, Moyens, Milieu.",
+        ref: "p. 64 – Outils 5M / Ishikawa"
+      }
+    ]
+  },
+
+  {
+    id: 14,
+    title: "Systèmes de production",
+    pages: "p. 66 à 67",
+    questions: [
+      {
+        q: "Quelle est la caractéristique principale de la production ARTISANALE ?",
+        options: [
+          "Très grand volume, faible variété",
+          "Faible volume, forte variété, fort savoir-faire",
+          "Production entièrement automatisée",
+          "Standardisation maximale"
+        ],
+        correct: 1,
+        explain: "Production artisanale = faible volume, forte variété, fort savoir-faire, organisation flexible, coût unitaire élevé.",
+        ref: "p. 66 – Production artisanale"
+      },
+      {
+        q: "Dans une production EN LIGNE :",
+        options: [
+          "Les postes sont regroupés par familles de produits",
+          "Les postes sont rangés dans l'ordre des opérations et la pièce avance de poste en poste",
+          "Il n'y a aucun ordre",
+          "Chaque opérateur fait tout"
+        ],
+        correct: 1,
+        explain: "Production en ligne : flux lisible, manutention limitée, mais peu flexible si on change souvent de produit.",
+        ref: "p. 67 – Production en ligne"
+      },
+      {
+        q: "Quel est l'avantage principal d'un îlot de production ?",
+        options: [
+          "Lignes ultra-rigides",
+          "Manutention limitée et bonne flexibilité pour une famille de produits",
+          "Pas de personnel nécessaire",
+          "Production uniquement de masse"
+        ],
+        correct: 1,
+        explain: "L'îlot regroupe les postes pour une famille de produits → manutention limitée, flexibilité importante. Inconvénient : duplication des ressources.",
+        ref: "p. 67 – Production en îlot"
+      },
+      {
+        q: "Quelle est la caractéristique principale de la production INDUSTRIELLE ?",
+        options: [
+          "Faible volume, forte personnalisation",
+          "Standardisation, division du travail, recherche de productivité",
+          "Aucune méthode ni gamme",
+          "Réservée aux pièces uniques"
+        ],
+        correct: 1,
+        explain: "La production industrielle vise productivité globale et coûts unitaires plus bas grâce à la standardisation et la division du travail.",
+        ref: "p. 66 – Production industrielle"
+      },
+      {
+        q: "Production artisanale vs industrielle : laquelle a un coût unitaire plus élevé ?",
+        options: [
+          "L'artisanale (temps humain important)",
+          "L'industrielle (machines coûteuses)",
+          "Les deux ont le même coût",
+          "Cela dépend uniquement du produit"
+        ],
+        correct: 0,
+        explain: "La production artisanale a un coût unitaire élevé en raison du temps humain important investi pièce par pièce.",
+        ref: "p. 66 – Comparaison"
+      }
+    ]
+  },
+
+  {
+    id: 15,
+    title: "Lean Manufacturing & Six Sigma",
+    pages: "p. 68 à 72",
+    questions: [
+      {
+        q: "D'où vient le Lean Manufacturing ?",
+        options: [
+          "Du système Ford",
+          "Du Toyota Production System (TPS)",
+          "Des usines allemandes du XIXe siècle",
+          "Des laboratoires américains"
+        ],
+        correct: 1,
+        explain: "Le Lean est fortement inspiré du Toyota Production System (TPS), développé par Toyota après-guerre.",
+        ref: "p. 68 – D'où vient le Lean ?"
+      },
+      {
+        q: "Comment se définit la « Valeur » en Lean ?",
+        options: [
+          "Le prix de revient",
+          "Ce pour quoi le CLIENT est prêt à payer",
+          "Le poids de la pièce",
+          "Le temps de production"
+        ],
+        correct: 1,
+        explain: "Valeur = ce pour quoi le client est prêt à payer. On distingue VA (Valeur Ajoutée), NNVA (nécessaire) et NVA (gaspillage à éliminer).",
+        ref: "p. 69 – Le concept clé : la valeur"
+      },
+      {
+        q: "Lequel de ces éléments N'EST PAS un gaspillage (muda) classique ?",
+        options: [
+          "Surproduction",
+          "Stocks excessifs",
+          "Formation des opérateurs",
+          "Défauts et retouches"
+        ],
+        correct: 2,
+        explain: "Les 7 mudas classiques : Surproduction, Stocks, Attentes, Transports, Mouvements, Surprocess, Défauts. La formation est un investissement, pas un gaspillage.",
+        ref: "p. 69 – Les gaspillages MUDA"
+      },
+      {
+        q: "Qu'est-ce que le « flux tiré » ?",
+        options: [
+          "Produire selon une prévision",
+          "Produire parce que l'étape suivante (ou le client) tire la demande",
+          "Produire le plus possible",
+          "Stocker au maximum"
+        ],
+        correct: 1,
+        explain: "Flux tiré : on fabrique parce que l'aval tire (souvent avec Kanban). Le Lean privilégie le flux tiré car il limite les en-cours et révèle les problèmes.",
+        ref: "p. 69 – Flux poussé vs flux tiré"
+      },
+      {
+        q: "Que signifie « JAT » dans la culture Lean ?",
+        options: [
+          "Juste à Temps",
+          "Journée d'Audit Technique",
+          "Jeu Avec le Temps",
+          "Justification d'Achat Technique"
+        ],
+        correct: 0,
+        explain: "JAT = Juste-à-Temps : produire en flux tendu, exactement ce qui est demandé, quand c'est demandé.",
+        ref: "p. 70 – Le Juste-à-Temps"
+      },
+      {
+        q: "Quel est le rôle principal de Six Sigma ?",
+        options: [
+          "Accélérer le flux de production",
+          "Réduire la variabilité et sécuriser la qualité (dispersion, capabilité, défauts)",
+          "Réduire le nombre d'employés",
+          "Augmenter les prix"
+        ],
+        correct: 1,
+        explain: "Là où le Lean accélère le flux, Six Sigma fiabilise le procédé en traitant la dispersion, la capabilité, les défauts et la stabilité.",
+        ref: "p. 71 – Apport de Six Sigma"
+      },
+      {
+        q: "Que signifie DMAIC ?",
+        options: [
+          "Define, Measure, Analyze, Improve, Control",
+          "Décider, Mesurer, Acheter, Installer, Contrôler",
+          "Découvrir, Modifier, Auditer, Imprimer, Cesser",
+          "Déployer, Manager, Analyser, Innover, Communiquer"
+        ],
+        correct: 0,
+        explain: "DMAIC : Define (définir), Measure (mesurer), Analyze (analyser), Improve (améliorer), Control (contrôler). C'est la méthode du Lean Six Sigma.",
+        ref: "p. 71 – DMAIC"
+      },
+      {
+        q: "Parmi ces piliers de la culture Lean, lequel signifie « petites améliorations régulières » ?",
+        options: [
+          "Gemba",
+          "Kaizen",
+          "Heijunka",
+          "Jidoka"
+        ],
+        correct: 1,
+        explain: "Kaizen = amélioration continue par petits pas. Gemba = aller sur le terrain. Heijunka = lissage. Jidoka = qualité intégrée.",
+        ref: "p. 70 – Fondamentaux du Lean"
+      }
+    ]
+  }
+];
+
+// ========== APP STATE ==========
+let state = {
+  currentChapter: null,
+  currentQuestion: 0,
+  quizScore: 0,
+  chapterScores: {} // {chapterId: {score: n, max: n, completed: true}}
+};
+
+// ========== HOME RENDERING ==========
+function renderHome() {
+  const grid = document.getElementById('chaptersGrid');
+  grid.innerHTML = '';
+  let totalScore = 0;
+  let totalMax = 0;
+  let completed = 0;
+
+  chapters.forEach((ch, idx) => {
+    const cs = state.chapterScores[ch.id];
+    const card = document.createElement('div');
+    card.className = 'chapter-card' + (cs?.completed ? ' completed' : '');
+    
+    if (cs?.completed) {
+      totalScore += cs.score;
+      totalMax += cs.max;
+      completed++;
+    } else {
+      totalMax += ch.questions.length;
+    }
+
+    const pct = cs?.completed ? (cs.score / cs.max * 100) : 0;
+    
+    card.innerHTML = `
+      <div class="chapter-num">${idx + 1}</div>
+      <div class="chapter-title">${ch.title}</div>
+      <div class="chapter-pages">📄 ${ch.pages} · ${ch.questions.length} questions</div>
+      <div class="chapter-progress-mini"><div class="chapter-progress-mini-fill" style="width:${pct}%"></div></div>
+      <div class="chapter-status ${cs?.completed ? 'done' : ''}">
+        ${cs?.completed ? `✅ Terminé : ${cs.score}/${cs.max} (${Math.round(pct)}%)` : '▶️ Commencer'}
+      </div>
+    `;
+    card.onclick = () => startQuiz(ch.id);
+    grid.appendChild(card);
+  });
+
+  const globalPct = totalMax ? Math.round(totalScore/totalMax*100) : 0;
+  document.getElementById('globalScore').textContent = totalScore;
+  document.getElementById('globalMax').textContent = totalMax;
+  document.getElementById('completedCount').textContent = completed;
+  document.getElementById('totalChapters').textContent = chapters.length;
+  document.getElementById('globalPct').textContent = globalPct;
+  
+  // Animate progress bar
+  setTimeout(() => {
+    document.getElementById('globalProgressBar').style.width = globalPct + '%';
+  }, 100);
+}
+
+// ========== DOTS PROGRESS ==========
+function renderDots() {
+  const container = document.getElementById('dotsProgress');
+  const total = state.currentChapter.questions.length;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    let cls = 'dot';
+    if (i < state.currentQuestion) {
+      // Already answered - we need to track per-question correctness
+      // For simplicity we'll color based on whether it was correct
+      // We'll add a state for this
+    }
+    if (i === state.currentQuestion) cls += ' current';
+    html += `<div class="dot ${cls}" id="dot-${i}"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function updateDot(index, correct) {
+  const dot = document.getElementById('dot-' + index);
+  if (dot) {
+    dot.className = 'dot ' + (correct ? 'correct' : 'incorrect');
+  }
+}
+
+// ========== QUIZ FLOW ==========
+function startQuiz(chapterId) {
+  state.currentChapter = chapters.find(c => c.id === chapterId);
+  state.currentQuestion = 0;
+  state.quizScore = 0;
+
+  document.getElementById('homeView').classList.add('hidden');
+  document.getElementById('quizView').classList.add('active');
+  document.getElementById('resultsView').classList.remove('active');
+
+  document.getElementById('quizTitle').textContent = state.currentChapter.title;
+  document.getElementById('quizPages').textContent = state.currentChapter.pages;
+  document.getElementById('qTotal').textContent = state.currentChapter.questions.length;
+
+  renderDots();
+  renderQuestion();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function renderQuestion() {
+  const q = state.currentChapter.questions[state.currentQuestion];
+  const container = document.getElementById('questionContainer');
+  
+  document.getElementById('qCurrent').textContent = state.currentQuestion + 1;
+  document.getElementById('quizScore').textContent = state.quizScore;
+  
+  // Update dots
+  document.querySelectorAll('.dot').forEach((dot, i) => {
+    if (i === state.currentQuestion) {
+      // Keep the previous classes (correct/incorrect for past, plain for future)
+      if (!dot.classList.contains('correct') && !dot.classList.contains('incorrect')) {
+        dot.className = 'dot current';
+      }
+    }
+  });
+  
+  let optionsHtml = '';
+  q.options.forEach((opt, i) => {
+    const letter = String.fromCharCode(65 + i);
+    optionsHtml += `
+      <div class="option" data-index="${i}" onclick="selectOption(${i})">
+        <div class="option-letter">${letter}</div>
+        <div class="option-text">${opt}</div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="question-card">
+      <span class="question-num">Question ${state.currentQuestion + 1} / ${state.currentChapter.questions.length}</span>
+      <div class="question-text">${q.q}</div>
+      <div class="options" id="optionsList">${optionsHtml}</div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  `;
+  
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('nextBtn').textContent = 
+    state.currentQuestion === state.currentChapter.questions.length - 1 
+      ? 'Voir les résultats 🏆' 
+      : 'Suivant →';
+}
+
+function selectOption(index) {
+  const q = state.currentChapter.questions[state.currentQuestion];
+  const options = document.querySelectorAll('.option');
+  
+  if (options[0].classList.contains('disabled')) return;
+  options.forEach(o => o.classList.add('disabled'));
+  
+  const isCorrect = index === q.correct;
+  if (isCorrect) {
+    state.quizScore++;
+    options[index].classList.add('correct');
+    miniConfetti(options[index]);
+  } else {
+    options[index].classList.add('incorrect');
+    setTimeout(() => options[q.correct].classList.add('correct'), 400);
+  }
+  
+  updateDot(state.currentQuestion, isCorrect);
+  
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+  fb.innerHTML = `
+    <div class="feedback-title">
+      ${isCorrect ? '✅ Bonne réponse !' : '❌ Pas tout à fait...'}
+    </div>
+    <div class="feedback-text">${q.explain}</div>
+    <div class="feedback-ref">📖 Référence : <strong>${q.ref}</strong></div>
+  `;
+  
+  document.getElementById('quizScore').textContent = state.quizScore;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  if (state.currentQuestion < state.currentChapter.questions.length - 1) {
+    state.currentQuestion++;
+    renderQuestion();
+    window.scrollTo({top: document.querySelector('.quiz-header').offsetTop - 20, behavior: 'smooth'});
+  } else {
+    finishQuiz();
+  }
+}
+
+function finishQuiz() {
+  state.chapterScores[state.currentChapter.id] = {
+    score: state.quizScore,
+    max: state.currentChapter.questions.length,
+    completed: true
+  };
+  
+  document.getElementById('quizView').classList.remove('active');
+  document.getElementById('resultsView').classList.add('active');
+  
+  const score = state.quizScore;
+  const max = state.currentChapter.questions.length;
+  const pct = score / max;
+  const pctNum = Math.round(pct * 100);
+  
+  let emoji, title, msg;
+  if (pct === 1) {
+    emoji = '🏆';
+    title = 'Parfait, sans faute !';
+    msg = 'Vous maîtrisez ce chapitre à 100 %. Excellent travail !';
+    bigConfetti();
+  } else if (pct >= 0.8) {
+    emoji = '🎉';
+    title = 'Excellent !';
+    msg = 'Très bonne maîtrise de ce chapitre.';
+    bigConfetti();
+  } else if (pct >= 0.6) {
+    emoji = '👍';
+    title = 'Bien joué !';
+    msg = 'Bon niveau, quelques notions à revoir pour viser l\'excellence.';
+  } else if (pct >= 0.4) {
+    emoji = '📚';
+    title = 'Encore un effort !';
+    msg = 'Quelques notions clés à retravailler. N\'hésitez pas à rejouer le quiz.';
+  } else {
+    emoji = '💪';
+    title = 'On y retourne ?';
+    msg = 'Reprenez les pages du cours puis tentez à nouveau le quiz.';
+  }
+  
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsScore').textContent = score;
+  document.getElementById('resultsMax').textContent = max;
+  document.getElementById('resultsPct').textContent = pctNum + '%';
+  document.getElementById('resultsMessage').textContent = msg;
+  
+  // Animate the score circle (circumference ≈ 502 for r=80)
+  const circumference = 2 * Math.PI * 80;
+  const offset = circumference * pct;
+  const circle = document.getElementById('scoreCircle');
+  circle.style.strokeDasharray = '0 ' + circumference;
+  setTimeout(() => {
+    circle.style.strokeDasharray = offset + ' ' + circumference;
+  }, 300);
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function retryQuiz() {
+  startQuiz(state.currentChapter.id);
+}
+
+function goHome() {
+  document.getElementById('quizView').classList.remove('active');
+  document.getElementById('resultsView').classList.remove('active');
+  document.getElementById('homeView').classList.remove('hidden');
+  renderHome();
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ========== CONFETTI EFFECTS ==========
+function miniConfetti(element) {
+  const rect = element.getBoundingClientRect();
+  const colors = ['#1e3a8a', '#3b82f6', '#06b6d4', '#10b981', '#fbbf24'];
+  const container = document.getElementById('confettiContainer');
+  
+  for (let i = 0; i < 18; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (rect.left + rect.width/2) + 'px';
+    c.style.top = (rect.top + rect.height/2) + 'px';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.width = (6 + Math.random()*6) + 'px';
+    c.style.height = c.style.width;
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    
+    const angle = (Math.PI * 2 * i) / 18 + Math.random() * 0.5;
+    const velocity = 60 + Math.random() * 80;
+    const dx = Math.cos(angle) * velocity;
+    const dy = Math.sin(angle) * velocity - 40;
+    
+    c.animate([
+      { transform: 'translate(0, 0) rotate(0)', opacity: 1 },
+      { transform: `translate(${dx}px, ${dy + 200}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+    ], { duration: 1200 + Math.random()*400, easing: 'cubic-bezier(0.2, 0.6, 0.4, 1)' });
+    
+    container.appendChild(c);
+    setTimeout(() => c.remove(), 1700);
+  }
+}
+
+function bigConfetti() {
+  const colors = ['#1e3a8a', '#3b82f6', '#06b6d4', '#10b981', '#fbbf24', '#8b5cf6', '#ec4899'];
+  const container = document.getElementById('confettiContainer');
+  
+  for (let i = 0; i < 120; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-20px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      const size = 6 + Math.random()*10;
+      c.style.width = size + 'px';
+      c.style.height = size + 'px';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      
+      const duration = 2500 + Math.random()*2000;
+      const drift = (Math.random() - 0.5) * 200;
+      
+      c.animate([
+        { transform: 'translate(0, 0) rotate(0)', opacity: 1 },
+        { transform: `translate(${drift}px, 110vh) rotate(${Math.random()*1080}deg)`, opacity: 0.8, offset: 0.9 },
+        { transform: `translate(${drift}px, 110vh) rotate(${Math.random()*1080}deg)`, opacity: 0 }
+      ], { duration, easing: 'cubic-bezier(0.4, 0, 0.6, 1)' });
+      
+      container.appendChild(c);
+      setTimeout(() => c.remove(), duration + 100);
+    }, i * 25);
+  }
+}
+
+// ========== INIT ==========
+renderHome();
+</script>
+</body>
+</html>

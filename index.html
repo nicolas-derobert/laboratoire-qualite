@@ -3,152 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QualiTools - Accueil</title>
+    <title>Laboratoire qualité</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
-            --primary: #1a1a1a;
-            --accent: #cfa346;
-            --accent-text: #856404;
+            --accent:       #cfa346;
+            --accent-text:  #856404;
             --accent-light: #f4e8cb;
-            --bg-color: #f8f9fa;
-            --panel-bg: #ffffff;
+            --bg-color:     #f0f2f5;
+            --panel-bg:     #ffffff;
             --border-color: #e0e0e0;
-            --text-color: #2d3436;
-            --danger: #e74c3c;
-            --highlight: #e74c3c;
-            
-            --color-m1: #c0392b;
-            --color-m2: #2980b9;
-            --color-m3: #27ae60;
-            --color-m4: #8e44ad;
-            --color-m5: #d35400;
+            --text-color:   #2d3436;
         }
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             color: var(--text-color);
-            min-height: 100vh;
             margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ─────────────────────────────────────── */
+        .page-header {
+            background: #1a1a1a;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .page-header h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin: 0;
+        }
+        .page-header p {
+            font-size: .76rem;
+            color: #999;
+            margin: 2px 0 6px;
+        }
+
+        /* Quiz CTA */
+        .quiz-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background: linear-gradient(135deg, #d4a852 0%, #e8c068 50%, #c8942e 100%);
+            color: #1a1a1a;
+            font-weight: 800;
+            font-size: .96rem;
+            padding: 52px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            box-shadow: 0 4px 18px rgba(207,163,70,.40);
+            letter-spacing: .05em;
+            transition: transform .15s, box-shadow .15s;
+        }
+        .quiz-cta:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(207,163,70,.6); }
+        .quiz-cta:active { transform: translateY(1px); }
+        .quiz-cta svg    { width: 22px; height: 22px; flex-shrink: 0; }
+
+        /* ── Two-column body ────────────────────────────── */
+        .page-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 50% 50%;
+            min-height: 0;          /* allow flex child to shrink */
+        }
+        @media (max-width: 900px) {
+            body { height: auto; overflow: auto; }
+            .page-body { grid-template-columns: 1fr; }
+            .pdf-column { height: 60vh; }
+        }
+
+        /* ── LEFT : PDF viewer ──────────────────────────── */
+        .pdf-column {
+            background: #1a1d22;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #333;
+            overflow: hidden;
+        }
+        .pdf-bar {
+            background: #22272f;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+        }
+        .pdf-bar-title {
+            font-size: .74rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .pdf-bar-title svg { width: 15px; height: 15px; }
+        .pdf-bar-dl {
+            font-size: .70rem;
+            color: #888;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color .12s;
+        }
+        .pdf-bar-dl:hover { color: var(--accent); }
+        .pdf-bar-dl svg  { width: 12px; height: 12px; }
+        .pdf-viewer {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .pdf-viewer object {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        .pdf-fallback {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-        .main-content {
-            background: var(--panel-bg);
-            padding: 3rem;
-            width: 100%;
-            max-width: 1200px;
-            border-radius: 12px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            height: 100%;
+            gap: 14px;
+            padding: 24px;
             text-align: center;
-        }
-        .btn-gold {
-            background-color: var(--accent);
-            color: var(--primary);
-            transition: all 0.2s;
-            text-decoration: none; /* Remove underline from links */
-            display: inline-block; /* Make links behave like buttons */
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            margin: 0.5rem;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .btn-gold:hover {
-            background-color: #e0b050;
-            transform: translateY(-2px);
-        }
-        .btn-gold:active {
-            transform: translateY(1px);
-        }
-        .section-title {
-            color: var(--primary);
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid var(--accent-light);
-            padding-bottom: 0.5rem;
-            display: inline-block;
-        }
-        footer {
-            margin-top: 2rem;
-            font-size: 0.8rem;
             color: #888;
         }
+        .pdf-fallback svg { width: 44px; height: 44px; color: var(--accent); opacity: .6; }
+        .pdf-fallback p   { font-size: .80rem; margin: 0; line-height: 1.5; }
+        .pdf-fallback a {
+            background: var(--accent);
+            color: #1a1a1a;
+            font-weight: 700;
+            padding: 8px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: .80rem;
+        }
+
+        /* ── RIGHT : nav column ─────────────────────────── */
+        .nav-column {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 24px 28px 28px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+        }
+        @media (max-width: 600px) {
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+
+        .tool-section {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,.05);
+        }
+        .tool-section.full-width { grid-column: 1 / -1; }
+
+        .section-title {
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--accent-text);
+            border-bottom: 2px solid var(--accent-light);
+            padding-bottom: 7px;
+            margin-bottom: 12px;
+        }
+
+        .btn-tool {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            background: #fafafa;
+            border: 1.5px solid var(--border-color);
+            border-radius: 9px;
+            padding: 10px 13px;
+            text-decoration: none;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            transition: all .14s;
+        }
+        .btn-tool:last-child { margin-bottom: 0; }
+        .btn-tool:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            transform: translateX(3px);
+        }
+        .btn-tool svg       { width: 20px; height: 20px; color: var(--accent-text); flex-shrink: 0; }
+        .btn-tool .tool-name { font-weight: 700; font-size: .84rem; line-height: 1.2; }
+        .btn-tool .tool-desc { font-size: .70rem; color: #888; margin-top: 1px; }
     </style>
 </head>
 <body>
-    <div class="main-content">
-        <h1 class="text-4xl font-bold text-[var(--accent-text)] mb-2 tracking-widest uppercase">QualiTools</h1>
-        <p class="text-gray-500 mb-8 text-lg">Suite d'outils pour la Qualité et la Simulation Probabiliste</p>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left max-w-4xl mx-auto">
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  Header                                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<header class="page-header">
+    <div>
+        <h1>Laboratoire qualité</h1>
+        <p>CPH-HR-08</p>
+    </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!--  Body                                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="page-body">
+
+    <!-- ── Colonne gauche : navigation outils (50 %) ── -->
+    <div class="nav-column">
+
+        <a href="quiz_labo_qualite.html" class="quiz-cta" style="margin-bottom:20px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Quiz de révision du cours
+        </a>
+
+        <div class="tools-grid">
+
             <!-- Section 1 : Gestion des Équipements -->
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <h2 class="section-title w-full text-center">Gestion des Équipements</h2>
-                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Suivi, étalonnage et raccordement.</p>
-                <div class="flex flex-col gap-2">
-                    <a href="inventaire.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="clipboard-list" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Inventaire</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Liste des équipements</span>
-                    </a>
-                    <a href="pyramide-etalonnage.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="triangle" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Pyramide d'Étalonnage</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Chaîne de raccordement</span>
-                    </a>
-                    <a href="etalonnage-verification.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="check-circle" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Étalonnage & Vérification</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Gestion et conformité</span>
-                    </a>
-                </div>
+            <div class="tool-section">
+                <div class="section-title">Gestion des Équipements</div>
+                <p style="font-size:.72rem;color:#888;margin:0 0 10px;">Suivi et traçabilité des équipements.</p>
+                <a href="inventaire.html" class="btn-tool">
+                    <i data-lucide="clipboard-list"></i>
+                    <div>
+                        <div class="tool-name">Inventaire</div>
+                        <div class="tool-desc">Liste des équipements</div>
+                    </div>
+                </a>
+                <!-- liens présents mais non affichés -->
+                <a href="pyramide-etalonnage.html"    style="display:none;"></a>
+                <a href="etalonnage-verification.html" style="display:none;"></a>
             </div>
 
             <!-- Section 2 : Outils de Mesure -->
-            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <h2 class="section-title w-full text-center">Outils de Mesure</h2>
-                <p class="text-sm text-gray-600 mb-4 h-10 text-center">Lecture, utilisation et analyse des systèmes de mesure.</p>
-                <div class="flex flex-col gap-2">
-                    <a href="lecture-instrument-v2.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="ruler" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Lecture Instrument</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Exercices de lecture</span>
-                    </a>
-                    <a href="r-et-r.html" class="btn-gold">
-                        <div class="flex flex-col items-center">
-                            <i data-lucide="bar-chart-2" class="w-8 h-8 mb-1"></i>
-                            <span class="block">Gage R&R Pro</span>
-                        </div>
-                        <span class="text-xs font-normal opacity-75">Validation MSA (AIAG)</span>
-                    </a>
-                </div>
+            <div class="tool-section">
+                <div class="section-title">Systèmes de Mesure</div>
+                <p style="font-size:.72rem;color:#888;margin:0 0 10px;">Analyse et validation MSA.</p>
+                <!-- lien v2 présent mais non affiché -->
+                <a href="lecture-instrument-v2.html" style="display:none;"></a>
+                <a href="r-et-r.html" class="btn-tool">
+                    <i data-lucide="bar-chart-2"></i>
+                    <div>
+                        <div class="tool-name">Gage R&amp;R Pro</div>
+                        <div class="tool-desc">Validation MSA (AIAG)</div>
+                    </div>
+                </a>
+                <!-- lien v1 présent mais non affiché -->
+                <a href="lecture-instrument.html" style="display:none;"></a>
             </div>
-        </div>
 
-        <footer>
-            <p>&copy; 2023 QualiTools Suite. Tous droits réservés.</p>
-            <p class="mt-1">Développé pour l'amélioration continue et la pédagogie.</p>
+            <!-- Section 3 : Contrôle Visuel — pleine largeur -->
+            <div class="tool-section full-width">
+                <div class="section-title">Contrôle Visuel</div>
+                <p style="font-size:.72rem;color:#888;margin:0 0 10px;">Simulation de l'effet de lumière sur une surface polie miroir.</p>
+                <a href="controle-esthetique2.html" class="btn-tool" style="max-width:400px;">
+                    <i data-lucide="eye"></i>
+                    <div>
+                        <div class="tool-name">Contrôle Esthétique</div>
+                        <div class="tool-desc">Effets miroir, brillant, noir — poli or jaune — simulateur interactif</div>
+                    </div>
+                </a>
+            </div>
+
+        </div><!-- /tools-grid -->
+
+        <footer style="margin-top:24px;font-size:.68rem;color:#bbb;text-align:center;flex-shrink:0;">
+            &copy; 2024 Laboratoire qualité — Développé pour l'amélioration continue et la pédagogie.
         </footer>
+    </div><!-- /nav-column -->
+
+    <!-- ── Colonne droite : viewer PDF (50 %) ───────── -->
+    <div class="pdf-column">
+        <div class="pdf-bar">
+            <span class="pdf-bar-title">
+                <i data-lucide="book-open"></i>
+                Cours — Support pédagogique
+            </span>
+            <a href="cours.pdf" download class="pdf-bar-dl">
+                <i data-lucide="download"></i>
+                Télécharger
+            </a>
+        </div>
+        <div class="pdf-viewer">
+            <object data="cours.pdf" type="application/pdf" width="100%" height="100%">
+                <div class="pdf-fallback">
+                    <i data-lucide="file-text"></i>
+                    <p>Votre navigateur ne supporte pas l'affichage PDF intégré.</p>
+                    <a href="cours.pdf">&#8595; Télécharger le cours (PDF)</a>
+                </div>
+            </object>
+        </div>
     </div>
-    <script>
-        lucide.createIcons();
-    </script>
+
+</div><!-- /page-body -->
+
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

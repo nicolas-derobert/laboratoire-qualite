@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -379,11 +379,12 @@
     <header>
       <div class="kicker">⌁ CPH_HO_08 — Labo qualité</div>
       <h1>Étalonnage ou vérification&nbsp;?</h1>
-      <p>Application de comparaison et de décision pour distinguer un document d’étalonnage, un constat de vérification, un certificat incomplet et une situation où la décision est impossible.</p>
+      <p>Application de comparaison et de décision pour distinguer un document d'étalonnage, un constat de vérification, un certificat incomplet et une situation où la décision est impossible.</p>
       <div class="toolbar">
-        <button class="btn-primary" onclick="goTab('entrainement')">Commencer l’entraînement</button>
+        <a href="index.html" class="btn-ghost" style="text-decoration:none;">← Accueil</a>
+        <button class="btn-primary" onclick="goTab('entrainement')">Commencer l'entraînement</button>
         <button class="btn-ghost" onclick="goTab('decision')">Tester une décision avec EMT</button>
-        <button class="btn-ghost" onclick="downloadHTML()">Enregistrer l’application</button>
+        <button class="btn-ghost" onclick="downloadHTML()">Enregistrer l'application</button>
       </div>
     </header>
 
@@ -401,18 +402,18 @@
             <span class="badge b-blue">Document descriptif</span>
             <h3>Étalonnage</h3>
             <p>On compare un instrument avec un étalon de référence. Le document fournit des valeurs mesurées, des erreurs ou corrections, et des incertitudes.</p>
-            <p><strong>Point clé :</strong> il informe sur l’état de l’instrument, mais ne décide pas seul s’il est apte à l’emploi.</p>
+            <p><strong>Point clé :</strong> il informe sur l'état de l'instrument, mais ne décide pas seul s'il est apte à l'emploi.</p>
           </article>
           <article class="concept-card verify">
             <span class="badge b-green">Document décisionnel</span>
             <h3>Vérification</h3>
-            <p>On compare les résultats de l’instrument à une exigence définie, généralement une Erreur Maximale Tolérée.</p>
+            <p>On compare les résultats de l'instrument à une exigence définie, généralement une Erreur Maximale Tolérée.</p>
             <p><strong>Point clé :</strong> elle aboutit à un verdict : conforme ou non conforme.</p>
           </article>
           <article class="concept-card warning">
             <span class="badge b-amber">Attention</span>
             <h3>Décision impossible</h3>
-            <p>Une décision peut être impossible si l’EMT, l’incertitude, la règle de décision, l’identification de l’instrument ou la traçabilité manquent.</p>
+            <p>Une décision peut être impossible si l'EMT, l'incertitude, la règle de décision, l'identification de l'instrument ou la traçabilité manquent.</p>
             <p><strong>Point clé :</strong> un chiffre seul ne suffit pas toujours pour autoriser un instrument.</p>
           </article>
         </div>
@@ -425,11 +426,11 @@
                 <tr><th>Critère</th><th>Étalonnage</th><th>Vérification</th><th>Erreur fréquente</th></tr>
               </thead>
               <tbody>
-                <tr><td>Question posée</td><td>Quel est l’écart entre l’instrument et l’étalon&nbsp;?</td><td>L’instrument respecte-t-il l’EMT&nbsp;?</td><td>Confondre une erreur mesurée avec une décision.</td></tr>
-                <tr><td>Résultat</td><td>Erreurs, corrections, incertitudes.</td><td>Verdict conforme / non conforme.</td><td>Croire qu’un certificat d’étalonnage dit forcément « conforme ».</td></tr>
-                <tr><td>Document attendu</td><td>Certificat d’étalonnage.</td><td>Constat ou certificat de vérification.</td><td>Accepter un instrument sans connaître l’exigence appliquée.</td></tr>
-                <tr><td>Exigence nécessaire</td><td>Étalon, méthode, conditions, incertitude, traçabilité.</td><td>EMT, règle de décision, mesures, verdict.</td><td>Dire « conforme » sans préciser l’EMT.</td></tr>
-                <tr><td>Usage atelier</td><td>Connaître et suivre la dérive de l’instrument.</td><td>Autoriser, limiter ou interdire l’utilisation.</td><td>Utiliser un moyen non maîtrisé car le document semble officiel.</td></tr>
+                <tr><td>Question posée</td><td>Quel est l'écart entre l'instrument et l'étalon&nbsp;?</td><td>L'instrument respecte-t-il l'EMT&nbsp;?</td><td>Confondre une erreur mesurée avec une décision.</td></tr>
+                <tr><td>Résultat</td><td>Erreurs, corrections, incertitudes.</td><td>Verdict conforme / non conforme.</td><td>Croire qu'un certificat d'étalonnage dit forcément « conforme ».</td></tr>
+                <tr><td>Document attendu</td><td>Certificat d'étalonnage.</td><td>Constat ou certificat de vérification.</td><td>Accepter un instrument sans connaître l'exigence appliquée.</td></tr>
+                <tr><td>Exigence nécessaire</td><td>Étalon, méthode, conditions, incertitude, traçabilité.</td><td>EMT, règle de décision, mesures, verdict.</td><td>Dire « conforme » sans préciser l'EMT.</td></tr>
+                <tr><td>Usage atelier</td><td>Connaître et suivre la dérive de l'instrument.</td><td>Autoriser, limiter ou interdire l'utilisation.</td><td>Utiliser un moyen non maîtrisé car le document semble officiel.</td></tr>
               </tbody>
             </table>
           </div>
@@ -500,13 +501,13 @@
       <section id="prof" class="screen hidden">
         <div class="grid grid-2">
           <div class="panel">
-            <h2>Créer une situation d’entraînement</h2>
+            <h2>Créer une situation d'entraînement</h2>
             <div class="form-grid">
               <div class="field"><label for="newTitle">Titre</label><input id="newTitle" placeholder="Ex. Micromètre 0–25 mm — certificat externe"></div>
-              <div class="field"><label for="newDoc">Contenu affiché à l’élève</label><textarea id="newDoc" placeholder="Décrire les informations présentes sur le document : erreurs, incertitudes, EMT, verdict, traçabilité..."></textarea></div>
+              <div class="field"><label for="newDoc">Contenu affiché à l'élève</label><textarea id="newDoc" placeholder="Décrire les informations présentes sur le document : erreurs, incertitudes, EMT, verdict, traçabilité..."></textarea></div>
               <div class="field"><label for="newCategory">Réponse attendue</label><select id="newCategory"></select></div>
               <div class="field"><label for="newExplanation">Explication de correction</label><textarea id="newExplanation" placeholder="Expliquer pourquoi cette situation relève de cette catégorie."></textarea></div>
-              <button class="btn-primary" onclick="addScenario()">Ajouter au jeu d’entraînement</button>
+              <button class="btn-primary" onclick="addScenario()">Ajouter au jeu d'entraînement</button>
             </div>
           </div>
           <div class="panel">
@@ -531,7 +532,7 @@
 
   <script>
     const categories = [
-      {id:'etalonnage', label:'Document d’étalonnage', badge:'b-blue'},
+      {id:'etalonnage', label:'Document d'étalonnage', badge:'b-blue'},
       {id:'verification', label:'Constat de vérification', badge:'b-green'},
       {id:'incomplet', label:'Certificat incomplet', badge:'b-amber'},
       {id:'impossible', label:'Décision impossible', badge:'b-red'}
@@ -544,21 +545,21 @@
         tags:['Micromètre','Erreurs + incertitudes','Pas de verdict'],
         doc:'Le document indique :\n• valeur de référence : 5 / 10 / 15 / 20 / 25 mm ;\n• indication du micromètre ;\n• erreur mesurée : de +1 à +3 µm ;\n• incertitude élargie U = 1 µm ;\n• raccordement aux étalons du laboratoire.\nAucune EMT et aucune conclusion « conforme / non conforme » ne sont indiquées.',
         correct:'etalonnage',
-        explanation:'Le document décrit l’état métrologique de l’instrument avec des erreurs et des incertitudes. Il ne statue pas sur l’aptitude à l’emploi.'
+        explanation:'Le document décrit l'état métrologique de l'instrument avec des erreurs et des incertitudes. Il ne statue pas sur l'aptitude à l'emploi.'
       },
       {
         id:'S2',
         title:'Pied à coulisse numérique — fiche de remise en service',
         tags:['Pied à coulisse','EMT ±30 µm','Conforme'],
-        doc:'Le document indique :\n• EMT définie par l’entreprise : ±30 µm ;\n• erreur maximale observée : +18 µm ;\n• contrôle réalisé avec cales étalons ;\n• conclusion : instrument CONFORME, utilisable en atelier jusqu’au 30.09.2026.',
+        doc:'Le document indique :\n• EMT définie par l'entreprise : ±30 µm ;\n• erreur maximale observée : +18 µm ;\n• contrôle réalisé avec cales étalons ;\n• conclusion : instrument CONFORME, utilisable en atelier jusqu'au 30.09.2026.',
         correct:'verification',
-        explanation:'La présence d’une EMT et d’un verdict explicite montre qu’il s’agit d’un constat de vérification.'
+        explanation:'La présence d'une EMT et d'un verdict explicite montre qu'il s'agit d'un constat de vérification.'
       },
       {
         id:'S3',
         title:'Comparateur vertical — document très synthétique',
         tags:['Comparateur','Verdict isolé','Données absentes'],
-        doc:'Le document indique seulement :\n« Comparateur conforme ».\nIl ne donne ni points contrôlés, ni erreur mesurée, ni EMT, ni incertitude, ni référence d’étalon.',
+        doc:'Le document indique seulement :\n« Comparateur conforme ».\nIl ne donne ni points contrôlés, ni erreur mesurée, ni EMT, ni incertitude, ni référence d'étalon.',
         correct:'incomplet',
         explanation:'Un verdict seul ne suffit pas. Sans EMT, méthode, points contrôlés et traçabilité, le document ne permet pas de prouver correctement la décision.'
       },
@@ -566,57 +567,57 @@
         id:'S4',
         title:'Jauge tampon lisse — erreurs connues mais besoin non défini',
         tags:['Jauge','Erreurs connues','EMT absente'],
-        doc:'Le document donne :\n• erreur mesurée : +2 µm ;\n• incertitude U = 0,8 µm ;\n• comparaison réalisée avec une bague étalon.\nLe responsable demande : « Peut-on l’accepter pour cette opération ? »\nAucune EMT d’utilisation n’est fournie.',
+        doc:'Le document donne :\n• erreur mesurée : +2 µm ;\n• incertitude U = 0,8 µm ;\n• comparaison réalisée avec une bague étalon.\nLe responsable demande : « Peut-on l'accepter pour cette opération ? »\nAucune EMT d'utilisation n'est fournie.',
         correct:'impossible',
-        explanation:'Même si l’erreur est connue, on ne peut pas décider de l’aptitude sans exigence d’acceptation, donc sans EMT adaptée à l’usage.'
+        explanation:'Même si l'erreur est connue, on ne peut pas décider de l'aptitude sans exigence d'acceptation, donc sans EMT adaptée à l'usage.'
       },
       {
         id:'S5',
-        title:'Certificat d’étalonnage avec déclaration de conformité',
+        title:'Certificat d'étalonnage avec déclaration de conformité',
         tags:['Document combiné','EMT ±5 µm','Conforme'],
         doc:'Le document contient deux parties :\n1. Étalonnage : erreurs et incertitudes à 5, 10, 15, 20 et 25 mm.\n2. Déclaration : EMT appliquée ±5 µm, règle de décision précisée, conclusion : CONFORME.',
         correct:'verification',
-        explanation:'Le document contient bien des données d’étalonnage, mais la présence d’une EMT, d’une règle et d’un verdict en fait aussi un document de vérification pour l’usage visé.'
+        explanation:'Le document contient bien des données d'étalonnage, mais la présence d'une EMT, d'une règle et d'un verdict en fait aussi un document de vérification pour l'usage visé.'
       },
       {
         id:'S6',
         title:'Micromètre neuf livré avec certificat fournisseur',
-        tags:['Instrument neuf','Traçabilité incertaine','Pas d’incertitude'],
+        tags:['Instrument neuf','Traçabilité incertaine','Pas d'incertitude'],
         doc:'Le fournisseur indique :\n« Instrument contrôlé en usine selon nos procédures internes ».\nLe document ne précise pas les étalons utilisés, les incertitudes, les points de contrôle, ni le raccordement métrologique.',
         correct:'incomplet',
-        explanation:'Un instrument neuf n’est pas automatiquement maîtrisé. Le document ne donne pas les preuves métrologiques suffisantes pour un usage qualité exigeant.'
+        explanation:'Un instrument neuf n'est pas automatiquement maîtrisé. Le document ne donne pas les preuves métrologiques suffisantes pour un usage qualité exigeant.'
       },
       {
         id:'S7',
-        title:'Fiche interne — vérification mensuelle d’un comparateur',
+        title:'Fiche interne — vérification mensuelle d'un comparateur',
         tags:['Vérification interne','EMT ±3 µm','Non conforme'],
-        doc:'La fiche interne indique :\n• étalon utilisé : cale étalon 10,000 mm identifiée ;\n• EMT interne : ±3 µm ;\n• erreur mesurée : -5 µm ;\n• conclusion : NON CONFORME ;\n• action : isoler l’instrument et prévenir le responsable qualité.',
+        doc:'La fiche interne indique :\n• étalon utilisé : cale étalon 10,000 mm identifiée ;\n• EMT interne : ±3 µm ;\n• erreur mesurée : -5 µm ;\n• conclusion : NON CONFORME ;\n• action : isoler l'instrument et prévenir le responsable qualité.',
         correct:'verification',
-        explanation:'La fiche compare l’instrument à une EMT et conclut sur son aptitude. C’est une vérification.'
+        explanation:'La fiche compare l'instrument à une EMT et conclut sur son aptitude. C'est une vérification.'
       },
       {
         id:'S8',
-        title:'Rapport de mesure sans identification d’instrument',
+        title:'Rapport de mesure sans identification d'instrument',
         tags:['Instrument non identifié','Traçabilité rompue','Données inutilisables'],
-        doc:'Le rapport indique des mesures et des écarts, mais le numéro de série de l’instrument, le numéro d’inventaire et le certificat associé ne sont pas renseignés.',
+        doc:'Le rapport indique des mesures et des écarts, mais le numéro de série de l'instrument, le numéro d'inventaire et le certificat associé ne sont pas renseignés.',
         correct:'incomplet',
-        explanation:'Sans identification claire de l’instrument, la traçabilité documentaire est insuffisante. On ne sait pas quel moyen a réellement été contrôlé.'
+        explanation:'Sans identification claire de l'instrument, la traçabilité documentaire est insuffisante. On ne sait pas quel moyen a réellement été contrôlé.'
       },
       {
         id:'S9',
         title:'Instrument avec certificat périmé',
-        tags:['Certificat expiré','Risque qualité','Décision d’usage'],
-        doc:'L’étiquette indique : prochain étalonnage avant 04.2026.\nNous sommes en mai 2026.\nLe dernier certificat ancien indiquait des erreurs faibles, mais aucune donnée récente ne permet de connaître la dérive actuelle.',
+        tags:['Certificat expiré','Risque qualité','Décision d'usage'],
+        doc:'L'étiquette indique : prochain étalonnage avant 04.2026.\nNous sommes en mai 2026.\nLe dernier certificat ancien indiquait des erreurs faibles, mais aucune donnée récente ne permet de connaître la dérive actuelle.',
         correct:'impossible',
-        explanation:'La validité métrologique n’est plus assurée. On ne peut pas autoriser l’usage sans nouvelle vérification ou nouvel étalonnage.'
+        explanation:'La validité métrologique n'est plus assurée. On ne peut pas autoriser l'usage sans nouvelle vérification ou nouvel étalonnage.'
       },
       {
         id:'S10',
         title:'Certificat détaillé mais sans incertitude',
         tags:['Erreurs présentes','Incertitude absente','Certificat incomplet'],
-        doc:'Le document liste les valeurs de référence et les indications de l’instrument. Les erreurs sont calculées, mais aucune incertitude de mesure n’est indiquée.',
+        doc:'Le document liste les valeurs de référence et les indications de l'instrument. Les erreurs sont calculées, mais aucune incertitude de mesure n'est indiquée.',
         correct:'incomplet',
-        explanation:'Pour un certificat d’étalonnage exploitable, l’incertitude est une information essentielle. Sans elle, la qualité du résultat n’est pas correctement qualifiée.'
+        explanation:'Pour un certificat d'étalonnage exploitable, l'incertitude est une information essentielle. Sans elle, la qualité du résultat n'est pas correctement qualifiée.'
       }
     ];
 
@@ -767,10 +768,10 @@
           explanation = `Règle prudente : |erreur| + U = ${absErr.toFixed(2)} + ${unc.toFixed(2)} = ${upperRisk.toFixed(2)} µm ≤ EMT ${emt.toFixed(2)} µm.`;
         }else if(lowerRisk > emt){
           status = 'nonconforme';
-          explanation = `Règle prudente : même en retirant l’incertitude, |erreur| - U = ${lowerRisk.toFixed(2)} µm > EMT ${emt.toFixed(2)} µm.`;
+          explanation = `Règle prudente : même en retirant l'incertitude, |erreur| - U = ${lowerRisk.toFixed(2)} µm > EMT ${emt.toFixed(2)} µm.`;
         }else{
           status = 'impossible';
-          explanation = `Zone de doute : l’intervalle d’incertitude recoupe la limite d’acceptation. Il faut préciser la règle de décision ou refaire une mesure plus adaptée.`;
+          explanation = `Zone de doute : l'intervalle d'incertitude recoupe la limite d'acceptation. Il faut préciser la règle de décision ou refaire une mesure plus adaptée.`;
         }
       }
       card.classList.add(status);
@@ -778,10 +779,10 @@
       exp.textContent = explanation;
 
       tbody.innerHTML = `
-        <tr><td>Erreur observée</td><td>${err.toFixed(2)} µm</td><td>Écart entre l’instrument et l’étalon.</td></tr>
+        <tr><td>Erreur observée</td><td>${err.toFixed(2)} µm</td><td>Écart entre l'instrument et l'étalon.</td></tr>
         <tr><td>Incertitude U</td><td>${isFinite(unc)?unc.toFixed(2):'—'} µm</td><td>Doute associé au résultat.</td></tr>
-        <tr><td>EMT</td><td>±${emt.toFixed(2)} µm</td><td>Erreur maximale tolérée pour l’usage.</td></tr>
-        <tr><td>Règle appliquée</td><td>${rule === 'simple' ? '|erreur| ≤ EMT' : '|erreur| + U ≤ EMT'}</td><td>${rule === 'simple' ? 'Approche pédagogique simple.' : 'Approche prudente intégrant l’incertitude.'}</td></tr>
+        <tr><td>EMT</td><td>±${emt.toFixed(2)} µm</td><td>Erreur maximale tolérée pour l'usage.</td></tr>
+        <tr><td>Règle appliquée</td><td>${rule === 'simple' ? '|erreur| ≤ EMT' : '|erreur| + U ≤ EMT'}</td><td>${rule === 'simple' ? 'Approche pédagogique simple.' : 'Approche prudente intégrant l'incertitude.'}</td></tr>
       `;
       updateAxis(err, rule==='guard'?unc:0, emt);
     }
@@ -817,7 +818,7 @@
       const correct = document.getElementById('newCategory').value;
       const explanation = document.getElementById('newExplanation').value.trim();
       if(!title || !doc || !explanation){
-        alert('Compléter le titre, le contenu et l’explication.');
+        alert('Compléter le titre, le contenu et l'explication.');
         return;
       }
       const list = customScenarios();
@@ -855,11 +856,11 @@
         label = 'Constat de vérification'; cls='b-green';
         msg = 'Le document contient une exigence, des données et une décision. Vérifier que la règle de décision et la traçabilité sont précisées.';
       }else if(has('errors') && has('unc') && has('trace') && !has('verdict') && !has('emt')){
-        label = 'Document d’étalonnage'; cls='b-blue';
-        msg = 'Le document décrit l’état de l’instrument sans juger son aptitude. Il faudra une EMT pour décider de l’utilisation.';
+        label = 'Document d'étalonnage'; cls='b-blue';
+        msg = 'Le document décrit l'état de l'instrument sans juger son aptitude. Il faudra une EMT pour décider de l'utilisation.';
       }else if(has('errors') && !has('emt') && !has('verdict')){
         label = 'Décision impossible'; cls='b-red';
-        msg = 'Les données peuvent être utiles, mais l’acceptation ou le refus n’est pas possible sans exigence d’utilisation.';
+        msg = 'Les données peuvent être utiles, mais l'acceptation ou le refus n'est pas possible sans exigence d'utilisation.';
       }else{
         label = 'Certificat probablement incomplet'; cls='b-amber';
         msg = 'Plusieurs éléments de preuve manquent. Chercher au minimum : identification, méthode, étalons, résultats, incertitude, EMT si décision, et verdict si vérification.';

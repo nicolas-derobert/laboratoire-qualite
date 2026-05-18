@@ -170,10 +170,6 @@
     }
 
     .layout {
-      display: grid;
-      grid-template-columns: 420px minmax(0, 1fr);
-      gap: 18px;
-      align-items: start;
       margin-top: 18px;
     }
 
@@ -191,10 +187,30 @@
 
     .hint { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 8px 0 0; }
 
-    form { padding: 16px 18px 18px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .field { display: grid; gap: 6px; }
+    /* Formulaire pleine largeur — une colonne par champ */
+    #formPanel {
+      margin-bottom: 18px;
+      margin-top: 18px;
+    }
+    .form-panel-head {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    form { padding: 14px 18px 18px; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+    }
+    .field { display: grid; gap: 5px; min-width: 0; }
     .field.full { grid-column: 1 / -1; }
+    label { font-size: 11px; color: #334155; font-weight: 900; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     label { font-size: 12px; color: #334155; font-weight: 900; letter-spacing: .02em; }
     
@@ -295,9 +311,9 @@
     /* Responsive Queries */
     @media (max-width: 1180px) {
       .stats { grid-template-columns: repeat(3, 1fr); }
-      .layout { grid-template-columns: 1fr; }
       .toolbar { grid-template-columns: 1fr 1fr; }
       .learning { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     }
 
     @media (max-width: 720px) {
@@ -306,7 +322,8 @@
       .header-actions { justify-content: flex-start; }
       main { padding: 16px; }
       .stats { grid-template-columns: 1fr 1fr; }
-      .form-grid, .detail-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .detail-grid { grid-template-columns: 1fr; }
       .toolbar { grid-template-columns: 1fr; }
     }
 
@@ -328,6 +345,8 @@
         <h1>Inventaire des moyens de mesure</h1>
       </div>
       <div class="header-actions">
+        <a href="index.html" class="btn-secondary" style="text-decoration:none;">← Accueil</a>
+        <button class="btn-primary" id="btnCreateFiche">＋ Créer une fiche instrument</button>
         <button class="btn-secondary" id="btnSeed">Recharger les exemples</button>
         <button class="btn-secondary" id="btnExportCsv">Exporter CSV</button>
         <button class="btn-secondary" id="btnExportJson">Exporter JSON</button>
@@ -371,95 +390,96 @@
       </div>
     </section>
 
-    <section class="layout">
-      <aside class="card left-panel">
-        <div class="panel-title">
-          <div>
-            <h2 id="formTitle">Créer une fiche instrument</h2>
-            <p class="hint">Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
+    <!-- Formulaire pleine largeur — masqué par défaut -->
+    <div id="formPanel" class="card" style="display:none;">
+      <div class="form-panel-head">
+        <div>
+          <h2 id="formTitle">Créer une fiche instrument</h2>
+          <p class="hint" style="margin:0;">Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
+        </div>
+        <button class="btn-gray" id="closeFormBtn" type="button">✕ Fermer</button>
+      </div>
+      <form id="instrumentForm">
+        <input type="hidden" id="instrumentId" />
+        <div class="form-grid">
+          <div class="field">
+            <label for="name">Nom de l’instrument *</label>
+            <input id="name" required placeholder="Micromètre 0–25 mm" />
+          </div>
+          <div class="field">
+            <label for="type">Type de moyen</label>
+            <select id="type">
+              <option>Instrument de mesure</option>
+              <option>Moyen de contrôle</option>
+              <option>Étalon de travail</option>
+              <option>Équipement d’essai</option>
+              <option>Accessoire métrologique</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="brand">Marque</label>
+            <input id="brand" placeholder="Mitutoyo" />
+          </div>
+          <div class="field">
+            <label for="reference">Référence</label>
+            <input id="reference" placeholder="103-137" />
+          </div>
+          <div class="field">
+            <label for="serial">N° de série</label>
+            <input id="serial" placeholder="SN-23891" />
+          </div>
+          <div class="field">
+            <label for="inventory">N° d’inventaire *</label>
+            <input id="inventory" placeholder="ECME-0007" />
+          </div>
+          <div class="field">
+            <label for="location">Emplacement *</label>
+            <input id="location" placeholder="Labo · armoire A" />
+          </div>
+          <div class="field">
+            <label for="condition">État</label>
+            <select id="condition">
+              <option>Conforme</option>
+              <option>Non conforme</option>
+              <option>À surveiller</option>
+              <option>Endommagé</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="lastCalibration">Dernier étalonnage</label>
+            <input id="lastCalibration" type="date" />
+          </div>
+          <div class="field">
+            <label for="nextCalibration">Prochain étalonnage *</label>
+            <input id="nextCalibration" type="date" />
+          </div>
+          <div class="field">
+            <label for="certificate">N° de certificat</label>
+            <input id="certificate" placeholder="CERT-2026-041" />
+          </div>
+          <div class="field">
+            <label for="status">Statut</label>
+            <select id="status">
+              <option>conforme</option>
+              <option>à vérifier</option>
+              <option>périmé</option>
+              <option>hors service</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="comments">Commentaires sur l’état du moyen</label>
+            <textarea id="comments" placeholder="État des touches, cycle de vie, consignes d’usage…"></textarea>
           </div>
         </div>
-        <form id="instrumentForm">
-          <input type="hidden" id="instrumentId" />
-          <div class="form-grid">
-            <div class="field full">
-              <label for="name">Nom de l’instrument *</label>
-              <input id="name" required placeholder="Ex. Micromètre extérieur 0–25 mm" />
-            </div>
-            <div class="field">
-              <label for="type">Type de moyen</label>
-              <select id="type">
-                <option>Instrument de mesure</option>
-                <option>Moyen de contrôle</option>
-                <option>Étalon de travail</option>
-                <option>Équipement d’essai</option>
-                <option>Accessoire métrologique</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="brand">Marque</label>
-              <input id="brand" placeholder="Ex. Mitutoyo" />
-            </div>
-            <div class="field">
-              <label for="reference">Référence</label>
-              <input id="reference" placeholder="Ex. 103-137" />
-            </div>
-            <div class="field">
-              <label for="serial">N° de série</label>
-              <input id="serial" placeholder="Ex. SN-23891" />
-            </div>
-            <div class="field">
-              <label for="inventory">N° d’inventaire *</label>
-              <input id="inventory" placeholder="Ex. ECME-0007" />
-            </div>
-            <div class="field">
-              <label for="location">Emplacement *</label>
-              <input id="location" placeholder="Ex. Labo qualité · armoire A" />
-            </div>
-            <div class="field">
-              <label for="condition">État</label>
-              <select id="condition">
-                <option>Conforme</option>
-                <option>Non conforme</option>
-                <option>À surveiller</option>
-                <option>Endommagé</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="lastCalibration">Dernier étalonnage</label>
-              <input id="lastCalibration" type="date" />
-            </div>
-            <div class="field">
-              <label for="nextCalibration">Prochain étalonnage *</label>
-              <input id="nextCalibration" type="date" />
-            </div>
-            <div class="field">
-              <label for="certificate">N° de certificat</label>
-              <input id="certificate" placeholder="Ex. CERT-2026-041" />
-            </div>
-            <div class="field">
-              <label for="status">Statut</label>
-              <select id="status">
-                <option>conforme</option>
-                <option>à vérifier</option>
-                <option>périmé</option>
-                <option>hors service</option>
-              </select>
-            </div>
-            <div class="field full">
-              <label for="comments">Commentaires sur l’état du moyen</label>
-              <textarea id="comments" placeholder="Ex. touches propres, mouvement fluide, vérifier pile avant séance."></textarea>
-            </div>
-          </div>
+        <div class="form-actions">
+          <button class="btn-primary" type="submit" id="saveBtn">Enregistrer</button>
+          <button class="btn-light" type="button" id="resetBtn">Nouveau</button>
+          <button class="btn-danger" type="button" id="deleteAllBtn">Réinitialiser</button>
+        </div>
+      </form>
+    </div>
 
-          <div class="form-actions">
-            <button class="btn-primary" type="submit" id="saveBtn">Enregistrer</button>
-            <button class="btn-light" type="button" id="resetBtn">Nouveau</button>
-            <button class="btn-danger" type="button" id="deleteAllBtn">Réinitialiser</button>
-          </div>
-        </form>
-      </aside>
-
+    <section class="layout">
       <section class="card">
         <div class="panel-title">
           <div>
@@ -495,19 +515,49 @@
           <button class="btn-light" id="printBtn">Imprimer</button>
         </div>
 
-        <div class="tabs">
-          <button class="tab active" data-tab="tableSection">1. Registre</button>
-          <button class="tab" data-tab="alertsSection">2. Alertes</button>
-          <button class="tab" data-tab="learningSection">3. Rappel métier</button>
+        <div class=”tabs”>
+          <button class=”tab” data-tab=”learningSection”>1. Théorie</button>
+          <button class=”tab” data-tab=”tableSection”>2. Registre</button>
+          <button class=”tab” data-tab=”alertsSection”>3. Alertes</button>
         </div>
 
-        <div id="tableSection" class="content-section active">
-          <div class="table-wrap">
+        <div id=”learningSection” class=”content-section”>
+          <div class=”learning”>
+            <div class=”learning-card”>
+              <strong>Pourquoi inventorier ?</strong>
+              <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
+            </div>
+            <div class=”learning-card”>
+              <strong>Traçabilité</strong>
+              <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
+            </div>
+            <div class=”learning-card”>
+              <strong>Décision d’usage</strong>
+              <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
+            </div>
+            <div class=”learning-card”>
+              <strong>Risque qualité</strong>
+              <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
+            </div>
+            <div class=”learning-card”>
+              <strong>Audit</strong>
+              <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
+            </div>
+            <div class=”learning-card”>
+              <strong>Simulation proposée</strong>
+              <p>Le bouton “Charger un scénario” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id=”tableSection” class=”content-section” style=”display:none;”>
+          <div class=”table-wrap”>
             <table>
               <thead>
                 <tr>
+                  <th>N° Inventaire</th>
                   <th>Instrument</th>
-                  <th>Identification</th>
+                  <th>Réf. fabricant</th>
                   <th>Localisation</th>
                   <th>Métrologie</th>
                   <th>État / statut</th>
@@ -515,44 +565,15 @@
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="tableBody"></tbody>
+              <tbody id=”tableBody”></tbody>
             </table>
-            <div class="empty" id="emptyTable">Aucun instrument ne correspond aux filtres.</div>
+            <div class=”empty” id=”emptyTable”>Aucun instrument ne correspond aux filtres.</div>
           </div>
         </div>
 
-        <div id="alertsSection" class="content-section">
-          <div class="alerts-list" id="alertsList"></div>
-          <div class="empty" id="emptyAlerts">Aucune alerte détectée. Le parc est correctement renseigné selon les règles de simulation.</div>
-        </div>
-
-        <div id="learningSection" class="content-section">
-          <div class="learning">
-            <div class="learning-card">
-              <strong>Pourquoi inventorier ?</strong>
-              <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
-            </div>
-            <div class="learning-card">
-              <strong>Traçabilité</strong>
-              <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
-            </div>
-            <div class="learning-card">
-              <strong>Décision d’usage</strong>
-              <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
-            </div>
-            <div class="learning-card">
-              <strong>Risque qualité</strong>
-              <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
-            </div>
-            <div class="learning-card">
-              <strong>Audit</strong>
-              <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
-            </div>
-            <div class="learning-card">
-              <strong>Simulation proposée</strong>
-              <p>Le bouton “Charger un scénario” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
-            </div>
-          </div>
+        <div id=”alertsSection” class=”content-section” style=”display:none;”>
+          <div class=”alerts-list” id=”alertsList”></div>
+          <div class=”empty” id=”emptyAlerts”>Aucune alerte détectée. Le parc est correctement renseigné selon les règles de simulation.</div>
         </div>
       </section>
     </section>
@@ -591,7 +612,7 @@
   <script>
     const STORAGE_KEY = "ecme_labo_qualite_v3_exemples_auto";
     const $ = id => document.getElementById(id);
-    let activeTab = "tableSection";
+    let activeTab = "learningSection";
     let instruments = loadData();
 
     function todayIso(){ const d = new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
@@ -753,8 +774,9 @@
         const dueText = due === null ? "Échéance non renseignée" : due < 0 ? `Expiré depuis ${Math.abs(due)} j` : `Dans ${due} j`;
         const tr = document.createElement("tr");
         tr.innerHTML = `
+          <td><strong>${escapeHtml(item.inventory || "—")}</strong></td>
           <td><strong>${escapeHtml(item.name)}</strong><br><span class="hint">${escapeHtml(item.type || "—")}</span></td>
-          <td><strong>Inv.</strong> ${escapeHtml(item.inventory || "—")}<br><strong>Série</strong> ${escapeHtml(item.serial || "—")}<br><span class="hint">${escapeHtml(item.brand || "—")} · ${escapeHtml(item.reference || "—")}</span></td>
+          <td><strong>${escapeHtml(item.brand || "—")}</strong><br><span class="hint">Réf. ${escapeHtml(item.reference || "—")}</span><br><span class="hint">S/N ${escapeHtml(item.serial || "—")}</span></td>
           <td>${escapeHtml(item.location || "—")}</td>
           <td><strong>Dernier :</strong> ${formatDate(item.lastCalibration)}<br><strong>Prochain :</strong> ${formatDate(item.nextCalibration)}<br><span class="hint">${escapeHtml(dueText)} · Cert. ${escapeHtml(item.certificate || "—")}</span><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div></td>
           <td>${statusBadge(item.status)}<br><br><span class="hint">État : ${escapeHtml(item.condition || "—")}</span></td>
@@ -794,10 +816,14 @@
     }
 
     function render(){
-      renderStats(); 
-      renderTable(); 
+      renderStats();
+      renderTable();
       renderAlerts();
-      document.querySelectorAll(".content-section").forEach(s => s.classList.toggle("active", s.id === activeTab));
+      document.querySelectorAll(".content-section").forEach(s => {
+        const isActive = s.id === activeTab;
+        s.style.display = isActive ? "" : "none";
+        s.classList.toggle("active", isActive);
+      });
       document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === activeTab));
     }
 
@@ -821,36 +847,47 @@
       };
     }
 
+    function openForm(){
+      $("formPanel").style.display = "";
+      $("formPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function closeForm(){
+      $("formPanel").style.display = "none";
+    }
+
     function fillForm(item){
-      ["name","type","brand","reference","serial","inventory","location","condition","lastCalibration","nextCalibration","certificate","status","comments"].forEach(k => { 
-        if($(k)) $(k).value = item[k] || (k === "type" ? "Instrument de mesure" : k === "condition" ? "Conforme" : k === "status" ? "conforme" : ""); 
+      ["name","type","brand","reference","serial","inventory","location","condition","lastCalibration","nextCalibration","certificate","status","comments"].forEach(k => {
+        if($(k)) $(k).value = item[k] || (k === "type" ? "Instrument de mesure" : k === "condition" ? "Conforme" : k === "status" ? "conforme" : "");
       });
       $("instrumentId").value = item.id;
       $("formTitle").textContent = "Modifier la fiche instrument";
-      window.scrollTo({top:0, behavior:"smooth"});
+      openForm();
     }
 
-    function resetForm(){ 
-      $("instrumentForm").reset(); 
-      $("instrumentId").value = ""; 
-      $("type").value = "Instrument de mesure"; 
-      $("condition").value = "Conforme"; 
-      $("status").value = "conforme"; 
-      $("formTitle").textContent = "Créer une fiche instrument"; 
+    function resetForm(){
+      $("instrumentForm").reset();
+      $("instrumentId").value = "";
+      $("type").value = "Instrument de mesure";
+      $("condition").value = "Conforme";
+      $("status").value = "conforme";
+      $("formTitle").textContent = "Créer une fiche instrument";
     }
 
     function upsertInstrument(item){ 
       if(!item.name) return showToast("Le nom de l’instrument est obligatoire.", "error"); 
       const idx = instruments.findIndex(i => i.id === item.id); 
       if(idx >= 0) {
-        instruments[idx] = {...instruments[idx], ...item}; 
+        instruments[idx] = {...instruments[idx], ...item};
         showToast("Fiche mise à jour avec succès.", "success");
       } else {
-        instruments.unshift({...item, createdAt:new Date().toISOString()}); 
+        instruments.unshift({...item, createdAt:new Date().toISOString()});
         showToast("Nouvel instrument ajouté.", "success");
       }
-      saveData(); 
-      render(); 
+      saveData();
+      render();
+      resetForm();
+      closeForm();
     }
 
     function deleteInstrument(id){ 
@@ -950,9 +987,10 @@
     $("instrumentForm").addEventListener("submit", e => {
       e.preventDefault();
       upsertInstrument(formToInstrument());
-      resetForm();
     });
     
+    $("btnCreateFiche").addEventListener("click", () => { resetForm(); openForm(); });
+    $("closeFormBtn").addEventListener("click", closeForm);
     $("resetBtn").addEventListener("click", resetForm);
     $("deleteAllBtn").addEventListener("click", () => {
       showConfirm("Réinitialiser le parc", "Attention, cette action va vider TOUT l'inventaire actuel. Voulez-vous continuer ?", () => {
@@ -1031,7 +1069,7 @@
     });
 
     // Initialize application
-    render();
+    document.addEventListener("DOMContentLoaded", render);
   </script>
 </body>
 </html>
