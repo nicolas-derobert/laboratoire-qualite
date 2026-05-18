@@ -54,26 +54,87 @@
         }
 
         /* Quiz CTA */
-        .quiz-cta {
+        @keyframes quiz-pulse {
+            0%, 100% { box-shadow: 0 4px 18px rgba(207,163,70,.40), 0 0 0 0 rgba(207,163,70,.5); }
+            50%       { box-shadow: 0 8px 28px rgba(207,163,70,.55), 0 0 0 10px rgba(207,163,70,0); }
+        }
+        @keyframes quiz-badge-bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-3px); }
+        }
+        .quiz-cta-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .quiz-cta-label {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 6px;
+            font-size: .62rem;
+            font-weight: 900;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--accent-text);
+            margin-bottom: 6px;
+        }
+        .quiz-cta-label::before,
+        .quiz-cta-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--accent-light);
+        }
+        .quiz-cta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             width: 100%;
-            background: linear-gradient(135deg, #d4a852 0%, #e8c068 50%, #c8942e 100%);
+            background: linear-gradient(135deg, #c8942e 0%, #e8c068 40%, #d4a852 70%, #c08020 100%);
             color: #1a1a1a;
             font-weight: 800;
-            font-size: .96rem;
-            padding: 52px 24px;
-            border-radius: 10px;
+            font-size: 1.18rem;
+            padding: 36px 24px 32px;
+            border-radius: 14px;
             text-decoration: none;
-            box-shadow: 0 4px 18px rgba(207,163,70,.40);
-            letter-spacing: .05em;
-            transition: transform .15s, box-shadow .15s;
+            letter-spacing: .04em;
+            animation: quiz-pulse 2.4s ease-in-out infinite;
+            transition: transform .15s, box-shadow .15s, filter .15s;
+            position: relative;
+            overflow: hidden;
         }
-        .quiz-cta:hover  { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(207,163,70,.6); }
+        .quiz-cta::before {
+            content: '';
+            position: absolute;
+            top: -40%;
+            left: -20%;
+            width: 60%;
+            height: 200%;
+            background: rgba(255,255,255,.14);
+            transform: rotate(25deg);
+            pointer-events: none;
+        }
+        .quiz-cta:hover  { transform: translateY(-3px); filter: brightness(1.06); animation: none; box-shadow: 0 12px 32px rgba(207,163,70,.65); }
         .quiz-cta:active { transform: translateY(1px); }
-        .quiz-cta svg    { width: 22px; height: 22px; flex-shrink: 0; }
+        .quiz-cta svg    { width: 28px; height: 28px; flex-shrink: 0; }
+        .quiz-cta-main   { display: flex; align-items: center; gap: 12px; }
+        .quiz-cta-sub    { font-size: .72rem; font-weight: 600; opacity: .72; letter-spacing: .06em; }
+        .quiz-badge {
+            position: absolute;
+            top: -1px;
+            right: 14px;
+            background: #1a1a1a;
+            color: var(--accent);
+            font-size: .60rem;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 0 0 8px 8px;
+            animation: quiz-badge-bounce 2s ease-in-out infinite;
+        }
 
         /* ── Two-column body ────────────────────────────── */
         .page-body {
@@ -244,15 +305,22 @@
     <!-- ── Colonne gauche : navigation outils (50 %) ── -->
     <div class="nav-column">
 
-        <a href="quiz_labo_qualite.html" class="quiz-cta" style="margin-bottom:20px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
-            Quiz de révision du cours
-        </a>
+        <div class="quiz-cta-wrap">
+            <div class="quiz-cta-label">&#9733; Testez vos connaissances &#9733;</div>
+            <a href="quiz_labo_qualite.html" class="quiz-cta">
+                <span class="quiz-badge">Nouveau</span>
+                <span class="quiz-cta-main">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Quiz de révision du cours
+                </span>
+                <span class="quiz-cta-sub">Métrologie · Traçabilité · Instruments · MSA</span>
+            </a>
+        </div>
 
         <div class="tools-grid">
 

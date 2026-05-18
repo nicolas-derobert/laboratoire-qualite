@@ -112,10 +112,47 @@
     .btn-blue { background: var(--blue-bg); color: var(--blue); }
     .btn-gray { background: var(--gray-bg); color: #334155; }
 
+    /* ── Navigation principale ─────────────────────── */
+    .top-tab-nav {
+      background: linear-gradient(135deg, var(--navy-2), var(--navy));
+      display: flex;
+      padding: 0 24px;
+      position: sticky;
+      top: 90px;
+      z-index: 18;
+      box-shadow: 0 4px 16px rgba(2,6,23,.18);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .top-tab-btn {
+      background: transparent;
+      color: rgba(255,255,255,.55);
+      border: none;
+      border-radius: 0;
+      padding: 14px 28px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+      white-space: nowrap;
+    }
+    .top-tab-btn:hover { color: rgba(255,255,255,.85); transform: none; box-shadow: none; }
+    .top-tab-btn.active { color: #facc15; border-bottom-color: var(--gold); }
+    .gmm-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 18px 0 4px;
+      align-items: center;
+    }
+
     main {
       max-width: 1380px;
       margin: 0 auto;
-      padding: 22px 24px 54px;
+      padding: 0 24px 54px;
     }
 
     .grid { display: grid; gap: 18px; }
@@ -327,6 +364,9 @@
       .toolbar { grid-template-columns: 1fr; }
     }
 
+    .top-tab-page { display: none; }
+    .top-tab-page.active { display: block; }
+
     @media print {
       header, .left-panel, .toolbar, .tabs, .row-actions, .header-actions { display: none !important; }
       body { background: white; }
@@ -346,237 +386,200 @@
       </div>
       <div class="header-actions">
         <a href="index.html" class="btn-secondary" style="text-decoration:none;">← Accueil</a>
-        <button class="btn-primary" id="btnCreateFiche">＋ Créer une fiche instrument</button>
-        <button class="btn-secondary" id="btnSeed">Recharger les exemples</button>
-        <button class="btn-secondary" id="btnExportCsv">Exporter CSV</button>
-        <button class="btn-secondary" id="btnExportJson">Exporter JSON</button>
-        <label class="file-label btn-secondary" for="importFile">Importer JSON</label>
-        <input class="file-input" id="importFile" type="file" accept="application/json" />
       </div>
     </div>
   </header>
 
-  <main>
-    <section class="grid stats" aria-label="Indicateurs du parc d'instruments">
-      <div class="card stat">
-        <div class="stat-label">Parc total</div>
-        <div class="stat-value" id="statTotal">0</div>
-        <div class="stat-note">instruments enregistrés</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-label">Conformes</div>
-        <div class="stat-value" id="statConforme">0</div>
-        <div class="stat-note">utilisables sans alerte majeure</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-label">À vérifier</div>
-        <div class="stat-value" id="statVerifier">0</div>
-        <div class="stat-note">contrôle ou décision nécessaire</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-label">Périmés</div>
-        <div class="stat-value" id="statPerime">0</div>
-        <div class="stat-note">certificat ou échéance dépassée</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-label">Hors service</div>
-        <div class="stat-value" id="statHs">0</div>
-        <div class="stat-note">à isoler ou à réformer</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-label">Alertes</div>
-        <div class="stat-value" id="statAlerts">0</div>
-        <div class="stat-note">écarts de traçabilité détectés</div>
-      </div>
-    </section>
+  <nav class="top-tab-nav" id="topTabNav">
+    <button class="top-tab-btn" data-page="theoriePage">Théorie</button>
+    <button class="top-tab-btn" data-page="gmmPage">GMM</button>
+  </nav>
 
-    <!-- Formulaire pleine largeur — masqué par défaut -->
-    <div id="formPanel" class="card" style="display:none;">
-      <div class="form-panel-head">
-        <div>
-          <h2 id="formTitle">Créer une fiche instrument</h2>
-          <p class="hint" style="margin:0;">Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
+  <main>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!--  PAGE THÉORIE                                   -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id=”theoriePage” class=”top-tab-page”>
+      <div class=”learning” style=”padding:22px 0 0;”>
+        <div class=”learning-card”>
+          <strong>Pourquoi inventorier ?</strong>
+          <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
         </div>
-        <button class="btn-gray" id="closeFormBtn" type="button">✕ Fermer</button>
+        <div class=”learning-card”>
+          <strong>Traçabilité</strong>
+          <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
+        </div>
+        <div class=”learning-card”>
+          <strong>Décision d’usage</strong>
+          <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
+        </div>
+        <div class=”learning-card”>
+          <strong>Risque qualité</strong>
+          <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
+        </div>
+        <div class=”learning-card”>
+          <strong>Audit</strong>
+          <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
+        </div>
+        <div class=”learning-card”>
+          <strong>Simulation proposée</strong>
+          <p>Le bouton “Recharger les exemples” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
+        </div>
       </div>
-      <form id="instrumentForm">
-        <input type="hidden" id="instrumentId" />
-        <div class="form-grid">
-          <div class="field">
-            <label for="name">Nom de l’instrument *</label>
-            <input id="name" required placeholder="Micromètre 0–25 mm" />
-          </div>
-          <div class="field">
-            <label for="type">Type de moyen</label>
-            <select id="type">
-              <option>Instrument de mesure</option>
-              <option>Moyen de contrôle</option>
-              <option>Étalon de travail</option>
-              <option>Équipement d’essai</option>
-              <option>Accessoire métrologique</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="brand">Marque</label>
-            <input id="brand" placeholder="Mitutoyo" />
-          </div>
-          <div class="field">
-            <label for="reference">Référence</label>
-            <input id="reference" placeholder="103-137" />
-          </div>
-          <div class="field">
-            <label for="serial">N° de série</label>
-            <input id="serial" placeholder="SN-23891" />
-          </div>
-          <div class="field">
-            <label for="inventory">N° d’inventaire *</label>
-            <input id="inventory" placeholder="ECME-0007" />
-          </div>
-          <div class="field">
-            <label for="location">Emplacement *</label>
-            <input id="location" placeholder="Labo · armoire A" />
-          </div>
-          <div class="field">
-            <label for="condition">État</label>
-            <select id="condition">
-              <option>Conforme</option>
-              <option>Non conforme</option>
-              <option>À surveiller</option>
-              <option>Endommagé</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="lastCalibration">Dernier étalonnage</label>
-            <input id="lastCalibration" type="date" />
-          </div>
-          <div class="field">
-            <label for="nextCalibration">Prochain étalonnage *</label>
-            <input id="nextCalibration" type="date" />
-          </div>
-          <div class="field">
-            <label for="certificate">N° de certificat</label>
-            <input id="certificate" placeholder="CERT-2026-041" />
-          </div>
-          <div class="field">
-            <label for="status">Statut</label>
-            <select id="status">
-              <option>conforme</option>
-              <option>à vérifier</option>
-              <option>périmé</option>
-              <option>hors service</option>
-            </select>
-          </div>
-          <div class="field full">
-            <label for="comments">Commentaires sur l’état du moyen</label>
-            <textarea id="comments" placeholder="État des touches, cycle de vie, consignes d’usage…"></textarea>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" type="submit" id="saveBtn">Enregistrer</button>
-          <button class="btn-light" type="button" id="resetBtn">Nouveau</button>
-          <button class="btn-danger" type="button" id="deleteAllBtn">Réinitialiser</button>
-        </div>
-      </form>
     </div>
 
-    <section class="layout">
-      <section class="card">
-        <div class="panel-title">
-          <div>
-            <h2>Registre ECME</h2>
-            <p class="hint">Filtrer le parc, repérer les instruments à risque et ouvrir la fiche de vie de chaque moyen.</p>
-          </div>
-          <div class="pill-row">
-            <span class="badge b-info" id="todayBadge"></span>
-          </div>
-        </div>
+    <!-- ═══════════════════════════════════════════════ -->
+    <!--  PAGE GMM                                       -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div id=”gmmPage” class=”top-tab-page”>
 
-        <div class="toolbar">
-          <input id="search" placeholder="Rechercher : nom, marque, n° inventaire, certificat…" />
-          <select id="filterStatus">
-            <option value="all">Tous les statuts</option>
-            <option value="conforme">Conforme</option>
-            <option value="à vérifier">À vérifier</option>
-            <option value="périmé">Périmé</option>
-            <option value="hors service">Hors service</option>
-          </select>
-          <select id="filterAlert">
-            <option value="all">Toutes alertes</option>
-            <option value="critical">Alertes critiques</option>
-            <option value="warning">Alertes vigilance</option>
-            <option value="none">Sans alerte</option>
-          </select>
-          <select id="sortBy">
-            <option value="nextCalibration">Tri : prochaine échéance</option>
-            <option value="name">Tri : nom</option>
-            <option value="status">Tri : statut</option>
-            <option value="location">Tri : emplacement</option>
-          </select>
-          <button class="btn-light" id="printBtn">Imprimer</button>
-        </div>
+      <!-- Barre d’actions -->
+      <div class=”gmm-actions”>
+        <button class=”btn-primary” id=”btnCreateFiche”>＋ Créer une fiche instrument</button>
+        <button class=”btn-secondary” id=”btnSeed”>Recharger les exemples</button>
+        <button class=”btn-secondary” id=”btnExportCsv”>Exporter CSV</button>
+        <button class=”btn-secondary” id=”btnExportJson”>Exporter JSON</button>
+        <label class=”file-label btn-secondary” for=”importFile”>Importer JSON</label>
+        <input class=”file-input” id=”importFile” type=”file” accept=”application/json” />
+      </div>
 
-        <div class=”tabs”>
-          <button class=”tab” data-tab=”learningSection”>1. Théorie</button>
-          <button class=”tab” data-tab=”tableSection”>2. Registre</button>
-          <button class=”tab” data-tab=”alertsSection”>3. Alertes</button>
+      <!-- Indicateurs -->
+      <section class=”grid stats” aria-label=”Indicateurs du parc d’instruments”>
+        <div class=”card stat”>
+          <div class=”stat-label”>Parc total</div>
+          <div class=”stat-value” id=”statTotal”>0</div>
+          <div class=”stat-note”>instruments enregistrés</div>
         </div>
-
-        <div id=”learningSection” class=”content-section”>
-          <div class=”learning”>
-            <div class=”learning-card”>
-              <strong>Pourquoi inventorier ?</strong>
-              <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
-            </div>
-            <div class=”learning-card”>
-              <strong>Traçabilité</strong>
-              <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
-            </div>
-            <div class=”learning-card”>
-              <strong>Décision d’usage</strong>
-              <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
-            </div>
-            <div class=”learning-card”>
-              <strong>Risque qualité</strong>
-              <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
-            </div>
-            <div class=”learning-card”>
-              <strong>Audit</strong>
-              <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
-            </div>
-            <div class=”learning-card”>
-              <strong>Simulation proposée</strong>
-              <p>Le bouton “Charger un scénario” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
-            </div>
-          </div>
+        <div class=”card stat”>
+          <div class=”stat-label”>Conformes</div>
+          <div class=”stat-value” id=”statConforme”>0</div>
+          <div class=”stat-note”>utilisables sans alerte majeure</div>
         </div>
-
-        <div id=”tableSection” class=”content-section” style=”display:none;”>
-          <div class=”table-wrap”>
-            <table>
-              <thead>
-                <tr>
-                  <th>N° Inventaire</th>
-                  <th>Instrument</th>
-                  <th>Réf. fabricant</th>
-                  <th>Localisation</th>
-                  <th>Métrologie</th>
-                  <th>État / statut</th>
-                  <th>Alertes</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id=”tableBody”></tbody>
-            </table>
-            <div class=”empty” id=”emptyTable”>Aucun instrument ne correspond aux filtres.</div>
-          </div>
+        <div class=”card stat”>
+          <div class=”stat-label”>À vérifier</div>
+          <div class=”stat-value” id=”statVerifier”>0</div>
+          <div class=”stat-note”>contrôle ou décision nécessaire</div>
         </div>
-
-        <div id=”alertsSection” class=”content-section” style=”display:none;”>
-          <div class=”alerts-list” id=”alertsList”></div>
-          <div class=”empty” id=”emptyAlerts”>Aucune alerte détectée. Le parc est correctement renseigné selon les règles de simulation.</div>
+        <div class=”card stat”>
+          <div class=”stat-label”>Périmés</div>
+          <div class=”stat-value” id=”statPerime”>0</div>
+          <div class=”stat-note”>certificat ou échéance dépassée</div>
+        </div>
+        <div class=”card stat”>
+          <div class=”stat-label”>Hors service</div>
+          <div class=”stat-value” id=”statHs”>0</div>
+          <div class=”stat-note”>à isoler ou à réformer</div>
+        </div>
+        <div class=”card stat”>
+          <div class=”stat-label”>Alertes</div>
+          <div class=”stat-value” id=”statAlerts”>0</div>
+          <div class=”stat-note”>écarts de traçabilité détectés</div>
         </div>
       </section>
-    </section>
+
+      <!-- Formulaire pleine largeur — masqué par défaut -->
+      <div id=”formPanel” class=”card” style=”display:none;”>
+        <div class=”form-panel-head”>
+          <div>
+            <h2 id=”formTitle”>Créer une fiche instrument</h2>
+            <p class=”hint” style=”margin:0;”>Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
+          </div>
+          <button class=”btn-gray” id=”closeFormBtn” type=”button”>✕ Fermer</button>
+        </div>
+        <form id=”instrumentForm”>
+          <input type=”hidden” id=”instrumentId” />
+          <div class=”form-grid”>
+            <div class=”field”><label for=”name”>Nom de l’instrument *</label><input id=”name” required placeholder=”Micromètre 0–25 mm” /></div>
+            <div class=”field”><label for=”type”>Type de moyen</label><select id=”type”><option>Instrument de mesure</option><option>Moyen de contrôle</option><option>Étalon de travail</option><option>Équipement d’essai</option><option>Accessoire métrologique</option></select></div>
+            <div class=”field”><label for=”brand”>Marque</label><input id=”brand” placeholder=”Mitutoyo” /></div>
+            <div class=”field”><label for=”reference”>Référence</label><input id=”reference” placeholder=”103-137” /></div>
+            <div class=”field”><label for=”serial”>N° de série</label><input id=”serial” placeholder=”SN-23891” /></div>
+            <div class=”field”><label for=”inventory”>N° d’inventaire *</label><input id=”inventory” placeholder=”ECME-0007” /></div>
+            <div class=”field”><label for=”location”>Emplacement *</label><input id=”location” placeholder=”Labo · armoire A” /></div>
+            <div class=”field”><label for=”condition”>État</label><select id=”condition”><option>Conforme</option><option>Non conforme</option><option>À surveiller</option><option>Endommagé</option></select></div>
+            <div class=”field”><label for=”lastCalibration”>Dernier étalonnage</label><input id=”lastCalibration” type=”date” /></div>
+            <div class=”field”><label for=”nextCalibration”>Prochain étalonnage *</label><input id=”nextCalibration” type=”date” /></div>
+            <div class=”field”><label for=”certificate”>N° de certificat</label><input id=”certificate” placeholder=”CERT-2026-041” /></div>
+            <div class=”field”><label for=”status”>Statut</label><select id=”status”><option>conforme</option><option>à vérifier</option><option>périmé</option><option>hors service</option></select></div>
+            <div class=”field full”><label for=”comments”>Commentaires</label><textarea id=”comments” placeholder=”État des touches, cycle de vie, consignes d’usage…”></textarea></div>
+          </div>
+          <div class=”form-actions”>
+            <button class=”btn-primary” type=”submit” id=”saveBtn”>Enregistrer</button>
+            <button class=”btn-light” type=”button” id=”resetBtn”>Nouveau</button>
+            <button class=”btn-danger” type=”button” id=”deleteAllBtn”>Réinitialiser</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Registre ECME -->
+      <section class=”layout”>
+        <section class=”card”>
+          <div class=”panel-title”>
+            <div>
+              <h2>Registre ECME</h2>
+              <p class=”hint”>Filtrer le parc, repérer les instruments à risque et ouvrir la fiche de vie de chaque moyen.</p>
+            </div>
+            <div class=”pill-row”>
+              <span class=”badge b-info” id=”todayBadge”></span>
+            </div>
+          </div>
+          <div class=”toolbar”>
+            <input id=”search” placeholder=”Rechercher : nom, marque, n° inventaire, certificat…” />
+            <select id=”filterStatus”>
+              <option value=”all”>Tous les statuts</option>
+              <option value=”conforme”>Conforme</option>
+              <option value=”à vérifier”>À vérifier</option>
+              <option value=”périmé”>Périmé</option>
+              <option value=”hors service”>Hors service</option>
+            </select>
+            <select id=”filterAlert”>
+              <option value=”all”>Toutes alertes</option>
+              <option value=”critical”>Alertes critiques</option>
+              <option value=”warning”>Alertes vigilance</option>
+              <option value=”none”>Sans alerte</option>
+            </select>
+            <select id=”sortBy”>
+              <option value=”nextCalibration”>Tri : prochaine échéance</option>
+              <option value=”name”>Tri : nom</option>
+              <option value=”status”>Tri : statut</option>
+              <option value=”location”>Tri : emplacement</option>
+            </select>
+            <button class=”btn-light” id=”printBtn”>Imprimer</button>
+          </div>
+          <div class=”tabs”>
+            <button class=”tab” data-tab=”tableSection”>Registre</button>
+            <button class=”tab” data-tab=”alertsSection”>Alertes</button>
+          </div>
+          <div id=”tableSection” class=”content-section” style=”display:none;”>
+            <div class=”table-wrap”>
+              <table>
+                <thead>
+                  <tr>
+                    <th>N° Inventaire</th>
+                    <th>Instrument</th>
+                    <th>Réf. fabricant</th>
+                    <th>Localisation</th>
+                    <th>Métrologie</th>
+                    <th>État / statut</th>
+                    <th>Alertes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id=”tableBody”></tbody>
+              </table>
+              <div class=”empty” id=”emptyTable”>Aucun instrument ne correspond aux filtres.</div>
+            </div>
+          </div>
+          <div id=”alertsSection” class=”content-section” style=”display:none;”>
+            <div class=”alerts-list” id=”alertsList”></div>
+            <div class=”empty” id=”emptyAlerts”>Aucune alerte détectée.</div>
+          </div>
+        </section>
+      </section>
+
+    </div><!-- /gmmPage -->
+
   </main>
 
   <div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -612,7 +615,7 @@
   <script>
     const STORAGE_KEY = "ecme_labo_qualite_v3_exemples_auto";
     const $ = id => document.getElementById(id);
-    let activeTab = "learningSection";
+    let activeTab = "tableSection";
     let instruments = loadData();
 
     function todayIso(){ const d = new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
@@ -815,6 +818,16 @@
       $("emptyAlerts").style.display = alertItems.length ? "none" : "block";
     }
 
+    function switchTopTab(pageId) {
+      document.querySelectorAll(".top-tab-page").forEach(p => {
+        p.style.display = p.id === pageId ? "" : "none";
+        p.classList.toggle("active", p.id === pageId);
+      });
+      document.querySelectorAll(".top-tab-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.page === pageId);
+      });
+    }
+
     function render(){
       renderStats();
       renderTable();
@@ -970,7 +983,12 @@
     $("detailModal").addEventListener("click", e => { if(e.target === $("detailModal")) $("detailModal").classList.remove("open"); });
     $("customConfirmModal").addEventListener("click", e => { if(e.target === $("customConfirmModal")) $("customConfirmModal").classList.remove("open"); });
 
-    // Tabs switching
+    // Top-level tab switching (Théorie / GMM)
+    document.querySelectorAll(".top-tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchTopTab(btn.dataset.page));
+    });
+
+    // Sub-tabs switching (Registre / Alertes)
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         activeTab = tab.dataset.tab;
@@ -1069,7 +1087,10 @@
     });
 
     // Initialize application
-    document.addEventListener("DOMContentLoaded", render);
+    document.addEventListener("DOMContentLoaded", () => {
+      switchTopTab("gmmPage");
+      render();
+    });
   </script>
 </body>
 </html>
