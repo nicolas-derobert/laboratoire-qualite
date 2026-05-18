@@ -4,427 +4,207 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inventaire ECME — Labo qualité horloger</title>
-  <style>
-    :root {
-      --bg: #f3f4f6;
-      --panel: #ffffff;
-      --ink: #0f172a;
-      --muted: #64748b;
-      --line: #e2e8f0;
-      --navy: #0e2841;
-      --navy-2: #143b5d;
-      --gold: #b18b47;
-      --green: #15803d;
-      --green-bg: #dcfce7;
-      --yellow: #a16207;
-      --yellow-bg: #fef9c3;
-      --red: #b91c1c;
-      --red-bg: #fee2e2;
-      --blue: #1d4ed8;
-      --blue-bg: #dbeafe;
-      --gray-bg: #f1f5f9;
-      --shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-      --radius: 18px;
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              navy: '#0e2841',
+              'navy-2': '#143b5d',
+              gold: '#b18b47',
+              'gold-light': '#facc15',
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.2s ease-out',
+            'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            'toast-in': 'toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+            'toast-out': 'toastOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+            toastIn: { '0%': { transform: 'translateX(100%)', opacity: '0' }, '100%': { transform: 'translateX(0)', opacity: '1' } },
+            toastOut: { '0%': { transform: 'translateX(0)', opacity: '1' }, '100%': { transform: 'translateX(100%)', opacity: '0' } }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer base {
+      body {
+        @apply bg-slate-50 text-slate-800 antialiased;
+        background-image: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
+      }
     }
 
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #eef2f7 0%, #f8fafc 55%, #f3efe7 100%);
-      color: var(--ink);
+    @layer utilities {
+      /* Hide scrollbar for clean horizontal scrolling */
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* Print specific styles */
+      @media print {
+        header, nav, .gmm-actions, .toolbar, .tabs, .row-actions, .file-input-wrapper { display: none !important; }
+        body { background: white !important; }
+        main { max-width: 100% !important; padding: 0 !important; }
+        .card-shadow { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+      }
     }
 
-    header {
-      background: radial-gradient(circle at 15% 20%, rgba(177, 139, 71, 0.28), transparent 28%), linear-gradient(135deg, var(--navy), #071827);
-      color: white;
-      padding: 28px 24px 32px;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.24);
-    }
-
-    .header-inner {
-      max-width: 1380px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: center;
-    }
-
-    .eyebrow {
-      color: #facc15;
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(26px, 4vw, 42px);
-      line-height: 1.06;
-      letter-spacing: -0.035em;
-    }
-
-    .subtitle {
-      margin: 10px 0 0;
-      color: #dbeafe;
-      max-width: 850px;
-      font-size: 15px;
-      line-height: 1.55;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    button, .file-label {
-      border: 0;
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: 800;
-      cursor: pointer;
-      font-size: 13px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
-      white-space: nowrap;
-    }
-
-    button:hover, .file-label:hover { transform: translateY(-1px); }
-    button:active, .file-label:active { transform: translateY(0); }
-    button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-
-    .btn-primary { background: var(--gold); color: #111827; box-shadow: 0 12px 24px rgba(177, 139, 71, .28); }
-    .btn-secondary { background: rgba(255,255,255,.12); color: white; border: 1px solid rgba(255,255,255,.22); }
-    .btn-light { background: #fff; color: var(--navy); border: 1px solid var(--line); }
-    .btn-danger { background: var(--red-bg); color: var(--red); }
-    .btn-green { background: var(--green-bg); color: var(--green); }
-    .btn-blue { background: var(--blue-bg); color: var(--blue); }
-    .btn-gray { background: var(--gray-bg); color: #334155; }
-
-    /* ── Navigation principale ─────────────────────── */
-    .top-tab-nav {
-      background: linear-gradient(135deg, var(--navy-2), var(--navy));
-      display: flex;
-      padding: 0 24px;
-      position: sticky;
-      top: 90px;
-      z-index: 18;
-      box-shadow: 0 4px 16px rgba(2,6,23,.18);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .top-tab-btn {
-      background: transparent;
-      color: rgba(255,255,255,.55);
-      border: none;
-      border-radius: 0;
-      padding: 14px 28px;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -1px;
-      transition: color .15s, border-color .15s;
-      white-space: nowrap;
-    }
-    .top-tab-btn:hover { color: rgba(255,255,255,.85); transform: none; box-shadow: none; }
-    .top-tab-btn.active { color: #facc15; border-bottom-color: var(--gold); }
-    .gmm-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      padding: 18px 0 4px;
-      align-items: center;
-    }
-
-    main {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 0 24px 54px;
-    }
-
-    .grid { display: grid; gap: 18px; }
-    .stats { grid-template-columns: repeat(6, minmax(150px, 1fr)); margin-top: 4px; }
-
-    .card {
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(226, 232, 240, .9);
-      border-radius: var(--radius);
-      box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
-    }
-
-    .stat {
-      padding: 18px;
-      min-height: 108px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat::after {
-      content: "";
-      position: absolute;
-      width: 90px;
-      height: 90px;
-      border-radius: 999px;
-      background: rgba(177,139,71,.10);
-      right: -26px;
-      top: -26px;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    .stat-value {
-      margin-top: 10px;
-      font-size: 34px;
-      line-height: 1;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-    }
-
-    .stat-note {
-      margin-top: 9px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.35;
-    }
-
-    .layout {
-      margin-top: 18px;
-    }
-
-    .panel-title {
-      padding: 18px 18px 0;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    h2, h3 { margin: 0; letter-spacing: -0.02em; }
-    h2 { font-size: 20px; }
-    h3 { font-size: 16px; }
-
-    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; margin: 8px 0 0; }
-
-    /* Formulaire pleine largeur — une colonne par champ */
-    #formPanel {
-      margin-bottom: 18px;
-      margin-top: 18px;
-    }
-    .form-panel-head {
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--line);
-      background: #f8fafc;
-      border-radius: var(--radius) var(--radius) 0 0;
-    }
-    form { padding: 14px 18px 18px; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 10px;
-      overflow-x: auto;
-    }
-    .field { display: grid; gap: 5px; min-width: 0; }
-    .field.full { grid-column: 1 / -1; }
-    label { font-size: 11px; color: #334155; font-weight: 900; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    label { font-size: 12px; color: #334155; font-weight: 900; letter-spacing: .02em; }
-    
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px 11px;
-      font: inherit;
-      background: #fff;
-      color: var(--ink);
-      outline: none;
-      transition: border .15s ease, box-shadow .15s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 4px rgba(177,139,71,.15);
-    }
-    textarea { min-height: 70px; resize: vertical; }
-
-    .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-    .toolbar { padding: 16px 18px; display: grid; grid-template-columns: minmax(180px, 1fr) 170px 170px 170px auto; gap: 10px; align-items: center; }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 18px 16px; border-bottom: 1px solid var(--line); }
-    .tab { background: #f8fafc; color: #334155; border: 1px solid var(--line); }
-    .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: 0 10px 20px rgba(14,40,65,.18); }
-
-    .content-section { display: none; }
-    .content-section.active { display: block; }
-    .table-wrap { overflow: auto; border-radius: 0 0 var(--radius) var(--radius); }
-    
-    table { width: 100%; border-collapse: collapse; min-width: 980px; background: white; }
-    th, td { padding: 12px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 13px; }
-    th { position: sticky; top: 0; z-index: 1; background: #f8fafc; color: #334155; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 900; }
-    tr:hover td { background: #fcfcfd; }
-
-    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 5px 9px; font-size: 12px; font-weight: 900; white-space: nowrap; }
-    .b-conforme { background: var(--green-bg); color: var(--green); }
-    .b-verifier { background: var(--yellow-bg); color: var(--yellow); }
-    .b-perime { background: var(--red-bg); color: var(--red); }
-    .b-service { background: #e5e7eb; color: #374151; }
-    .b-info { background: var(--blue-bg); color: var(--blue); }
-    .b-danger { background: var(--red-bg); color: var(--red); }
-
-    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .icon-btn { padding: 7px 9px; border-radius: 10px; font-size: 12px; }
-
-    .alerts-list { padding: 0 18px 18px; display: grid; gap: 10px; }
-    .alert-card { border: 1px solid var(--line); border-left-width: 6px; border-radius: 15px; padding: 13px 14px; background: white; display: grid; gap: 6px; }
-    .alert-card.critical { border-left-color: var(--red); background: #fff7f7; }
-    .alert-card.warning { border-left-color: #eab308; background: #fffdf0; }
-    .alert-card.info { border-left-color: var(--blue); background: #f8fbff; }
-
-    .alert-title { font-weight: 900; }
-    .alert-meta { color: var(--muted); font-size: 13px; line-height: 1.45; }
-
-    .learning { padding: 18px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .learning-card { border: 1px solid var(--line); border-radius: 16px; padding: 15px; background: #fff; }
-    .learning-card strong { display: block; margin-bottom: 8px; }
-    .learning-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
-
-    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .56); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
-    .modal.open { display: flex; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .modal-dialog { background: white; border-radius: 22px; box-shadow: var(--shadow); width: min(820px, 100%); max-height: 90vh; overflow: auto; animation: slideUp 0.3s ease; }
-    @keyframes slideUp { from { transform: translateY(20px); } to { transform: translateY(0); } }
-
-    .modal-head { padding: 20px 22px; display: flex; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--line); align-items: flex-start; background: #f8fafc; border-radius: 22px 22px 0 0; }
-    .modal-body { padding: 20px 22px 24px; }
-
-    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .detail-item { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fff; }
-    .detail-item.full { grid-column: 1 / -1; }
-    .detail-item .k { color: var(--muted); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
-    .detail-item .v { font-weight: 700; }
-
-    .timeline { margin-top: 16px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-    .timeline h3 { padding: 13px 14px; margin: 0; background: #f8fafc; border-bottom: 1px solid var(--line); }
-    .timeline-entry { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
-    .timeline-entry:last-child { border-bottom: 0; }
-    .timeline-entry small { display: block; color: var(--muted); margin-top: 4px; }
-
-    .empty { padding: 34px 18px; text-align: center; color: var(--muted); }
-    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    
-    .progress-bar { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 10px; }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #facc15); width: 0%; transition: width .25s ease; }
-    
-    .file-input { display: none; }
-
-    /* Custom Toast system */
-    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
-    .toast { background: var(--navy); color: #fff; padding: 14px 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-    @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
-
-    /* Responsive Queries */
-    @media (max-width: 1180px) {
-      .stats { grid-template-columns: repeat(3, 1fr); }
-      .toolbar { grid-template-columns: 1fr 1fr; }
-      .learning { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 720px) {
-      header { position: static; }
-      .header-inner { grid-template-columns: 1fr; }
-      .header-actions { justify-content: flex-start; }
-      main { padding: 16px; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .detail-grid { grid-template-columns: 1fr; }
-      .toolbar { grid-template-columns: 1fr; }
-    }
-
+    /* Custom component states managed by JS */
     .top-tab-page { display: none; }
-    .top-tab-page.active { display: block; }
+    .top-tab-page.active { display: block; animation: fadeIn 0.3s ease; }
 
-    @media print {
-      header, .left-panel, .toolbar, .tabs, .row-actions, .header-actions { display: none !important; }
-      body { background: white; }
-      main { max-width: none; padding: 0; }
-      .layout { display: block; }
-      .card { box-shadow: none; border: 0; }
-      table { min-width: 0; font-size: 11px; }
+    /* Mise en avant de l'onglet GMM quand il n'est pas actif (incitation au clic) */
+    #gmmTabBtn:not(.active) {
+      color: #f3d68a !important;
+      border-bottom-color: rgba(177, 139, 71, 0.55) !important;
+      background: linear-gradient(180deg, transparent 55%, rgba(177, 139, 71, 0.18) 100%);
+      animation: gmmTabPulse 2.4s ease-in-out infinite;
+    }
+    #gmmTabBtn:not(.active):hover {
+      color: #ffffff !important;
+      background: linear-gradient(180deg, transparent 40%, rgba(177, 139, 71, 0.32) 100%);
+      border-bottom-color: #facc15 !important;
+    }
+    #gmmTabBtn:not(.active) .gmm-tab-arrow {
+      display: inline-block;
+      animation: gmmArrowNudge 1.4s ease-in-out infinite;
+    }
+    #gmmTabBtn.active .gmm-tab-arrow { display: none; }
+    @keyframes gmmTabPulse {
+      0%, 100% { box-shadow: inset 0 -4px 0 rgba(177, 139, 71, 0); }
+      50%      { box-shadow: inset 0 -4px 0 rgba(250, 204, 21, 0.55); }
+    }
+    @keyframes gmmArrowNudge {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(4px); }
+    }
+    
+    .content-section { display: none; }
+    .content-section.active { display: block; animation: fadeIn 0.3s ease; }
+
+    .modal-overlay { display: none; }
+    .modal-overlay.open { display: flex; }
+
+    .accordion-body { display: none; }
+    .accordion-item.open .accordion-body { display: block; animation: fadeIn 0.2s ease; }
+    .accordion-item.open .accordion-chevron { transform: rotate(180deg); }
+
+    /* Custom Input styling for consistency */
+    input[type="text"], input[type="date"], select, textarea {
+      @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition-all focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/20 shadow-sm;
+    }
+    
+    .btn-icon {
+      @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-sm whitespace-nowrap;
     }
   </style>
 </head>
-<body>
-  <header>
-    <div class="header-inner">
+<body class="min-h-screen flex flex-col">
+
+  <header class="sticky top-0 z-40 bg-gradient-to-r from-brand-navy to-[#071827] text-white shadow-xl">
+    <!-- Decorative subtle glow -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute -top-[100px] -left-[50px] w-[300px] h-[300px] bg-brand-gold/20 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <div class="eyebrow">CPH_HO_08 · Labo qualité</div>
-        <h1>Inventaire des moyens de mesure</h1>
+        <div class="text-xs font-bold uppercase tracking-wider text-brand-gold-light mb-1">
+          <i class="fa-solid fa-microscope mr-1"></i> CPH_HO_08 · Labo qualité
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Inventaire des moyens de mesure</h1>
       </div>
-      <div class="header-actions">
-        <a href="index.html" class="btn-secondary" style="text-decoration:none;">← Accueil</a>
+      <div class="flex flex-wrap gap-2">
+        <button class="rounded-full bg-white/10 border border-white/20 px-4 py-2 text-sm font-bold text-white hover:bg-white/20 transition-all backdrop-blur-sm">
+          <i class="fa-solid fa-arrow-left mr-2"></i> Accueil
+        </button>
       </div>
     </div>
   </header>
 
-  <nav class="top-tab-nav" id="topTabNav">
-    <button class="top-tab-btn" data-page="theoriePage">Théorie</button>
-    <button class="top-tab-btn" data-page="gmmPage">GMM</button>
+  <nav class="sticky top-[90px] sm:top-[88px] z-30 bg-brand-navy-2 border-b border-white/10 shadow-md">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex overflow-x-auto no-scrollbar">
+      <button class="top-tab-btn active px-6 py-4 text-sm font-bold uppercase tracking-widest text-white/60 hover:text-white border-b-4 border-transparent hover:border-white/30 transition-all whitespace-nowrap" data-page="theoriePage">
+        <i class="fa-solid fa-book mr-2"></i> Théorie
+      </button>
+      <button class="top-tab-btn px-6 py-4 text-sm font-bold uppercase tracking-widest text-white/60 hover:text-white border-b-4 border-transparent transition-all whitespace-nowrap" data-page="gmmPage" id="gmmTabBtn">
+        <i class="fa-solid fa-list-check mr-2"></i> Gestion GMM
+        <i class="fa-solid fa-arrow-right ml-2 gmm-tab-arrow text-brand-gold-light"></i>
+      </button>
+    </div>
   </nav>
 
-  <main>
+  <main class="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-8 relative">
 
     <!-- ═══════════════════════════════════════════════ -->
     <!--  PAGE THÉORIE                                   -->
     <!-- ═══════════════════════════════════════════════ -->
-    <div id=”theoriePage” class=”top-tab-page”>
-      <div class=”learning” style=”padding:22px 0 0;”>
-        <div class=”learning-card”>
-          <strong>Pourquoi inventorier ?</strong>
-          <p>L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages.</p>
+    <div id="theoriePage" class="top-tab-page active">
+      <div class="max-w-3xl mx-auto space-y-4">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+          <h2 class="text-xl font-black text-slate-800 mb-2"><i class="fa-solid fa-graduation-cap text-brand-gold mr-2"></i> Principes de gestion</h2>
+          <p class="text-slate-600 text-sm leading-relaxed">Découvrez les concepts fondamentaux pour assurer la conformité métrologique de vos instruments de mesure.</p>
         </div>
-        <div class=”learning-card”>
-          <strong>Traçabilité</strong>
-          <p>Un instrument doit être relié à un numéro interne, un emplacement, une date de validité et un certificat exploitable.</p>
-        </div>
-        <div class=”learning-card”>
-          <strong>Décision d’usage</strong>
-          <p>Un instrument conforme peut être utilisé. Un instrument périmé, non conforme ou hors service doit être isolé ou vérifié.</p>
-        </div>
-        <div class=”learning-card”>
-          <strong>Risque qualité</strong>
-          <p>Un moyen de mesure non maîtrisé peut conduire à accepter une pièce non conforme ou à refuser une pièce conforme.</p>
-        </div>
-        <div class=”learning-card”>
-          <strong>Audit</strong>
-          <p>L’auditeur cherchera des preuves : identification, certificat, échéance, fiche de vie et action en cas de non-conformité.</p>
-        </div>
-        <div class=”learning-card”>
-          <strong>Simulation proposée</strong>
-          <p>Le bouton “Recharger les exemples” introduit volontairement des erreurs pour apprendre à diagnostiquer un parc ECME.</p>
+
+        <div class="space-y-3">
+          <div class="accordion-item open bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="accordion-head flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors">
+              <span class="font-bold text-slate-800"><i class="fa-solid fa-circle-question text-brand-navy mr-2"></i> Pourquoi inventorier ?</span>
+              <i class="fa-solid fa-chevron-down accordion-chevron text-slate-400 transition-transform duration-300"></i>
+            </div>
+            <div class="accordion-body bg-slate-50 border-t border-slate-100">
+              <div class="p-4 text-sm text-slate-600 leading-relaxed">L’inventaire donne une vision claire du parc, évite la perte d’instruments et permet de planifier les étalonnages à l’avance. Sans inventaire, il est impossible de garantir que tous les moyens en service sont sous maîtrise métrologique.</div>
+            </div>
+          </div>
+
+          <div class="accordion-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="accordion-head flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors">
+              <span class="font-bold text-slate-800"><i class="fa-solid fa-link text-brand-navy mr-2"></i> Traçabilité</span>
+              <i class="fa-solid fa-chevron-down accordion-chevron text-slate-400 transition-transform duration-300"></i>
+            </div>
+            <div class="accordion-body bg-slate-50 border-t border-slate-100">
+              <div class="p-4 text-sm text-slate-600 leading-relaxed">Chaque instrument doit être relié à un <strong class="text-slate-800">numéro interne</strong>, un <strong class="text-slate-800">emplacement</strong>, une <strong class="text-slate-800">date de validité</strong> et un <strong class="text-slate-800">certificat exploitable</strong>. La traçabilité permet de remonter à l’instrument utilisé pour toute décision qualité passée.</div>
+            </div>
+          </div>
+
+          <div class="accordion-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="accordion-head flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors">
+              <span class="font-bold text-slate-800"><i class="fa-solid fa-gavel text-brand-navy mr-2"></i> Décision d’usage</span>
+              <i class="fa-solid fa-chevron-down accordion-chevron text-slate-400 transition-transform duration-300"></i>
+            </div>
+            <div class="accordion-body bg-slate-50 border-t border-slate-100">
+              <div class="p-4 text-sm text-slate-600 leading-relaxed">Un instrument <strong class="text-green-600 bg-green-50 px-1 rounded">conforme</strong> peut être utilisé librement. Un instrument <strong class="text-red-600 bg-red-50 px-1 rounded">périmé</strong>, <strong class="text-red-600 bg-red-50 px-1 rounded">non conforme</strong> ou <strong class="text-slate-600 bg-slate-200 px-1 rounded">hors service</strong> doit être immédiatement isolé, étiqueté et retiré du poste de mesure jusqu’à décision métrologique.</div>
+            </div>
+          </div>
+
+          <div class="accordion-item bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div class="accordion-head flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors">
+              <span class="font-bold text-slate-800"><i class="fa-solid fa-triangle-exclamation text-brand-navy mr-2"></i> Risque qualité</span>
+              <i class="fa-solid fa-chevron-down accordion-chevron text-slate-400 transition-transform duration-300"></i>
+            </div>
+            <div class="accordion-body bg-slate-50 border-t border-slate-100">
+              <div class="p-4 text-sm text-slate-600 leading-relaxed">Un moyen de mesure non maîtrisé peut conduire à <strong class="text-slate-800">accepter une pièce non conforme</strong> (fuite client) ou à <strong class="text-slate-800">refuser une pièce conforme</strong> (rebut interne). Ces deux erreurs ont un coût direct sur la qualité et la rentabilité.</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -432,226 +212,389 @@
     <!-- ═══════════════════════════════════════════════ -->
     <!--  PAGE GMM                                       -->
     <!-- ═══════════════════════════════════════════════ -->
-    <div id=”gmmPage” class=”top-tab-page”>
+    <div id="gmmPage" class="top-tab-page">
 
       <!-- Barre d’actions -->
-      <div class=”gmm-actions”>
-        <button class=”btn-primary” id=”btnCreateFiche”>＋ Créer une fiche instrument</button>
-        <button class=”btn-secondary” id=”btnSeed”>Recharger les exemples</button>
-        <button class=”btn-secondary” id=”btnExportCsv”>Exporter CSV</button>
-        <button class=”btn-secondary” id=”btnExportJson”>Exporter JSON</button>
-        <label class=”file-label btn-secondary” for=”importFile”>Importer JSON</label>
-        <input class=”file-input” id=”importFile” type=”file” accept=”application/json” />
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <button class="inline-flex items-center rounded-full bg-gradient-to-b from-brand-gold to-[#9a783d] px-5 py-2.5 text-sm font-bold text-white shadow-[0_8px_16px_rgba(177,139,71,0.25)] hover:-translate-y-0.5 hover:shadow-[0_12px_20px_rgba(177,139,71,0.3)] active:translate-y-0 transition-all" id="btnCreateFiche">
+          <i class="fa-solid fa-plus mr-2"></i> Créer une fiche
+        </button>
+        
+        <div class="flex flex-wrap gap-2">
+          <button class="inline-flex items-center rounded-full bg-slate-100 border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-200 hover:-translate-y-0.5 transition-all" id="btnSeed">
+            <i class="fa-solid fa-rotate-left mr-2"></i> Recharger
+          </button>
+          <div class="h-8 w-px bg-slate-200 mx-1 self-center hidden sm:block"></div>
+          <button class="inline-flex items-center rounded-full bg-white border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:-translate-y-0.5 transition-all shadow-sm" id="btnExportCsv">
+            <i class="fa-solid fa-file-csv text-green-600 mr-2"></i> CSV
+          </button>
+          <button class="inline-flex items-center rounded-full bg-white border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:-translate-y-0.5 transition-all shadow-sm" id="btnExportJson">
+            <i class="fa-solid fa-file-code text-blue-600 mr-2"></i> JSON
+          </button>
+          
+          <label for="importFile" class="inline-flex items-center rounded-full bg-white border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:-translate-y-0.5 transition-all shadow-sm cursor-pointer file-input-wrapper">
+            <i class="fa-solid fa-file-import text-brand-navy mr-2"></i> Importer
+          </label>
+          <input class="hidden" id="importFile" type="file" accept="application/json" />
+        </div>
       </div>
 
-      <!-- Indicateurs -->
-      <section class=”grid stats” aria-label=”Indicateurs du parc d’instruments”>
-        <div class=”card stat”>
-          <div class=”stat-label”>Parc total</div>
-          <div class=”stat-value” id=”statTotal”>0</div>
-          <div class=”stat-note”>instruments enregistrés</div>
+      <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:border-brand-gold transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-slate-50 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 relative z-10">Parc total</div>
+          <div class="text-3xl font-black text-slate-800 relative z-10" id="statTotal">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">instruments</div>
         </div>
-        <div class=”card stat”>
-          <div class=”stat-label”>Conformes</div>
-          <div class=”stat-value” id=”statConforme”>0</div>
-          <div class=”stat-note”>utilisables sans alerte majeure</div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:border-green-500 transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 relative z-10">Conformes</div>
+          <div class="text-3xl font-black text-green-600 relative z-10" id="statConforme">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">utilisables</div>
         </div>
-        <div class=”card stat”>
-          <div class=”stat-label”>À vérifier</div>
-          <div class=”stat-value” id=”statVerifier”>0</div>
-          <div class=”stat-note”>contrôle ou décision nécessaire</div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:border-yellow-500 transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-yellow-50 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 relative z-10">À vérifier</div>
+          <div class="text-3xl font-black text-yellow-600 relative z-10" id="statVerifier">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">décision req.</div>
         </div>
-        <div class=”card stat”>
-          <div class=”stat-label”>Périmés</div>
-          <div class=”stat-value” id=”statPerime”>0</div>
-          <div class=”stat-note”>certificat ou échéance dépassée</div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:border-red-500 transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-50 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 relative z-10">Périmés</div>
+          <div class="text-3xl font-black text-red-600 relative z-10" id="statPerime">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">échéance dép.</div>
         </div>
-        <div class=”card stat”>
-          <div class=”stat-label”>Hors service</div>
-          <div class=”stat-value” id=”statHs”>0</div>
-          <div class=”stat-note”>à isoler ou à réformer</div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm relative overflow-hidden group hover:border-slate-500 transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-slate-100 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 relative z-10">Hors service</div>
+          <div class="text-3xl font-black text-slate-600 relative z-10" id="statHs">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">à isoler</div>
         </div>
-        <div class=”card stat”>
-          <div class=”stat-label”>Alertes</div>
-          <div class=”stat-value” id=”statAlerts”>0</div>
-          <div class=”stat-note”>écarts de traçabilité détectés</div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-[0_0_15px_rgba(239,68,68,0.1)] relative overflow-hidden group hover:border-red-500 transition-colors">
+          <div class="absolute -right-6 -top-6 w-24 h-24 bg-red-50 rounded-full transition-transform group-hover:scale-110"></div>
+          <div class="text-xs font-black uppercase tracking-wider text-red-500 mb-2 relative z-10"><i class="fa-solid fa-bell mr-1"></i> Alertes</div>
+          <div class="text-3xl font-black text-red-600 relative z-10" id="statAlerts">0</div>
+          <div class="text-xs text-slate-500 mt-1 relative z-10">écarts détectés</div>
         </div>
       </section>
 
-      <!-- Formulaire pleine largeur — masqué par défaut -->
-      <div id=”formPanel” class=”card” style=”display:none;”>
-        <div class=”form-panel-head”>
-          <div>
-            <h2 id=”formTitle”>Créer une fiche instrument</h2>
-            <p class=”hint” style=”margin:0;”>Chaque instrument doit être identifiable, localisé et relié à un certificat ou à une décision de vérification.</p>
-          </div>
-          <button class=”btn-gray” id=”closeFormBtn” type=”button”>✕ Fermer</button>
+      <div class="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 mb-6 shadow-sm">
+        <div class="text-xs font-black uppercase tracking-widest text-slate-500 whitespace-nowrap hidden sm:block">Conformité Globale</div>
+        <div class="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+          <div class="h-full rounded-full transition-all duration-700 ease-out" id="complianceFill" style="width:0%"></div>
         </div>
-        <form id=”instrumentForm”>
-          <input type=”hidden” id=”instrumentId” />
-          <div class=”form-grid”>
-            <div class=”field”><label for=”name”>Nom de l’instrument *</label><input id=”name” required placeholder=”Micromètre 0–25 mm” /></div>
-            <div class=”field”><label for=”type”>Type de moyen</label><select id=”type”><option>Instrument de mesure</option><option>Moyen de contrôle</option><option>Étalon de travail</option><option>Équipement d’essai</option><option>Accessoire métrologique</option></select></div>
-            <div class=”field”><label for=”brand”>Marque</label><input id=”brand” placeholder=”Mitutoyo” /></div>
-            <div class=”field”><label for=”reference”>Référence</label><input id=”reference” placeholder=”103-137” /></div>
-            <div class=”field”><label for=”serial”>N° de série</label><input id=”serial” placeholder=”SN-23891” /></div>
-            <div class=”field”><label for=”inventory”>N° d’inventaire *</label><input id=”inventory” placeholder=”ECME-0007” /></div>
-            <div class=”field”><label for=”location”>Emplacement *</label><input id=”location” placeholder=”Labo · armoire A” /></div>
-            <div class=”field”><label for=”condition”>État</label><select id=”condition”><option>Conforme</option><option>Non conforme</option><option>À surveiller</option><option>Endommagé</option></select></div>
-            <div class=”field”><label for=”lastCalibration”>Dernier étalonnage</label><input id=”lastCalibration” type=”date” /></div>
-            <div class=”field”><label for=”nextCalibration”>Prochain étalonnage *</label><input id=”nextCalibration” type=”date” /></div>
-            <div class=”field”><label for=”certificate”>N° de certificat</label><input id=”certificate” placeholder=”CERT-2026-041” /></div>
-            <div class=”field”><label for=”status”>Statut</label><select id=”status”><option>conforme</option><option>à vérifier</option><option>périmé</option><option>hors service</option></select></div>
-            <div class=”field full”><label for=”comments”>Commentaires</label><textarea id=”comments” placeholder=”État des touches, cycle de vie, consignes d’usage…”></textarea></div>
+        <div class="text-2xl font-black tracking-tight w-16 text-right" id="compliancePct">—</div>
+      </div>
+
+      <!-- Formulaire pleine largeur — masqué par défaut -->
+      <div id="formPanel" class="bg-white rounded-2xl border border-slate-200 shadow-xl mb-8 overflow-hidden" style="display:none;">
+        <div class="bg-slate-50 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+          <div>
+            <h2 class="text-lg font-black text-brand-navy flex items-center gap-2" id="formTitle"><i class="fa-solid fa-pen-to-square text-brand-gold"></i> Fiche instrument</h2>
+            <p class="text-xs text-slate-500 mt-1">Saisissez les informations de traçabilité.</p>
           </div>
-          <div class=”form-actions”>
-            <button class=”btn-primary” type=”submit” id=”saveBtn”>Enregistrer</button>
-            <button class=”btn-light” type=”button” id=”resetBtn”>Nouveau</button>
-            <button class=”btn-danger” type=”button” id=”deleteAllBtn”>Réinitialiser</button>
+          <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors" id="closeFormBtn" type="button" title="Fermer">
+            <i class="fa-solid fa-xmark fa-lg"></i>
+          </button>
+        </div>
+        <form id="instrumentForm" class="p-6">
+          <input type="hidden" id="instrumentId" />
+          
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-5">
+            <!-- Section Identification -->
+            <div class="md:col-span-12">
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 mb-2">Identification</h3>
+            </div>
+            
+            <div class="md:col-span-4">
+              <label for="name" class="block text-xs font-bold text-slate-700 mb-1">Nom de l’instrument *</label>
+              <input id="name" required placeholder="Micromètre 0–25 mm" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="inventory" class="block text-xs font-bold text-slate-700 mb-1">N° d’inventaire *</label>
+              <input id="inventory" placeholder="ECME-0007" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="type" class="block text-xs font-bold text-slate-700 mb-1">Type de moyen</label>
+              <select id="type">
+                <option>Instrument de mesure</option>
+                <option>Moyen de contrôle</option>
+                <option>Étalon de travail</option>
+                <option>Équipement d’essai</option>
+                <option>Accessoire métrologique</option>
+              </select>
+            </div>
+            
+            <div class="md:col-span-4">
+              <label for="brand" class="block text-xs font-bold text-slate-700 mb-1">Marque</label>
+              <input id="brand" placeholder="Mitutoyo" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="reference" class="block text-xs font-bold text-slate-700 mb-1">Référence</label>
+              <input id="reference" placeholder="103-137" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="serial" class="block text-xs font-bold text-slate-700 mb-1">N° de série</label>
+              <input id="serial" placeholder="SN-23891" />
+            </div>
+
+            <!-- Section Localisation & état -->
+            <div class="md:col-span-12 mt-4">
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 mb-2">Localisation & État</h3>
+            </div>
+            
+            <div class="md:col-span-4">
+              <label for="location" class="block text-xs font-bold text-slate-700 mb-1">Emplacement *</label>
+              <input id="location" placeholder="Labo · armoire A" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="condition" class="block text-xs font-bold text-slate-700 mb-1">État physique</label>
+              <select id="condition">
+                <option>Conforme</option>
+                <option>Non conforme</option>
+                <option>À surveiller</option>
+                <option>Endommagé</option>
+              </select>
+            </div>
+            <div class="md:col-span-4">
+              <label for="status" class="block text-xs font-bold text-slate-700 mb-1">Statut métrologique</label>
+              <select id="status">
+                <option>conforme</option>
+                <option>à vérifier</option>
+                <option>périmé</option>
+                <option>hors service</option>
+              </select>
+            </div>
+
+            <!-- Section Métrologie -->
+            <div class="md:col-span-12 mt-4">
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 mb-2">Métrologie</h3>
+            </div>
+
+            <div class="md:col-span-4">
+              <label for="certificate" class="block text-xs font-bold text-slate-700 mb-1">N° de certificat</label>
+              <input id="certificate" placeholder="CERT-2026-041" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="lastCalibration" class="block text-xs font-bold text-slate-700 mb-1">Dernier étalonnage</label>
+              <input id="lastCalibration" type="date" />
+            </div>
+            <div class="md:col-span-4">
+              <label for="nextCalibration" class="block text-xs font-bold text-slate-700 mb-1">Prochain étalonnage *</label>
+              <div class="space-y-2">
+                <input id="nextCalibration" type="date" />
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" class="date-shortcut text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-1 rounded hover:bg-brand-gold hover:text-white transition-colors" data-months="6">+6m</button>
+                  <button type="button" class="date-shortcut text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-1 rounded hover:bg-brand-gold hover:text-white transition-colors" data-months="12">+1an</button>
+                  <button type="button" class="date-shortcut text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-1 rounded hover:bg-brand-gold hover:text-white transition-colors" data-months="24">+2ans</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Commentaires -->
+            <div class="md:col-span-12 mt-4">
+              <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 pb-2 mb-2">Historique</h3>
+            </div>
+            <div class="md:col-span-12">
+              <label for="comments" class="block text-xs font-bold text-slate-700 mb-1">Notes, consignes, historique</label>
+              <textarea id="comments" placeholder="État des touches, cycle de vie, consignes d’usage…" rows="3"></textarea>
+            </div>
+          </div>
+          
+          <div class="mt-8 pt-5 border-t border-slate-100 flex flex-wrap gap-3 items-center">
+            <button class="btn-icon bg-brand-gold text-brand-navy shadow-md hover:shadow-lg" type="submit" id="saveBtn">
+              <i class="fa-solid fa-check"></i> Enregistrer la fiche
+            </button>
+            <button class="btn-icon bg-slate-100 text-slate-600 border border-slate-200" type="button" id="resetBtn">
+              Vider
+            </button>
+            <div class="flex-grow"></div>
+            <button class="btn-icon bg-red-50 text-red-600 border border-red-100 hover:bg-red-100" type="button" id="deleteAllBtn">
+              <i class="fa-solid fa-trash-can"></i> Réinitialiser tout
+            </button>
           </div>
         </form>
       </div>
 
-      <!-- Registre ECME -->
-      <section class=”layout”>
-        <section class=”card”>
-          <div class=”panel-title”>
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        
+        <!-- Header & Toolbar -->
+        <div class="p-5 border-b border-slate-200">
+          <div class="flex justify-between items-start gap-4 mb-4">
             <div>
-              <h2>Registre ECME</h2>
-              <p class=”hint”>Filtrer le parc, repérer les instruments à risque et ouvrir la fiche de vie de chaque moyen.</p>
+              <h2 class="text-xl font-black text-slate-800 tracking-tight">Registre ECME</h2>
+              <p class="text-sm text-slate-500 mt-1">Filtrer et gérer le parc d'instruments.</p>
             </div>
-            <div class=”pill-row”>
-              <span class=”badge b-info” id=”todayBadge”></span>
-            </div>
-          </div>
-          <div class=”toolbar”>
-            <input id=”search” placeholder=”Rechercher : nom, marque, n° inventaire, certificat…” />
-            <select id=”filterStatus”>
-              <option value=”all”>Tous les statuts</option>
-              <option value=”conforme”>Conforme</option>
-              <option value=”à vérifier”>À vérifier</option>
-              <option value=”périmé”>Périmé</option>
-              <option value=”hors service”>Hors service</option>
-            </select>
-            <select id=”filterAlert”>
-              <option value=”all”>Toutes alertes</option>
-              <option value=”critical”>Alertes critiques</option>
-              <option value=”warning”>Alertes vigilance</option>
-              <option value=”none”>Sans alerte</option>
-            </select>
-            <select id=”sortBy”>
-              <option value=”nextCalibration”>Tri : prochaine échéance</option>
-              <option value=”name”>Tri : nom</option>
-              <option value=”status”>Tri : statut</option>
-              <option value=”location”>Tri : emplacement</option>
-            </select>
-            <button class=”btn-light” id=”printBtn”>Imprimer</button>
-          </div>
-          <div class=”tabs”>
-            <button class=”tab” data-tab=”tableSection”>Registre</button>
-            <button class=”tab” data-tab=”alertsSection”>Alertes</button>
-          </div>
-          <div id=”tableSection” class=”content-section” style=”display:none;”>
-            <div class=”table-wrap”>
-              <table>
-                <thead>
-                  <tr>
-                    <th>N° Inventaire</th>
-                    <th>Instrument</th>
-                    <th>Réf. fabricant</th>
-                    <th>Localisation</th>
-                    <th>Métrologie</th>
-                    <th>État / statut</th>
-                    <th>Alertes</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id=”tableBody”></tbody>
-              </table>
-              <div class=”empty” id=”emptyTable”>Aucun instrument ne correspond aux filtres.</div>
+            <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold" id="todayBadgeWrapper">
+              <i class="fa-regular fa-calendar"></i> <span id="todayBadge"></span>
             </div>
           </div>
-          <div id=”alertsSection” class=”content-section” style=”display:none;”>
-            <div class=”alerts-list” id=”alertsList”></div>
-            <div class=”empty” id=”emptyAlerts”>Aucune alerte détectée.</div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="lg:col-span-2 relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input id="search" placeholder="Rechercher un instrument..." class="pl-10 bg-slate-50" />
+            </div>
+            <select id="filterStatus" class="bg-slate-50">
+              <option value="all">Tous les statuts</option>
+              <option value="conforme">Conforme</option>
+              <option value="à vérifier">À vérifier</option>
+              <option value="périmé">Périmé</option>
+              <option value="hors service">Hors service</option>
+            </select>
+            <select id="filterAlert" class="bg-slate-50">
+              <option value="all">Toutes alertes</option>
+              <option value="critical">Alertes critiques</option>
+              <option value="warning">Alertes vigilance</option>
+              <option value="none">Sans alerte</option>
+            </select>
+            <select id="sortBy" class="bg-slate-50">
+              <option value="nextCalibration">Tri: Prochaine échéance</option>
+              <option value="name">Tri: Nom</option>
+              <option value="status">Tri: Statut</option>
+              <option value="location">Tri: Emplacement</option>
+            </select>
           </div>
-        </section>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b border-slate-200 bg-slate-50 px-5 gap-2 pt-3">
+          <button class="tab active px-5 py-2.5 text-sm font-bold text-slate-600 bg-white border border-slate-200 border-b-0 rounded-t-xl hover:text-brand-navy" data-tab="tableSection">
+            <i class="fa-solid fa-table text-slate-400 mr-2"></i> Vue Registre
+          </button>
+          <button class="tab px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100/50 border border-transparent border-b-0 rounded-t-xl hover:text-brand-navy" data-tab="alertsSection" id="alertTabBtn">
+            <i class="fa-solid fa-bell text-slate-400 mr-2"></i> Alertes
+          </button>
+          <div class="flex-grow"></div>
+          <button class="text-slate-400 hover:text-brand-navy text-sm font-bold px-3" id="printBtn" title="Imprimer la vue courante">
+            <i class="fa-solid fa-print"></i>
+          </button>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableSection" class="content-section active">
+          <div class="overflow-x-auto min-h-[400px]">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50">N° Inventaire</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50 min-w-[200px]">Instrument</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50 min-w-[150px]">Identification</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50">Localisation</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50 min-w-[220px]">Métrologie</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50">Statut</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50 min-w-[180px]">Alertes</th>
+                  <th class="sticky top-0 p-4 text-[10px] font-black uppercase tracking-wider text-slate-500 whitespace-nowrap z-10 bg-slate-50 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody" class="divide-y divide-slate-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+            <div id="emptyTable" class="p-12 text-center text-slate-400 font-medium hidden">
+              <i class="fa-solid fa-inbox text-4xl mb-3 text-slate-300 block"></i>
+              Aucun instrument ne correspond aux critères.
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts View -->
+        <div id="alertsSection" class="content-section bg-slate-50/50 p-5 min-h-[400px]">
+          <div class="grid gap-4" id="alertsList">
+             <!-- Injected via JS -->
+          </div>
+          <div id="emptyAlerts" class="p-12 text-center text-slate-400 font-medium hidden">
+            <i class="fa-solid fa-shield-check text-4xl mb-3 text-green-300 block"></i>
+            Aucune anomalie détectée sur le parc.
+          </div>
+        </div>
+
       </section>
 
     </div><!-- /gmmPage -->
 
   </main>
 
-  <div class="modal" id="detailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-dialog">
-      <div class="modal-head">
+  <!-- Detail Modal -->
+  <div class="modal-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4" id="detailModal" role="dialog" aria-modal="true">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-slide-up">
+      <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-start bg-slate-50 rounded-t-2xl">
         <div>
-          <h2 id="modalTitle">Fiche instrument</h2>
-          <p class="hint" id="modalSub"></p>
+          <h2 class="text-xl font-black text-brand-navy" id="modalTitle">Fiche instrument</h2>
+          <p class="text-sm font-medium text-slate-500 mt-1" id="modalSub"></p>
         </div>
-        <button class="btn-gray" id="closeModal">Fermer</button>
+        <button class="h-8 w-8 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center hover:bg-slate-300 hover:text-slate-700 transition-colors" id="closeModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-      <div class="modal-body" id="modalBody"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="customConfirmModal" role="dialog" aria-modal="true">
-    <div class="modal-dialog" style="width: 480px;">
-      <div class="modal-head">
-        <h2 id="confirmTitle">Confirmation</h2>
-      </div>
-      <div class="modal-body">
-        <p id="confirmMessage" style="margin: 0 0 20px 0; line-height: 1.5; color: var(--ink);"></p>
-        <div class="row-actions" style="justify-content: flex-end;">
-          <button class="btn-light" id="btnConfirmNo">Annuler</button>
-          <button class="btn-primary" id="btnConfirmYes">Confirmer</button>
-        </div>
+      <div class="p-6 overflow-y-auto" id="modalBody">
+        <!-- Injected via JS -->
       </div>
     </div>
   </div>
 
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- Confirm Modal -->
+  <div class="modal-overlay fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4" id="customConfirmModal" role="dialog" aria-modal="true">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm animate-slide-up overflow-hidden">
+      <div class="px-6 py-5 border-b border-slate-100 bg-red-50/50">
+        <h2 class="text-lg font-black text-slate-800 flex items-center gap-2" id="confirmTitle"><i class="fa-solid fa-triangle-exclamation text-brand-gold"></i> Confirmation</h2>
+      </div>
+      <div class="p-6">
+        <p class="text-slate-600 text-sm leading-relaxed mb-6" id="confirmMessage"></p>
+        <div class="flex justify-end gap-3">
+          <button class="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors" id="btnConfirmNo">Annuler</button>
+          <button class="px-4 py-2 text-sm font-bold text-white bg-brand-gold rounded-xl shadow-md hover:shadow-lg transition-all" id="btnConfirmYes">Confirmer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="fixed bottom-6 right-6 flex flex-col gap-3 z-[70]" id="toastContainer"></div>
 
   <script>
-    const STORAGE_KEY = "ecme_labo_qualite_v3_exemples_auto";
+    const STORAGE_KEY = "ecme_labo_qualite_v4_tailwind";
     const $ = id => document.getElementById(id);
     let activeTab = "tableSection";
     let instruments = loadData();
 
+    // Utilitaires de date et formatage
     function todayIso(){ const d = new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
     function parseDate(v){ if(!v) return null; const d = new Date(v + "T00:00:00"); return Number.isNaN(d.getTime()) ? null : d; }
     function addMonths(dateIso, months){ const d = parseDate(dateIso) || new Date(); d.setMonth(d.getMonth() + months); return d.toISOString().slice(0,10); }
     function daysUntil(v){ const d = parseDate(v); if(!d) return null; return Math.round((d - parseDate(todayIso())) / 86400000); }
-    function formatDate(v){ const d = parseDate(v); return d ? d.toLocaleDateString("fr-CH") : "—"; }
+    function formatDate(v){ const d = parseDate(v); return d ? d.toLocaleDateString("fr-CH", {day:'2-digit', month:'2-digit', year:'numeric'}) : "—"; }
     function uid(){ return "ecme-" + Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4); }
     function normalize(v){ return String(v ?? "").trim().toLowerCase(); }
     function escapeHtml(v){ return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
 
+    // Système de Toast
     function showToast(message, type = "info") {
       const container = $("toastContainer");
       const toast = document.createElement("div");
-      toast.className = "toast";
       
-      let icon = "ℹ️";
-      if(type === "success") icon = "✅";
-      if(type === "error") icon = "⚠️";
+      let bgClass = "bg-brand-navy";
+      let icon = '<i class="fa-solid fa-circle-info text-blue-300"></i>';
+      if(type === "success") { bgClass = "bg-green-700"; icon = '<i class="fa-solid fa-circle-check text-green-300"></i>'; }
+      if(type === "error") { bgClass = "bg-red-600"; icon = '<i class="fa-solid fa-triangle-exclamation text-red-200"></i>'; }
       
+      toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-xl text-sm font-medium flex items-center gap-3 animate-toast-in`;
       toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
       container.appendChild(toast);
       
       setTimeout(() => {
         toast.style.animation = "toastOut 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
         setTimeout(() => toast.remove(), 300);
-      }, 3500);
+      }, 4000);
     }
 
+    // Système de Modal Confirmation
     let pendingConfirmAction = null;
     function showConfirm(title, message, onYes, onNo = () => {}) {
-      $("confirmTitle").textContent = title;
+      $("confirmTitle").innerHTML = `<i class="fa-solid fa-triangle-exclamation text-brand-gold"></i> ${escapeHtml(title)}`;
       $("confirmMessage").textContent = message;
       pendingConfirmAction = onYes;
       
-      // Override handlers
       const btnYes = $("btnConfirmYes");
       const btnNo = $("btnConfirmNo");
       
@@ -670,6 +613,7 @@
       $("customConfirmModal").classList.add("open");
     }
 
+    // Données d'exemple
     function starterExamples(){
       const today = todayIso();
       const now = new Date().toISOString();
@@ -680,8 +624,6 @@
         { id:uid(), name:"Jeu de cales étalon", type:"Étalon de travail", brand:"Mahr", reference:"Grade 1", serial:"GCE-4412", inventory:"ECME-0004", location:"Labo qualité · coffre étalons", condition:"Conforme", lastCalibration:addMonths(today,-2), nextCalibration:addMonths(today,10), certificate:"SAS-2026-046", status:"conforme", comments:"Exemple étalon de travail : manipulation avec gants, conservation au sec.", createdAt:now, updatedAt:now },
         { id:uid(), name:"Tampon lisse Ø1,50 mm", type:"Moyen de contrôle", brand:"Meyer", reference:"TL-1.50", serial:"TL-150-55", inventory:"ECME-0005", location:"", condition:"Conforme", lastCalibration:addMonths(today,-4), nextCalibration:addMonths(today,8), certificate:"CERT-2026-017", status:"conforme", comments:"Exemple incomplet : localisation à renseigner.", createdAt:now, updatedAt:now },
         { id:uid(), name:"Micromètre intérieur 3 touches", type:"Instrument de mesure", brand:"Bowers", reference:"XT3", serial:"BI-331", inventory:"ECME-0006", location:"Atelier · poste contrôle", condition:"Non conforme", lastCalibration:addMonths(today,-9), nextCalibration:addMonths(today,3), certificate:"CERT-2025-287", status:"hors service", comments:"Exemple critique : instrument non conforme encore présent dans l’atelier. À isoler immédiatement.", createdAt:now, updatedAt:now },
-        { id:uid(), name:"Rugosimètre portatif", type:"Équipement d’essai", brand:"Mahr", reference:"MarSurf PS10", serial:"RUG-8842", inventory:"ECME-0007", location:"Labo qualité · armoire B", condition:"À surveiller", lastCalibration:addMonths(today,-10), nextCalibration:addMonths(today,2), certificate:"CERT-2025-310", status:"conforme", comments:"Exemple équipement d’essai : vérifier la pointe et l’état de charge avant usage.", createdAt:now, updatedAt:now },
-        { id:uid(), name:"Projecteur de profil", type:"Équipement d’essai", brand:"Nikon", reference:"V-12B", serial:"PROJ-1204", inventory:"ECME-0008", location:"Labo qualité · zone optique", condition:"Conforme", lastCalibration:addMonths(today,-3), nextCalibration:addMonths(today,9), certificate:"CERT-2026-072", status:"conforme", comments:"Exemple appareil optique : nettoyer l’objectif et vérifier la lumière avant contrôle.", createdAt:now, updatedAt:now }
       ];
     }
 
@@ -696,15 +638,18 @@
     }
     function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(instruments)); }
 
+    // Badges UI Tailwind
     function statusBadge(status){
       const s = normalize(status);
-      if(s === "conforme") return `<span class="badge b-conforme">Conforme</span>`;
-      if(s === "à vérifier") return `<span class="badge b-verifier">À vérifier</span>`;
-      if(s === "périmé") return `<span class="badge b-perime">Périmé</span>`;
-      if(s === "hors service") return `<span class="badge b-service">Hors service</span>`;
-      return `<span class="badge b-info">${escapeHtml(status || "—")}</span>`;
+      const baseClass = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap";
+      if(s === "conforme") return `<span class="${baseClass} bg-green-100 text-green-700 border border-green-200"><i class="fa-solid fa-check text-[10px]"></i> Conforme</span>`;
+      if(s === "à vérifier") return `<span class="${baseClass} bg-yellow-100 text-yellow-700 border border-yellow-200"><i class="fa-solid fa-magnifying-glass text-[10px]"></i> À vérifier</span>`;
+      if(s === "périmé") return `<span class="${baseClass} bg-red-100 text-red-700 border border-red-200"><i class="fa-solid fa-clock text-[10px]"></i> Périmé</span>`;
+      if(s === "hors service") return `<span class="${baseClass} bg-slate-200 text-slate-700 border border-slate-300"><i class="fa-solid fa-ban text-[10px]"></i> Hors service</span>`;
+      return `<span class="${baseClass} bg-blue-50 text-blue-600 border border-blue-200">${escapeHtml(status || "—")}</span>`;
     }
 
+    // Logique Métier : Calcul des alertes
     function computeAlerts(item){
       const alerts = [];
       const due = daysUntil(item.nextCalibration);
@@ -714,17 +659,19 @@
       const hasWorkshopLocation = location.includes("atelier") || location.includes("poste") || location.includes("production");
       const isolated = location.includes("quarantaine") || location.includes("isol") || location.includes("réforme") || location.includes("reforme") || location.includes("hors service") || location.includes("externe");
       
-      if(!normalize(item.inventory)) alerts.push({level:"critical", title:"Instrument sans numéro d’inventaire", detail:"Impossible de relier clairement le moyen à sa fiche de vie et à son certificat."});
-      if(!normalize(item.location)) alerts.push({level:"critical", title:"Instrument non localisé", detail:"Le moyen n’a pas d’emplacement défini : risque de perte ou d’utilisation non maîtrisée."});
-      if(!normalize(item.certificate)) alerts.push({level:"warning", title:"Certificat non renseigné", detail:"La preuve documentaire de l’étalonnage ou de la vérification n’est pas indiquée."});
-      if(!item.nextCalibration) alerts.push({level:"warning", title:"Prochaine échéance absente", detail:"La planification de l’étalonnage ne peut pas être suivie."});
-      else if(due < 0) alerts.push({level:"critical", title:"Certificat expiré", detail:`Échéance dépassée depuis ${Math.abs(due)} jour(s).`});
-      else if(due <= 30) alerts.push({level:"warning", title:"Étalonnage bientôt dû", detail:`Échéance dans ${due} jour(s).`});
+      if(!normalize(item.inventory)) alerts.push({level:"critical", title:"Sans n° d'inventaire", detail:"Impossible de relier clairement le moyen à sa fiche."});
+      if(!normalize(item.location)) alerts.push({level:"critical", title:"Non localisé", detail:"Risque de perte ou d’utilisation non maîtrisée."});
+      if(!normalize(item.certificate)) alerts.push({level:"warning", title:"Certificat manquant", detail:"Preuve documentaire non indiquée."});
       
-      if(status === "périmé") alerts.push({level:"critical", title:"Statut périmé", detail:"Le moyen ne devrait pas être utilisé avant décision métrologique."});
-      if(status === "à vérifier") alerts.push({level:"warning", title:"Statut à vérifier", detail:"Une vérification ou une décision d’aptitude est nécessaire."});
+      if(!item.nextCalibration) alerts.push({level:"warning", title:"Échéance absente", detail:"Planification impossible."});
+      else if(due < 0) alerts.push({level:"critical", title:"Certificat expiré", detail:`Dépassé de ${Math.abs(due)} jour(s).`});
+      else if(due <= 30) alerts.push({level:"warning", title:"Étalonnage imminent", detail:`Dans ${due} jour(s).`});
+      
+      if(status === "périmé") alerts.push({level:"critical", title:"Statut Périmé", detail:"Ne doit pas être utilisé."});
+      if(status === "à vérifier") alerts.push({level:"warning", title:"Statut À vérifier", detail:"Décision nécessaire."});
+      
       if((condition === "non conforme" || condition === "endommagé" || status === "hors service" || status === "périmé") && hasWorkshopLocation && !isolated) 
-        alerts.push({level:"critical", title:"Instrument non conforme encore disponible en atelier", detail:"Le moyen devrait être isolé, retiré du poste ou placé en quarantaine."});
+        alerts.push({level:"critical", title:"NC en atelier", detail:"Instrument non conforme disponible en zone de prod."});
       
       return alerts;
     }
@@ -740,6 +687,7 @@
       const status = $("filterStatus").value;
       const alert = $("filterAlert").value;
       const sortBy = $("sortBy").value;
+      
       return instruments.filter(item => {
         const text = normalize(Object.values(item).join(" "));
         const alerts = computeAlerts(item);
@@ -754,46 +702,101 @@
       });
     }
 
+    // Moteur de rendu
     function renderStats(){
       const allAlerts = instruments.flatMap(computeAlerts);
-      $("statTotal").textContent = instruments.length;
-      $("statConforme").textContent = instruments.filter(i => i.status === "conforme").length;
+      const criticalCount = allAlerts.filter(a => a.level === "critical").length;
+      const conformeCount = instruments.filter(i => i.status === "conforme").length;
+      const total = instruments.length;
+
+      $("statTotal").textContent = total;
+      $("statConforme").textContent = conformeCount;
       $("statVerifier").textContent = instruments.filter(i => i.status === "à vérifier").length;
       $("statPerime").textContent = instruments.filter(i => i.status === "périmé" || daysUntil(i.nextCalibration) < 0).length;
       $("statHs").textContent = instruments.filter(i => i.status === "hors service").length;
       $("statAlerts").textContent = allAlerts.length;
-      $("todayBadge").textContent = "Date du jour : " + new Date(todayIso()).toLocaleDateString("fr-CH");
+      
+      const d = new Date(todayIso());
+      $("todayBadge").textContent = d.toLocaleDateString("fr-CH", { weekday:'short', day:'numeric', month:'short' });
+
+      const pct = total ? Math.round((conformeCount / total) * 100) : 0;
+      $("complianceFill").style.width = pct + "%";
+      $("compliancePct").textContent = pct + "%";
+      
+      let gradient = "linear-gradient(90deg, #ef4444, #f87171)"; // red
+      if(pct >= 75) gradient = "linear-gradient(90deg, #10b981, #34d399)"; // green
+      else if(pct >= 50) gradient = "linear-gradient(90deg, #eab308, #facc15)"; // yellow
+      
+      $("complianceFill").style.backgroundImage = gradient;
+      $("compliancePct").style.color = pct >= 75 ? "#10b981" : pct >= 50 ? "#eab308" : "#ef4444";
+
+      // Badge on alert tab
+      const tabAlertBadge = criticalCount ? `<span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full ml-2 shadow-sm">${criticalCount}</span>` : "";
+      $("alertTabBtn").innerHTML = `<i class="fa-solid fa-bell text-slate-400 mr-2"></i> Alertes ${tabAlertBadge}`;
     }
 
     function renderTable(){
       const rows = getFilteredInstruments();
       const body = $("tableBody");
       body.innerHTML = "";
+      
       rows.forEach(item => {
         const alerts = computeAlerts(item);
+        const hasCritical = alerts.some(a => a.level === "critical");
+        const hasWarning  = alerts.some(a => a.level === "warning");
         const due = daysUntil(item.nextCalibration);
         const progress = calibrationProgress(item);
-        const alertBadges = alerts.length ? alerts.slice(0,3).map(a => `<span class="badge ${a.level === "critical" ? "b-danger" : "b-verifier"}">${escapeHtml(a.title)}</span>`).join(" ") + (alerts.length > 3 ? ` <span class="badge b-info">+${alerts.length - 3}</span>` : "") : `<span class="badge b-conforme">Aucune alerte</span>`;
-        const dueText = due === null ? "Échéance non renseignée" : due < 0 ? `Expiré depuis ${Math.abs(due)} j` : `Dans ${due} j`;
+        
+        let rowClass = "hover:bg-slate-50 transition-colors group";
+        if (hasCritical) rowClass = "bg-red-50/30 hover:bg-red-50 transition-colors group";
+        else if (hasWarning) rowClass = "bg-yellow-50/30 hover:bg-yellow-50 transition-colors group";
+        
+        let alertBadges = `<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-100 text-slate-500 text-[10px] font-bold"><i class="fa-solid fa-check text-green-500"></i> RAS</span>`;
+        if(alerts.length) {
+          alertBadges = alerts.slice(0,2).map(a => `<span class="inline-flex px-2 py-1 rounded text-[10px] font-bold whitespace-nowrap mb-1 mr-1 ${a.level === 'critical' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${escapeHtml(a.title)}</span>`).join("");
+          if(alerts.length > 2) alertBadges += `<span class="inline-flex px-1.5 py-1 rounded text-[10px] font-bold bg-slate-200 text-slate-600 mb-1">+${alerts.length - 2}</span>`;
+        }
+
+        const dueText = due === null ? "Non planifié" : due < 0 ? `<span class="text-red-600 font-bold">Expiré (${Math.abs(due)}j)</span>` : `Dans ${due}j`;
+        let progressColor = "bg-green-500";
+        if(progress > 85) progressColor = "bg-yellow-400";
+        if(progress > 100) progressColor = "bg-red-500";
+
         const tr = document.createElement("tr");
+        tr.className = rowClass;
         tr.innerHTML = `
-          <td><strong>${escapeHtml(item.inventory || "—")}</strong></td>
-          <td><strong>${escapeHtml(item.name)}</strong><br><span class="hint">${escapeHtml(item.type || "—")}</span></td>
-          <td><strong>${escapeHtml(item.brand || "—")}</strong><br><span class="hint">Réf. ${escapeHtml(item.reference || "—")}</span><br><span class="hint">S/N ${escapeHtml(item.serial || "—")}</span></td>
-          <td>${escapeHtml(item.location || "—")}</td>
-          <td><strong>Dernier :</strong> ${formatDate(item.lastCalibration)}<br><strong>Prochain :</strong> ${formatDate(item.nextCalibration)}<br><span class="hint">${escapeHtml(dueText)} · Cert. ${escapeHtml(item.certificate || "—")}</span><div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div></td>
-          <td>${statusBadge(item.status)}<br><br><span class="hint">État : ${escapeHtml(item.condition || "—")}</span></td>
-          <td><div class="pill-row">${alertBadges}</div></td>
-          <td>
-            <div class="row-actions">
-              <button class="icon-btn btn-blue" data-action="details" data-id="${item.id}">Fiche</button>
-              <button class="icon-btn btn-light" data-action="edit" data-id="${item.id}">Modifier</button>
-              <button class="icon-btn btn-gray" data-action="duplicate" data-id="${item.id}">Copier</button>
-              <button class="icon-btn btn-danger" data-action="delete" data-id="${item.id}">Suppr.</button>
+          <td class="p-4 align-top"><span class="font-black text-slate-800">${escapeHtml(item.inventory || "—")}</span></td>
+          <td class="p-4 align-top">
+            <div class="font-bold text-slate-800">${escapeHtml(item.name)}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5 uppercase tracking-wide">${escapeHtml(item.type || "—")}</div>
+          </td>
+          <td class="p-4 align-top text-xs text-slate-600 space-y-1">
+            <div><strong class="text-slate-700">M:</strong> ${escapeHtml(item.brand || "—")}</div>
+            <div><strong class="text-slate-700">R:</strong> ${escapeHtml(item.reference || "—")}</div>
+            <div class="text-[10px] text-slate-400 font-mono mt-1">S/N: ${escapeHtml(item.serial || "—")}</div>
+          </td>
+          <td class="p-4 align-top text-sm text-slate-700">${escapeHtml(item.location || "—")}</td>
+          <td class="p-4 align-top text-xs">
+            <div class="flex justify-between mb-1"><span class="text-slate-500">Préc:</span> <span class="font-medium">${formatDate(item.lastCalibration)}</span></div>
+            <div class="flex justify-between mb-2"><span class="text-slate-500">Proch:</span> <span class="font-bold text-slate-800">${formatDate(item.nextCalibration)}</span></div>
+            <div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden mb-1"><div class="h-full ${progressColor} transition-all" style="width:${Math.min(progress, 100)}%"></div></div>
+            <div class="flex justify-between items-center mt-1 text-[10px]"><span class="truncate pr-2" title="${escapeHtml(item.certificate)}"><i class="fa-solid fa-file-contract text-slate-400"></i> ${escapeHtml(item.certificate || "—")}</span> <span>${dueText}</span></div>
+          </td>
+          <td class="p-4 align-top">
+            <div class="mb-2">${statusBadge(item.status)}</div>
+            <div class="text-[11px] text-slate-500">État : ${escapeHtml(item.condition || "—")}</div>
+          </td>
+          <td class="p-4 align-top"><div class="flex flex-wrap">${alertBadges}</div></td>
+          <td class="p-4 align-top text-right">
+            <div class="flex justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+              <button class="icon-btn text-brand-navy hover:bg-slate-200 p-2 rounded-lg" data-action="details" data-id="${item.id}" title="Fiche détaillée"><i class="fa-solid fa-eye"></i></button>
+              <button class="icon-btn text-blue-600 hover:bg-blue-100 p-2 rounded-lg" data-action="edit" data-id="${item.id}" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+              <button class="icon-btn text-red-600 hover:bg-red-100 p-2 rounded-lg" data-action="delete" data-id="${item.id}" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
             </div>
           </td>`;
         body.appendChild(tr);
       });
+      
       $("emptyTable").style.display = rows.length ? "none" : "block";
     }
 
@@ -802,29 +805,51 @@
       list.innerHTML = "";
       const alertItems = instruments.flatMap(item => computeAlerts(item).map(alert => ({item, alert})));
       alertItems.sort((a,b) => (a.alert.level === "critical" ? -1 : 1) - (b.alert.level === "critical" ? -1 : 1));
+      
       alertItems.forEach(({item, alert}) => {
         const div = document.createElement("div");
-        div.className = `alert-card ${alert.level === "critical" ? "critical" : "warning"}`;
+        const isCritical = alert.level === "critical";
+        div.className = `bg-white rounded-xl border-l-4 p-4 shadow-sm flex flex-col sm:flex-row gap-4 justify-between items-start ${isCritical ? 'border-l-red-500' : 'border-l-yellow-500'}`;
+        
         div.innerHTML = `
-          <div class="alert-title">${escapeHtml(alert.title)}</div>
-          <div><strong>${escapeHtml(item.name)}</strong> · ${escapeHtml(item.inventory || "sans n° inventaire")}</div>
-          <div class="alert-meta">${escapeHtml(alert.detail)}<br>Emplacement : ${escapeHtml(item.location || "non renseigné")} · Statut : ${escapeHtml(item.status || "—")}</div>
-          <div class="row-actions">
-            <button class="icon-btn btn-blue" data-action="details" data-id="${item.id}">Voir la fiche</button>
-            <button class="icon-btn btn-light" data-action="edit" data-id="${item.id}">Corriger</button>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-1">
+              <i class="fa-solid ${isCritical ? 'fa-triangle-exclamation text-red-500' : 'fa-circle-exclamation text-yellow-500'}"></i>
+              <span class="font-bold text-slate-800">${escapeHtml(alert.title)}</span>
+            </div>
+            <div class="text-sm font-medium text-slate-700 mb-1">${escapeHtml(item.name)} <span class="text-slate-400 font-normal">· ${escapeHtml(item.inventory || "Sans inventaire")}</span></div>
+            <p class="text-xs text-slate-500 leading-relaxed">${escapeHtml(alert.detail)}</p>
+            <div class="mt-2 text-[11px] text-slate-400 flex gap-3">
+              <span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(item.location || "Non localisé")}</span>
+              <span><i class="fa-solid fa-tag"></i> ${escapeHtml(item.status)}</span>
+            </div>
+          </div>
+          <div class="flex gap-2 w-full sm:w-auto">
+            <button class="icon-btn flex-1 sm:flex-none bg-slate-100 text-slate-600 hover:bg-slate-200" data-action="details" data-id="${item.id}">Fiche</button>
+            <button class="icon-btn flex-1 sm:flex-none bg-brand-gold text-white shadow-sm" data-action="edit" data-id="${item.id}">Corriger</button>
           </div>`;
         list.appendChild(div);
       });
       $("emptyAlerts").style.display = alertItems.length ? "none" : "block";
     }
 
+    // Gestion des vues
     function switchTopTab(pageId) {
       document.querySelectorAll(".top-tab-page").forEach(p => {
-        p.style.display = p.id === pageId ? "" : "none";
-        p.classList.toggle("active", p.id === pageId);
+        if(p.id === pageId) {
+          p.classList.add("active");
+        } else {
+          p.classList.remove("active");
+        }
       });
       document.querySelectorAll(".top-tab-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.page === pageId);
+        if(b.dataset.page === pageId) {
+          b.classList.add("active", "border-white", "text-white");
+          b.classList.remove("border-transparent", "text-white/60");
+        } else {
+          b.classList.remove("active", "border-white", "text-white");
+          b.classList.add("border-transparent", "text-white/60");
+        }
       });
     }
 
@@ -832,14 +857,24 @@
       renderStats();
       renderTable();
       renderAlerts();
+      
       document.querySelectorAll(".content-section").forEach(s => {
-        const isActive = s.id === activeTab;
-        s.style.display = isActive ? "" : "none";
-        s.classList.toggle("active", isActive);
+        s.classList.toggle("active", s.id === activeTab);
       });
-      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === activeTab));
+      
+      document.querySelectorAll(".tab").forEach(t => {
+        const isActive = t.dataset.tab === activeTab;
+        if(isActive) {
+          t.classList.add("active", "bg-white", "border-slate-200", "text-brand-navy");
+          t.classList.remove("bg-slate-100/50", "border-transparent", "text-slate-600");
+        } else {
+          t.classList.remove("active", "bg-white", "border-slate-200", "text-brand-navy");
+          t.classList.add("bg-slate-100/50", "border-transparent", "text-slate-600");
+        }
+      });
     }
 
+    // Logique Formulaire
     function formToInstrument(){
       return { 
         id: $("instrumentId").value || uid(), 
@@ -861,8 +896,8 @@
     }
 
     function openForm(){
-      $("formPanel").style.display = "";
-      $("formPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      $("formPanel").style.display = "block";
+      setTimeout(() => $("formPanel").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
     }
 
     function closeForm(){
@@ -874,7 +909,7 @@
         if($(k)) $(k).value = item[k] || (k === "type" ? "Instrument de mesure" : k === "condition" ? "Conforme" : k === "status" ? "conforme" : "");
       });
       $("instrumentId").value = item.id;
-      $("formTitle").textContent = "Modifier la fiche instrument";
+      $("formTitle").innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-gold"></i> Modifier : ${escapeHtml(item.inventory || "Nouvel instrument")}`;
       openForm();
     }
 
@@ -884,29 +919,38 @@
       $("type").value = "Instrument de mesure";
       $("condition").value = "Conforme";
       $("status").value = "conforme";
-      $("formTitle").textContent = "Créer une fiche instrument";
+      $("formTitle").innerHTML = `<i class="fa-solid fa-plus text-brand-gold"></i> Créer une fiche instrument`;
     }
 
-    function upsertInstrument(item){ 
-      if(!item.name) return showToast("Le nom de l’instrument est obligatoire.", "error"); 
+    function upsertInstrument(item){
+      if(!item.name) return showToast("Le nom de l’instrument est obligatoire.", "error");
+      
+      if(item.status !== "hors service" && item.nextCalibration) {
+        const due = daysUntil(item.nextCalibration);
+        if(due !== null && due < 0 && item.status !== "périmé") {
+          item.status = "périmé";
+          showToast("Statut forcé à « Périmé » (échéance dépassée).", "error");
+        }
+      }
+      
       const idx = instruments.findIndex(i => i.id === item.id); 
       if(idx >= 0) {
         instruments[idx] = {...instruments[idx], ...item};
-        showToast("Fiche mise à jour avec succès.", "success");
+        showToast("Fiche mise à jour.", "success");
       } else {
         instruments.unshift({...item, createdAt:new Date().toISOString()});
         showToast("Nouvel instrument ajouté.", "success");
       }
+      
       saveData();
       render();
-      resetForm();
       closeForm();
     }
 
     function deleteInstrument(id){ 
       const item = instruments.find(i => i.id === id); 
       if(item){ 
-        showConfirm("Suppression", `Voulez-vous vraiment supprimer la fiche de : ${item.name} ?`, () => {
+        showConfirm("Suppression", `Supprimer définitivement la fiche de : ${item.name} ?`, () => {
           instruments = instruments.filter(i => i.id !== id); 
           saveData(); 
           render(); 
@@ -915,80 +959,91 @@
       } 
     }
 
-    function duplicateInstrument(id){
-      const item = instruments.find(i => i.id === id);
-      if(!item) return;
-      instruments.unshift({
-        ...item,
-        id: uid(),
-        name: item.name + " — copie",
-        inventory: "",
-        serial: "",
-        certificate: "",
-        comments: (item.comments || "") + "\nCopie créée le " + new Date().toLocaleDateString("fr-CH") + ".",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      saveData();
-      render();
-      showToast("Fiche dupliquée.", "success");
-    }
-
     function openDetails(id) {
       const item = instruments.find(i => i.id === id);
       if(!item) return;
       
       $("modalTitle").textContent = item.name;
-      $("modalSub").textContent = `${item.inventory || "Sans inventaire"} · ${item.type}`;
+      $("modalSub").innerHTML = `<span class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded text-xs font-bold mr-2">${escapeHtml(item.inventory || "N/A")}</span> ${escapeHtml(item.type)}`;
       
       const alerts = computeAlerts(item);
       const alertsHTML = alerts.length 
-        ? alerts.map(a => `<div class="timeline-entry"><strong>${escapeHtml(a.title)}</strong><small>${escapeHtml(a.detail)}</small></div>`).join("") 
-        : `<div class="timeline-entry">Aucune anomalie détectée pour ce moyen.</div>`;
+        ? alerts.map(a => `
+            <div class="border-l-2 ${a.level === 'critical' ? 'border-red-500 bg-red-50/50' : 'border-yellow-500 bg-yellow-50/50'} p-3 rounded-r-lg mb-2">
+              <strong class="block text-sm ${a.level === 'critical' ? 'text-red-700' : 'text-yellow-700'}">${escapeHtml(a.title)}</strong>
+              <span class="block text-xs text-slate-600 mt-0.5">${escapeHtml(a.detail)}</span>
+            </div>`).join("") 
+        : `<div class="bg-green-50 text-green-700 p-3 rounded-lg text-sm flex items-center gap-2"><i class="fa-solid fa-check"></i> Aucune anomalie détectée.</div>`;
 
       $("modalBody").innerHTML = `
-        <div class="detail-grid">
-          <div class="detail-item"><div class="k">Marque / Réf</div><div class="v">${escapeHtml(item.brand || "—")} · ${escapeHtml(item.reference || "—")}</div></div>
-          <div class="detail-item"><div class="k">N° de série</div><div class="v">${escapeHtml(item.serial || "—")}</div></div>
-          <div class="detail-item"><div class="k">Emplacement</div><div class="v">${escapeHtml(item.location || "—")}</div></div>
-          <div class="detail-item"><div class="k">État / Statut</div><div class="v">${statusBadge(item.status)} <span style="font-size:13px;font-weight:normal;margin-left:5px;">(${escapeHtml(item.condition)})</span></div></div>
-          <div class="detail-item"><div class="k">Dernier étalonnage</div><div class="v">${formatDate(item.lastCalibration)}</div></div>
-          <div class="detail-item"><div class="k">Prochaine échéance</div><div class="v">${formatDate(item.nextCalibration)}</div></div>
-          <div class="detail-item"><div class="k">Certificat</div><div class="v">${escapeHtml(item.certificate || "—")}</div></div>
-          <div class="detail-item full"><div class="k">Commentaires</div><div class="v" style="white-space:pre-wrap;">${escapeHtml(item.comments || "—")}</div></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Marque / Réf</div>
+            <div class="font-medium text-slate-800">${escapeHtml(item.brand || "—")} <span class="text-slate-400 mx-1">·</span> ${escapeHtml(item.reference || "—")}</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">N° de série</div>
+            <div class="font-mono text-sm text-slate-800">${escapeHtml(item.serial || "—")}</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Emplacement</div>
+            <div class="font-medium text-slate-800"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i> ${escapeHtml(item.location || "—")}</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">État / Statut</div>
+            <div class="flex items-center gap-2">${statusBadge(item.status)} <span class="text-xs text-slate-500">(${escapeHtml(item.condition)})</span></div>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Dernier étalonnage</div>
+            <div class="font-medium text-slate-800"><i class="fa-solid fa-calendar-check text-slate-400 mr-1"></i> ${formatDate(item.lastCalibration)}</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Prochaine échéance</div>
+            <div class="font-bold text-brand-navy"><i class="fa-solid fa-calendar-day text-slate-400 mr-1"></i> ${formatDate(item.nextCalibration)}</div>
+          </div>
+          <div class="sm:col-span-2 bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Certificat</div>
+            <div class="font-mono text-sm text-blue-600"><i class="fa-solid fa-file-contract mr-1"></i> ${escapeHtml(item.certificate || "—")}</div>
+          </div>
+          <div class="sm:col-span-2 bg-white border border-slate-200 rounded-xl p-4 shadow-inner">
+            <div class="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Historique / Commentaires</div>
+            <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">${escapeHtml(item.comments || "Aucun commentaire.")}</div>
+          </div>
         </div>
-        <div class="timeline">
-          <h3>Alertes de traçabilité</h3>
-          ${alertsHTML}
+        
+        <div>
+          <h3 class="text-sm font-black text-slate-800 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><i class="fa-solid fa-clipboard-list text-brand-gold"></i> Analyse de conformité</h3>
+          <div class="space-y-1">
+            ${alertsHTML}
+          </div>
         </div>
       `;
       $("detailModal").classList.add("open");
     }
 
-    // Event delegation for dynamically generated buttons in the table and alerts list
+    // Écouteurs d'événements
     document.body.addEventListener("click", e => {
       const btn = e.target.closest(".icon-btn");
       if(btn) {
         const id = btn.dataset.id;
         const action = btn.dataset.action;
-        if(action === "edit") fillForm(instruments.find(i => i.id === id));
+        if(action === "edit") {
+            switchTopTab("gmmPage");
+            fillForm(instruments.find(i => i.id === id));
+        }
         else if(action === "delete") deleteInstrument(id);
-        else if(action === "duplicate") duplicateInstrument(id);
         else if(action === "details") openDetails(id);
       }
     });
 
-    // Modal closing logic
     $("closeModal").addEventListener("click", () => $("detailModal").classList.remove("open"));
     $("detailModal").addEventListener("click", e => { if(e.target === $("detailModal")) $("detailModal").classList.remove("open"); });
     $("customConfirmModal").addEventListener("click", e => { if(e.target === $("customConfirmModal")) $("customConfirmModal").classList.remove("open"); });
 
-    // Top-level tab switching (Théorie / GMM)
     document.querySelectorAll(".top-tab-btn").forEach(btn => {
       btn.addEventListener("click", () => switchTopTab(btn.dataset.page));
     });
 
-    // Sub-tabs switching (Registre / Alertes)
     document.querySelectorAll(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
         activeTab = tab.dataset.tab;
@@ -996,12 +1051,10 @@
       });
     });
 
-    // Search and filters functionality
     ["search", "filterStatus", "filterAlert", "sortBy"].forEach(id => {
       $(id).addEventListener("input", render);
     });
 
-    // Form logic
     $("instrumentForm").addEventListener("submit", e => {
       e.preventDefault();
       upsertInstrument(formToInstrument());
@@ -1010,24 +1063,25 @@
     $("btnCreateFiche").addEventListener("click", () => { resetForm(); openForm(); });
     $("closeFormBtn").addEventListener("click", closeForm);
     $("resetBtn").addEventListener("click", resetForm);
+    
     $("deleteAllBtn").addEventListener("click", () => {
-      showConfirm("Réinitialiser le parc", "Attention, cette action va vider TOUT l'inventaire actuel. Voulez-vous continuer ?", () => {
+      showConfirm("Réinitialisation totale", "ATTENTION : Cela va vider tout l'inventaire. Cette action est irréversible.", () => {
         instruments = [];
         saveData();
         render();
-        showToast("L'inventaire a été complètement vidé.", "info");
+        closeForm();
+        showToast("Inventaire vidé.", "info");
       });
     });
 
-    // Global Header Actions
     $("printBtn").addEventListener("click", () => window.print());
     
     $("btnSeed").addEventListener("click", () => {
-      showConfirm("Recharger les exemples", "Remplacer les données actuelles par les exemples initiaux de simulation ?", () => {
+      showConfirm("Charger les exemples", "Remplacer les données actuelles par le jeu de données d'apprentissage ?", () => {
         instruments = starterExamples();
         saveData();
         render();
-        showToast("Exemples rechargés avec succès.", "success");
+        showToast("Exemples chargés.", "success");
       });
     });
 
@@ -1046,7 +1100,7 @@
       a.download = `Inventaire_ECME_${todayIso()}.csv`; 
       a.click(); 
       URL.revokeObjectURL(url);
-      showToast("Fichier CSV téléchargé.");
+      showToast("Export CSV terminé.");
     });
 
     $("btnExportJson").addEventListener("click", () => {
@@ -1057,7 +1111,7 @@
       a.download = `Inventaire_ECME_${todayIso()}.json`; 
       a.click(); 
       URL.revokeObjectURL(url);
-      showToast("Fichier JSON téléchargé.");
+      showToast("Export JSON terminé.");
     });
 
     $("importFile").addEventListener("change", e => {
@@ -1068,7 +1122,7 @@
         try {
           const data = JSON.parse(ev.target.result);
           if(Array.isArray(data)) {
-            showConfirm("Import JSON", `Voulez-vous importer ${data.length} instruments ? Les données actuelles seront complétées ou mises à jour.`, () => {
+            showConfirm("Import JSON", `Importer ${data.length} instruments ? Les données existantes seront conservées.`, () => {
               const newIds = new Set(data.map(i => i.id));
               instruments = instruments.filter(i => !newIds.has(i.id)).concat(data);
               saveData();
@@ -1076,20 +1130,44 @@
               showToast("Importation réussie.", "success");
             });
           } else {
-            showToast("Le fichier JSON n'est pas un tableau valide.", "error");
+            showToast("Format JSON invalide (tableau attendu).", "error");
           }
         } catch(err) {
-          showToast("Erreur de lecture du fichier JSON.", "error");
+          showToast("Erreur de lecture du fichier.", "error");
         }
-        e.target.value = ""; // Reset input
+        e.target.value = "";
       };
       reader.readAsText(file);
     });
 
-    // Initialize application
+    // Initialisation
     document.addEventListener("DOMContentLoaded", () => {
-      switchTopTab("gmmPage");
+      switchTopTab("theoriePage");
       render();
+
+      // Accordéon custom logic
+      document.querySelectorAll(".accordion-head").forEach(head => {
+        head.addEventListener("click", () => {
+          const item = head.closest(".accordion-item");
+          const isOpen = item.classList.contains("open");
+          
+          document.querySelectorAll(".accordion-item.open").forEach(i => {
+              if(i !== item) i.classList.remove("open");
+          });
+          
+          if(!isOpen) item.classList.add("open");
+          else item.classList.remove("open");
+        });
+      });
+
+      // Raccourcis de dates
+      document.querySelectorAll(".date-shortcut").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const months = parseInt(btn.dataset.months, 10);
+          const base = $("lastCalibration").value || todayIso();
+          $("nextCalibration").value = addMonths(base, months);
+        });
+      });
     });
   </script>
 </body>

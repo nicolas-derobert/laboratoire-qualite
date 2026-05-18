@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planche de Galton - Édition Or & Bleu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --accent: #cfa346;
+            --accent-text: #856404;
+            --accent-light: #f4e8cb;
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #2d3436;
+            --danger: #e74c3c;
+            --highlight: #e74c3c;
+            
+            --color-m1: #c0392b;
+            --color-m2: #2980b9;
+            --color-m3: #27ae60;
+            --color-m4: #8e44ad;
+            --color-m5: #d35400;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden; 
+        }
+
+        .board-bg {
+            background-color: var(--panel-bg);
+            background-size: 100% 100%;
+        }
+
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--bg-color);
+            padding: 10px;
+            overflow: hidden; 
+        }
+
+        #gameContainer {
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: 4px solid var(--accent);
+            background-color: var(--panel-bg);
+            width: auto;
+            height: auto;
+            max-height: 95vh;       
+            max-width: 100%;        
+            aspect-ratio: 800/800;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.05);
+            overflow-y: auto;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        input[type=range] {
+            accent-color: var(--accent);
+            width: 100%;
+            height: 6px;
+            background: #ddd;
+            border-radius: 5px;
+            appearance: none;
+            cursor: pointer;
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            cursor: grab;
+        }
+
+        .zone-label {
+            position: absolute;
+            color: var(--accent-text);
+            font-weight: bold;
+            font-size: 1.5vmin;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 0.5vmin 1vmin;
+            border-radius: 4px;
+            border: 1px solid var(--accent);
+        }
+
+        .val-indicator {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--primary);
+            float: right;
+        }
+        
+        .btn-gold {
+            background-color: var(--accent);
+            color: var(--primary);
+            transition: all 0.2s;
+        }
+        .btn-gold:hover {
+            background-color: #e0b050;
+        }
+        .btn-gold:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-area">
+        <div class="text-center mb-2 hidden md:block">
+            <h1 class="text-xl font-bold text-[var(--accent-text)] mb-0 tracking-widest uppercase">Planche de Galton</h1>
+        </div>
+
+        <div id="gameContainer" class="board-bg">
+            <canvas id="galtonCanvas"></canvas>
+            
+            <div class="zone-label" style="top: 2%; left: 2%;">1. Trémie</div>
+            <div class="zone-label" style="top: 18%; left: 2%;">2. Diffusion</div>
+            <div class="zone-label" style="bottom: 25%; left: 2%;">3. Collecte</div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <a href="index.html" class="text-sm text-center block font-semibold text-[var(--accent-text)] hover:text-[#e0b050] transition-colors p-2 rounded-md hover:bg-gray-100">
+            &larr; Retour à l'accueil
+        </a>
+        <div class="sidebar-header">
+            <h2 class="text-lg font-bold text-[#1a1a1a]">Paramètres</h2>
+            <p class="text-xs text-[var(--accent-text)]">Contrôle de précision</p>
+        </div>
+
+        <div class="bg-white p-3 rounded-lg border border-[#cfa346] text-center shadow-sm">
+            <div class="text-[10px] text-[#2d3436] uppercase tracking-widest mb-1">Total Billes</div>
+            <div id="ballCount" class="text-3xl font-mono text-[#1a1a1a] font-bold leading-none">0</div>
+            <div class="text-[10px] text-[#2d3436] mt-1">Limite: 10</div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <button id="btn-drop-mult" class="btn-gold font-bold py-2 px-4 rounded shadow active:mt-1 flex items-center justify-center gap-2 text-sm">
+                <span>▶</span> Lancer Séquence (10)
+            </button>
+            <button id="btn-reset" class="bg-[#1a1a1a] hover:bg-[#333] text-white text-sm font-bold py-2 px-4 rounded transition active:mt-1">
+                ♻ Réinitialiser
+            </button>
+        </div>
+
+        <div class="w-full h-px bg-[#e0e0e0] my-1"></div>
+
+        <div class="flex flex-col gap-3">
+            
+            <div class="control-group">
+                <label class="text-[11px] font-bold text-[#2d3436] uppercase tracking-wider flex justify-between">
+                    1. Dispersion (Niveaux) <span id="levelVal" class="val-indicator text-[#1a1a1a]">12</span>
+                </label>
+                <input type="range" id="levelRange" min="1" max="16" step="1" value="12">
+                <div class="flex justify-between w-full text-[9px] text-[#2d3436]">
+                    <span>Min</span>
+                    <span>Max</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="text-[11px] font-bold text-[#2d3436] uppercase tracking-wider flex justify-between">
+                    2. Centrage <span id="biasVal" class="val-indicator">0.00</span>
+                </label>
+                <input type="range" id="biasRange" min="-0.25" max="0.25" step="0.01" value="0">
+                <div class="flex justify-between w-full text-[9px] text-[#2d3436]">
+                    <span>Gauche</span>
+                    <span>Centre</span>
+                    <span>Droite</span>
+                </div>
+            </div>
+
+            <div class="control-group opacity-80 hover:opacity-100 transition">
+                <label class="text-[11px] font-bold text-[#2d3436] uppercase tracking-wider">Vitesse</label>
+                <input type="range" id="speedRange" min="1" max="5" step="0.5" value="3.5">
+            </div>
+        </div>
+    </div>
+
+<script>
+const canvas = document.getElementById('galtonCanvas');
+const ctx = canvas.getContext('2d');
+
+const COLORS = {
+    blue: '#1a1a1a',
+    gold: '#cfa346',
+    white: '#1a1a1a',
+    goldTransparent: 'rgba(207, 163, 70, 0.15)',
+    wall: '#cfa346'
+};
+
+const CONFIG = {
+    width: 800,         
+    height: 800,
+    
+    pegRadius: 3,       
+    ballRadius: 6,      
+    pegSpacingX: 40, 
+    
+    funnelTopHeight: 60,
+    funnelNeckHeight: 50,
+    get funnelTotalHeight() { return this.funnelTopHeight + this.funnelNeckHeight; },
+    neckWidth: 18, 
+
+    pegSpacingY: 30, 
+    
+    gravity: 0.40,
+    friction: 0.99,
+};
+
+canvas.width = CONFIG.width;
+canvas.height = CONFIG.height;
+
+let Y_FIRST_PEG, Y_LAST_PEG, Y_BIN_TOP;
+
+let state = {
+    rows: 12, 
+    balls: [],
+    staticBalls: [],
+    bins: [], // Taille fixe maintenant
+    pegs: [],
+    walls: [],
+    totalBalls: 0,
+    speedMultiplier: 3.5, 
+    bias: 0,            
+    hopperOffset: 0,    
+    restitution: 0.4, 
+    maxCols: 0 // Calculé dynamiquement
+};
+
+function init() {
+    // Calcul du nombre maximum de colonnes possibles sur la largeur
+    state.maxCols = Math.floor(CONFIG.width / CONFIG.pegSpacingX);
+    
+    Y_FIRST_PEG = CONFIG.funnelTotalHeight + 20;
+    // La position du haut des bacs dépend du nombre de rangées actuel
+    Y_LAST_PEG = Y_FIRST_PEG + (state.rows - 1) * CONFIG.pegSpacingY;
+    Y_BIN_TOP = Y_LAST_PEG + 40; 
+    
+    // Initialisation des bacs fixes (toute la largeur)
+    state.bins = new Array(state.maxCols).fill(0);
+    
+    createPegs();
+    createWalls(); 
+}
+
+function createPegs() {
+    state.pegs = [];
+    // On utilise maxCols pour remplir toute la largeur
+
+    // On génère les rangées selon le slider, mais sur toute la largeur
+    for (let r = 0; r < state.rows; r++) {
+        const stagger = (r % 2 === 0) ? 0 : CONFIG.pegSpacingX / 2;
+        for (let c = 0; c < state.maxCols; c++) {
+            // Grille rectangulaire de base
+            // Pour un quinconce, on décale une ligne sur deux
+            // Note: pour avoir un quinconce parfait centré sur les murs, il faut ajuster.
+            // Les murs sont aux x = N * 40.
+            // Les clous doivent être à x = N * 40 (ligne paire) ou x = N * 40 + 20 (ligne impaire)
+            // Ou inversement selon alignement trémie.
+            
+            // Trémie centrée à width/2. 
+            // width=800. Center=400.
+            // Murs à 0, 40, ..., 400, ...
+            // Le mur à 400 est pile sous la trémie.
+            // Donc le premier clou (ligne 0) doit être à 400.
+            
+            // Calcul position de base x pour la colonne c (c=0..19)
+            // Mur c est à c*40. Mur c+1 est à (c+1)*40.
+            // Clou ligne 0 doit être sur le mur (pour diviser le flux 50/50).
+            const pegX = (c * CONFIG.pegSpacingX) + stagger;
+            
+            // Centrage global si marge
+            const x = pegX + (CONFIG.width % CONFIG.pegSpacingX)/2;
+            const y = Y_FIRST_PEG + r * CONFIG.pegSpacingY;
+            
+            if (x > 10 && x < CONFIG.width - 10) {
+                state.pegs.push({ x, y, r: CONFIG.pegRadius });
+            }
+        }
+    }
+}
+
+function createWalls() {
+    state.walls = [];
+    // Murs sur toute la largeur, fixes
+    const wallCount = state.maxCols + 1;
+    const startX = (CONFIG.width % CONFIG.pegSpacingX)/2; // Marge gauche
+    
+    for (let i = 0; i < wallCount; i++) {
+        state.walls.push({
+            x: startX + i * CONFIG.pegSpacingX,
+            yTop: Y_BIN_TOP,
+            yBottom: CONFIG.height
+        });
+    }
+}
+
+class Ball {
+    constructor() {
+        const hopperCenter = CONFIG.width / 2 + state.hopperOffset;
+        this.x = hopperCenter + (Math.random() - 0.5) * 0.1; 
+        this.y = 10;
+        this.vx = 0;
+        this.vy = 0;
+        this.radius = CONFIG.ballRadius;
+        this.color = COLORS.gold; 
+        this.isStatic = false;
+    }
+
+    update() {
+        if (this.isStatic) return;
+
+        const steps = 6; 
+        for(let s=0; s<steps; s++) {
+            this.vy += (CONFIG.gravity * state.speedMultiplier) / steps;
+            this.vx *= Math.pow(CONFIG.friction, 1/steps);
+            
+            this.x += (this.vx * state.speedMultiplier) / steps;
+            this.y += (this.vy * state.speedMultiplier) / steps;
+
+            this.checkCollisions();
+            
+            if (this.y > Y_BIN_TOP) {
+                this.handleWallCollisions();
+            }
+
+            if (this.y > CONFIG.height - 10) {
+                 this.lockInBin();
+                 break;
+            }
+        }
+    }
+
+    handleWallCollisions() {
+        for (let wall of state.walls) {
+            if (Math.abs(this.x - wall.x) < this.radius + 3) {
+                if (this.x < wall.x && this.x + this.radius > wall.x) {
+                    this.x = wall.x - this.radius;
+                    this.vx *= -0.4;
+                } else if (this.x > wall.x && this.x - this.radius < wall.x) {
+                    this.x = wall.x + this.radius;
+                    this.vx *= -0.4;
+                }
+            }
+        }
+        
+        // Bords d'écran
+        if (this.x < this.radius) { this.x = this.radius; this.vx *= -0.5; }
+        if (this.x > CONFIG.width - this.radius) { this.x = CONFIG.width - this.radius; this.vx *= -0.5; }
+    }
+
+    checkCollisions() {
+        if (this.x < this.radius) { this.x = this.radius; this.vx *= -state.restitution; }
+        if (this.x > CONFIG.width - this.radius) { this.x = CONFIG.width - this.radius; this.vx *= -state.restitution; }
+
+        const funnelCenterX = CONFIG.width/2 + state.hopperOffset;
+        
+        if (this.y < CONFIG.funnelTopHeight) {
+             const ratio = this.y / CONFIG.funnelTopHeight;
+             const topWidth = 80;
+             const bottomWidth = CONFIG.neckWidth/2 + 2;
+             const currentHalfWidth = topWidth * (1 - ratio) + bottomWidth * ratio;
+             
+             if (this.x < funnelCenterX - currentHalfWidth) {
+                 this.x = funnelCenterX - currentHalfWidth;
+                 this.vx = Math.abs(this.vx) * 0.3 + 0.1;
+             } else if (this.x > funnelCenterX + currentHalfWidth) {
+                 this.x = funnelCenterX + currentHalfWidth;
+                 this.vx = -Math.abs(this.vx) * 0.3 - 0.1;
+             }
+        } 
+        else if (this.y < CONFIG.funnelTotalHeight) {
+             const halfNeck = CONFIG.neckWidth / 2;
+             if (this.x < funnelCenterX - halfNeck) {
+                 this.x = funnelCenterX - halfNeck;
+                 this.vx *= -0.2; 
+             } else if (this.x > funnelCenterX + halfNeck) {
+                 this.x = funnelCenterX + halfNeck;
+                 this.vx *= -0.2;
+             }
+        }
+
+        if (this.y > Y_FIRST_PEG - 20 && this.y < Y_LAST_PEG + 20) {
+            for (let peg of state.pegs) {
+                if (Math.abs(this.y - peg.y) > 15) continue;
+                const dx = this.x - peg.x;
+                const dy = this.y - peg.y;
+                const distSq = dx*dx + dy*dy;
+                const minDist = this.radius + peg.r;
+                if (distSq < minDist * minDist) {
+                    const dist = Math.sqrt(distSq);
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+                    const overlap = minDist - dist;
+                    this.x += nx * overlap;
+                    this.y += ny * overlap;
+                    const dot = this.vx * nx + this.vy * ny;
+                    const jitter = (Math.random() - 0.5) * 0.7; 
+                    this.vx = (this.vx - 2 * dot * nx) * state.restitution + jitter;
+                    this.vy = (this.vy - 2 * dot * ny) * state.restitution;
+                }
+            }
+        }
+    }
+
+    lockInBin() {
+        const binWidth = CONFIG.pegSpacingX;
+        const startX = (CONFIG.width % CONFIG.pegSpacingX)/2; // Marge gauche
+        
+        let binIndex = Math.floor((this.x - startX) / binWidth);
+        
+        // Sécurité
+        if (binIndex < 0) binIndex = 0;
+        if (binIndex >= state.bins.length) binIndex = state.bins.length - 1;
+        
+        state.bins[binIndex]++;
+        this.isStatic = true;
+        const count = state.bins[binIndex];
+        
+        // Centre de la colonne
+        this.x = startX + binIndex * binWidth + binWidth/2; 
+        this.x += (Math.random()-0.5) * 2; // Léger désordre naturel
+        this.y = CONFIG.height - 5 - (count * this.radius * 2);
+        state.staticBalls.push(this);
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        // Petit éclat blanc pour effet métallique
+        ctx.strokeStyle = "rgba(255,255,255,0.4)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+}
+
+function resolveBallCollisions() {
+    const balls = state.balls;
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+            const b1 = balls[i];
+            const b2 = balls[j];
+            if (Math.abs(b1.y - b2.y) > 13) continue;
+
+            const dx = b2.x - b1.x;
+            const dy = b2.y - b1.y;
+            const distSq = dx*dx + dy*dy;
+            const minDist = b1.radius + b2.radius; 
+            
+            if (distSq < minDist * minDist && distSq > 0) {
+                const dist = Math.sqrt(distSq);
+                const overlap = minDist - dist;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                const separationX = nx * overlap * 0.5;
+                const separationY = ny * overlap * 0.5;
+                
+                b1.x -= separationX;
+                b1.y -= separationY;
+                b2.x += separationX;
+                b2.y += separationY;
+                
+                if (b1.y < CONFIG.funnelTotalHeight && b2.y < CONFIG.funnelTotalHeight) {
+                    b1.vx *= 0.9;
+                    b2.vx *= 0.9;
+                }
+            }
+        }
+    }
+}
+
+function drawStructure() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Trémie Mobile
+    ctx.save();
+    ctx.translate(state.hopperOffset, 0); 
+    
+    ctx.fillStyle = COLORS.goldTransparent;
+    ctx.strokeStyle = COLORS.gold;
+    ctx.lineWidth = 2;
+    
+    const cx = CONFIG.width/2; 
+    const topW = 80;
+    const neckW = CONFIG.neckWidth/2;
+    const h1 = CONFIG.funnelTopHeight;
+    const h2 = CONFIG.funnelTotalHeight;
+    
+    ctx.beginPath(); ctx.moveTo(cx - topW, 0); ctx.lineTo(cx - neckW, h1); ctx.lineTo(cx - neckW, h2); ctx.lineTo(cx - neckW - 20, h2); ctx.lineTo(cx - topW - 20, 0); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - topW, 0); ctx.lineTo(cx - neckW, h1); ctx.lineTo(cx - neckW, h2); ctx.stroke();
+
+    ctx.beginPath(); ctx.moveTo(cx + topW, 0); ctx.lineTo(cx + neckW, h1); ctx.lineTo(cx + neckW, h2); ctx.lineTo(cx + neckW + 20, h2); ctx.lineTo(cx + topW + 20, 0); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + topW, 0); ctx.lineTo(cx + neckW, h1); ctx.lineTo(cx + neckW, h2); ctx.stroke();
+
+    ctx.restore(); 
+
+    // Murs Fixes
+    ctx.strokeStyle = COLORS.wall;
+    ctx.beginPath();
+    for (let wall of state.walls) {
+        ctx.moveTo(wall.x, wall.yTop);
+        ctx.lineTo(wall.x, wall.yBottom);
+    }
+    ctx.stroke();
+    
+    // Sol
+    ctx.fillStyle = COLORS.gold;
+    ctx.fillRect(0, CONFIG.height - 2, CONFIG.width, 2);
+}
+
+function drawOverlay() {
+    if (state.totalBalls < 1) return;
+
+    const n = state.rows;
+    const centerX = CONFIG.width / 2;
+    const meanX = centerX + state.hopperOffset;
+
+    const baseSigma = (Math.sqrt(n) / 2) * CONFIG.pegSpacingX;
+    const physicsFactor = 1.0 + (state.restitution - 0.3) * 2.0; 
+    const sigma = baseSigma * physicsFactor;
+
+    const area = state.totalBalls * CONFIG.pegSpacingX; 
+    const peakHeight = area / (sigma * Math.sqrt(2 * Math.PI));
+    const scaleY = CONFIG.ballRadius * 2.2; 
+    let maxPixelHeight = peakHeight * scaleY;
+
+    const availableHeight = CONFIG.height - Y_BIN_TOP - 30;
+    if (maxPixelHeight > availableHeight) {
+        maxPixelHeight = availableHeight;
+    }
+
+    ctx.beginPath();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = COLORS.blue;
+
+    let first = true;
+    for (let x = 0; x <= CONFIG.width; x += 5) {
+        const exponent = -0.5 * Math.pow((x - meanX) / sigma, 2);
+        const y = CONFIG.height - 10 - (maxPixelHeight * Math.exp(exponent));
+
+        if (first) {
+            ctx.moveTo(x, y);
+            first = false;
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    
+    ctx.stroke();
+    
+    ctx.fillStyle = COLORS.blue;
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText("Moyenne", meanX, CONFIG.height - maxPixelHeight - 30);
+    
+    ctx.lineTo(CONFIG.width, CONFIG.height);
+    ctx.lineTo(0, CONFIG.height);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fill();
+}
+
+function loop() {
+    resolveBallCollisions();
+
+    const active = [];
+    for (let b of state.balls) {
+        b.update();
+        if (!b.isStatic) active.push(b);
+    }
+    state.balls = active;
+    
+    state.totalBalls = state.balls.length + state.staticBalls.length;
+    document.getElementById('ballCount').innerText = state.totalBalls;
+
+    drawStructure();
+
+    // Clous Blancs
+    ctx.fillStyle = COLORS.white;
+    for (let p of state.pegs) {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    }
+
+    for (let b of state.balls) { b.draw(); }
+    for (let b of state.staticBalls) { b.draw(); }
+
+    drawOverlay();
+    requestAnimationFrame(loop);
+}
+
+let dropInterval = null;
+
+document.getElementById('btn-drop-mult').onclick = () => {
+   if(dropInterval) clearInterval(dropInterval);
+   let count = 0;
+   dropInterval = setInterval(() => {
+       state.balls.push(new Ball());
+       count++;
+       // Modification de la limite à 10 billes
+       if(count >= 10) clearInterval(dropInterval);
+   }, 30); 
+};
+
+document.getElementById('btn-reset').onclick = () => {
+    if(dropInterval) clearInterval(dropInterval);
+    state.balls = [];
+    state.staticBalls = [];
+    // Réinitialiser les bacs (nombre fixe)
+    state.bins.fill(0);
+};
+
+const updateVals = () => {
+    document.getElementById('levelVal').innerText = state.rows;
+    document.getElementById('biasVal').innerText = state.bias.toFixed(2);
+};
+
+document.getElementById('speedRange').oninput = (e) => state.speedMultiplier = parseFloat(e.target.value);
+
+document.getElementById('levelRange').oninput = (e) => {
+    state.rows = parseInt(e.target.value);
+    updateVals();
+    state.balls = [];
+    state.staticBalls = [];
+    init(); 
+};
+
+document.getElementById('biasRange').oninput = (e) => {
+    state.bias = parseFloat(e.target.value);
+    state.hopperOffset = state.bias * 400; 
+    updateVals();
+};
+
+init();
+loop();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qualité – Gamme Structurée & Calculs</title>
+  <style>
+    :root {
+      /* Palette Principale */
+      --primary: #1a1a1a;       /* Noir/Gris profond */
+      --accent: #cfa346;        /* Or antique */
+      --accent-text: #856404;   /* Texte sur fond or clair */
+      --accent-light: #f4e8cb;  /* Fond or très pâle */
+      
+      /* Structure */
+      --bg-color: #f8f9fa;      /* Fond de page */
+      --panel-bg: #ffffff;      /* Fond des cartes */
+      --border-color: #e0e0e0;  /* Bordures subtiles */
+      --text-color: #2d3436;    /* Texte principal */
+      --muted: #636e72;         /* Texte secondaire */
+      
+      /* Feedback */
+      --success: #27ae60;
+      --success-bg: #eafaf1;
+      --danger: #c0392b;
+      --danger-bg: #fdedec;
+      --warn: #f39c12;
+      
+      /* UI Elements */
+      --radius: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.5;
+    }
+
+    /* --- Header --- */
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .wrap { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+    
+    h1 {
+      margin: 0; font-size: 1.25rem; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+    }
+    h1::before {
+      content: ''; display: block; width: 4px; height: 24px;
+      background: var(--accent); border-radius: 2px;
+    }
+
+    /* --- Navigation --- */
+    nav { display: flex; gap: 6px; margin-top: 16px; }
+    .tab {
+      background: transparent; color: #b2bec3; border: none; padding: 8px 16px;
+      font-weight: 500; font-size: 0.9rem; cursor: pointer;
+      border-bottom: 3px solid transparent; transition: all 0.2s;
+    }
+    .tab:hover { color: white; }
+    .tab[aria-selected="true"] {
+      color: var(--accent); border-bottom-color: var(--accent);
+      background: rgba(255,255,255,0.05);
+    }
+
+    /* --- Layout --- */
+    main { padding-bottom: 60px; }
+    .panel {
+      background: var(--panel-bg); border: 1px solid var(--border-color);
+      border-radius: var(--radius); padding: 24px; margin-top: 24px;
+      box-shadow: var(--shadow-sm); animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+    .row > * { flex: 1; min-width: 200px; }
+
+    /* --- Forms --- */
+    label {
+      display: block; font-size: 0.7rem; font-weight: 700; color: var(--muted);
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    input, select, textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid var(--border-color);
+      border-radius: 6px; background: #fff; color: var(--text-color);
+      font-size: 0.9rem; font-family: inherit; transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(207, 163, 70, 0.15);
+    }
+    /* Champs calculés automatiquement */
+    input.auto-calc { background-color: #fcfcfc; color: var(--primary); font-weight: bold; border-color: #eee; }
+
+    /* --- Buttons --- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+      cursor: pointer; text-decoration: none; transition: all 0.2s;
+      border: 1px solid var(--border-color); background: white; color: var(--text-color);
+    }
+    .btn:hover { background: #f1f2f6; border-color: #ced6e0; }
+    .btn.primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn.primary:hover { background: #333; transform: translateY(-1px); }
+    .btn.ok { border-color: var(--accent); color: #9e7d35; }
+    .btn.ok:hover { background: var(--accent-light); }
+    .btn.danger { border-color: var(--danger); color: var(--danger); }
+    .btn.danger:hover { background: var(--danger-bg); }
+    .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+
+    /* --- Lists & Tables --- */
+    .gamme-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; border: 1px solid var(--border-color);
+      border-radius: var(--radius); background: white; cursor: pointer; margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .gamme-item:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); transform: translateX(4px); }
+    
+    .table-scroll {
+      width: 100%; overflow-x: auto; margin-top: 5px; margin-bottom: 20px;
+      border: 1px solid var(--border-color); border-radius: var(--radius);
+    }
+    table { width: 100%; min-width: 1000px; border-collapse: separate; border-spacing: 0; }
+    thead th {
+      background: var(--accent-light); color: var(--accent-text); font-weight: 700;
+      text-transform: uppercase; font-size: 0.7rem; padding: 10px 8px;
+      text-align: left; border-bottom: 1px solid rgba(207, 163, 70, 0.3); white-space: nowrap;
+    }
+    tbody td {
+      padding: 8px; border-bottom: 1px solid var(--border-color);
+      background: white; font-size: 0.85rem; vertical-align: top;
+    }
+    td input, td select { border: 1px solid transparent; background: transparent; padding: 4px; font-size: 0.85rem; }
+    td input:hover, td select:hover { border-color: var(--border-color); background: white; }
+    td input:focus, td select:focus { border-color: var(--accent); background: white; }
+
+    /* --- Section Headers --- */
+    .section-block { margin-top: 30px; }
+    .section-header {
+      background: var(--primary); color: white; padding: 8px 12px; border-radius: 6px;
+      font-weight: 700; font-size: 0.9rem; margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .compact-header-area {
+      background: #fcfcfc; border: 1px solid var(--border-color);
+      padding: 16px; border-radius: var(--radius); margin-bottom: 24px;
+    }
+    
+    /* Config Mode Bandeau */
+    .config-bar {
+      background: #eef2f7; padding: 12px 16px; border-radius: 8px; border: 1px solid #d0d7de;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    }
+
+    /* --- Utilities --- */
+    .hidden { display: none !important; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; background: #f1f2f6;
+      padding: 6px 12px; border-radius: 99px; font-size: 0.85rem;
+    }
+    .status.ok { background: #eafaf1; color: #27ae60; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .status.ko { background: #fdedec; color: #c0392b; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+
+    @media print {
+      body { background: white; color: black; font-size: 11px; }
+      header, .no-print, nav, .btn, .help, input, select, footer { display: none !important; }
+      .panel { border: none; box-shadow: none; padding: 0; margin: 0; }
+      #reportPreview { display: block !important; border: none; }
+      .table-scroll { border: none; overflow: visible; }
+      table { width: 100%; border-collapse: collapse; font-size: 10px; }
+      th, td { border: 1px solid #000; padding: 4px; }
+      thead th { background: #ddd !important; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <header class="no-print">
+    <div class="wrap">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <a href="index.html" class="btn" style="background:rgba(255,255,255,0.1); border:none; color:white; padding:4px 10px; font-size:0.8rem; text-decoration:none;">&larr; Accueil</a>
+        <h1>Qualité — Gamme & Rapport</h1>
+      </div>
+      <nav role="tablist">
+        <button class="tab" id="tab-lib" role="tab" aria-selected="true">Bibliothèque</button>
+        <button class="tab" id="tab-report" role="tab" aria-selected="false">Rapports</button>
+        <button class="tab" id="tab-builder" role="tab" aria-selected="false">Éditeur</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- MODULE 1 : BIBLIOTHÈQUE -->
+    <section class="panel" id="view-lib">
+      <div class="row" style="align-items: center; margin-bottom: 16px;">
+        <h3 style="margin:0; color:var(--primary);">Vos Gammes de Contrôle</h3>
+        <button class="btn primary" id="btnNewGammeLib">+ Nouvelle Gamme</button>
+        <div style="flex-grow:1"></div>
+        <label class="btn" style="margin:0; font-weight:normal;">
+          Import JSON <input type="file" id="fileImportGamme" accept=".json,application/json" style="display:none;" />
+        </label>
+      </div>
+
+      <div id="gammeList"></div>
+
+      <div style="margin-top:40px; padding-top:20px; border-top:1px solid var(--border-color);">
+        <h3 style="margin:0 0 16px 0; color:var(--primary);">Historique des Rapports</h3>
+        <div class="row" style="align-items: flex-end;">
+          <div style="flex: 2;">
+            <select id="reportHistorySelect"></select>
+          </div>
+          <div>
+            <button class="btn primary" id="btnViewReport">Voir le Rapport</button>
+            <button class="btn ok" id="btnResumeReport">Modifier / Reprendre</button>
+            <button class="btn danger" id="btnDeleteReport">Supprimer</button>
+          </div>
+        </div>
+        <div id="historyPreviewArea" class="hidden" style="margin-top:20px;"></div>
+      </div>
+    </section>
+
+    <!-- MODULE 2 : RAPPORT -->
+    <section class="panel hidden" id="view-report">
+      <div class="row" style="background: var(--bg-color); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-color);">
+        <div style="flex: 2;">
+          <label>Nouveau rapport basé sur...</label>
+          <select id="reportGammeSelect"></select>
+        </div>
+        <div>
+          <button class="btn primary" id="btnUseGammeForReport">Nouveau Rapport</button>
+          <button class="btn" id="btnResetReport">Réinitialiser</button>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 30px; border-bottom: 2px solid var(--accent); display: inline-block;">En-tête Rapport</h3>
+      <div class="grid-4">
+        <div><label>Réf. Rapport</label><input id="reportNo" placeholder="Auto" /></div>
+        <div><label>Date</label><input id="reportDate" type="date" /></div>
+        <div><label>Produit</label><input id="repDesignation" readonly style="background:#f9f9f9" /></div>
+        <div><label>Référence</label><input id="repReference" readonly style="background:#f9f9f9" /></div>
+        <div><label>Lot / Série</label><input id="repLot" /></div>
+        <div><label>Quantité</label><input id="repQty" inputmode="numeric" /></div>
+        <div><label>Contrôleur</label><input id="repController" /></div>
+        <div><label>Commentaire Global</label><input id="repGeneralComment" /></div>
+      </div>
+
+      <div id="reportSectionsArea"></div>
+
+      <div class="row" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+        <button class="btn primary" id="btnSaveReport">Enregistrer</button>
+        <button class="btn" id="btnPreviewReport">Aperçu</button>
+        <button class="btn" id="btnPrint">Imprimer</button>
+        <button class="btn" id="btnExportReportCSV">CSV</button>
+      </div>
+
+      <div id="reportPreview" class="hidden"></div>
+    </section>
+
+    <!-- MODULE 3 : BUILDER (EDITEUR) -->
+    <section class="panel hidden" id="view-builder">
+      <div class="row" style="margin-bottom: 20px;">
+        <button class="btn danger" id="btnNewGamme">Tout Effacer</button>
+        <div style="flex-grow:1"></div>
+        <button class="btn ok" id="btnSaveBuiltGamme">Enregistrer la Gamme</button>
+        <button class="btn" id="btnExportBuiltGamme">Export JSON</button>
+      </div>
+
+      <!-- BANDEAU CONFIGURATION HAUT DE PAGE -->
+      <div class="config-bar">
+         <label style="margin:0; font-size:0.9rem; color:var(--primary); white-space:nowrap;">MODE DE CONTRÔLE :</label>
+         <select id="bControlType" style="max-width:300px; font-weight:bold; color:var(--primary); border:2px solid var(--accent);">
+            <option value="production">Production (Colonne Fréquence)</option>
+            <option value="reception">Réception (Colonne Échantillon)</option>
+         </select>
+         <div class="mini" style="margin-left:auto;">Définit la structure des colonnes pour cette gamme.</div>
+      </div>
+
+      <!-- EN-TETE DE GAMME -->
+      <div class="compact-header-area">
+        <div class="section-header" style="background:var(--primary);">En-tête de la Gamme</div>
+        <div class="grid-4">
+          <div><label>Titre Gamme</label><input id="bTitle" /></div>
+          <div><label>N° Gamme (ID)</label><input id="bGammeNo" /></div>
+          <div><label>Auteur</label><input id="bAuthorName" /></div>
+          <div><label>Désignation</label><input id="bDesignation" /></div>
+          <div><label>Référence</label><input id="bReference" /></div>
+          <div><label>Plan / Indice</label><input id="bPlan" /></div>
+          <div><label>Normes</label><input id="bNorms" /></div>
+        </div>
+      </div>
+
+      <!-- CORPS DE LA GAMME (4 PARTIES) -->
+      <div id="builderSectionsArea"></div>
+      
+    </section>
+  </main>
+
+<script>
+const LS_KEY = "qc_app_library_v3"; 
+const $ = (id)=>document.getElementById(id);
+
+/* --- UTILS --- */
+function nowISO(){ return new Date().toISOString(); }
+function todayISO(){
+  const d = new Date(); const pad=(n)=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function safeParseNumber(v){
+  if(v===null||v===undefined) return null;
+  const s = String(v).trim().replace(/\s/g,'').replace(',','.');
+  if(s==="") return null;
+  const n = Number(s); return Number.isFinite(n)?n:null;
+}
+function fmtNumber(n){
+  if(n===null||n===undefined) return "";
+  if(typeof n!=="number") n=safeParseNumber(n);
+  return n===null ? "" : new Intl.NumberFormat('fr-FR',{maximumFractionDigits:6}).format(n);
+}
+function escapeHtml(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function downloadText(f,t,m="application/json"){
+  const b=new Blob([t],{type:m}); const u=URL.createObjectURL(b);
+  const a=document.createElement("a"); a.href=u; a.download=f;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+
+/* --- STORAGE --- */
+function loadLibrary(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return {gammes:[], reports:[]};
+    return JSON.parse(raw);
+  }catch(e){ return {gammes:[], reports:[]}; }
+}
+function saveLibrary(l){ localStorage.setItem(LS_KEY, JSON.stringify(l)); }
+
+/* --- SEED DATA --- */
+function seedIfEmpty(){
+  const lib = loadLibrary();
+  if(lib.gammes.length > 0) return;
+  
+  // 1. Gamme Usinage (Production)
+  const g1 = {
+    meta:{ title:"Usinage Axe Moteur", author:{name:"Méthodes"}, gammeNo:"GM-USI-01", controlType:"production", object:{designation:"Axe Rotor", reference:"AX-200", plan:"A", norms:"ISO 2768"}, createdAt:nowISO() },
+    steps:[
+      { category:"dim", seqNo:10, characteristic:"Diamètre portée", nominal:25.00, tolLower:-0.01, tolUpper:0.01, lowerLimit:24.99, upperLimit:25.01, methodComment:"Micromètre", instrument:{name:"Micromètre"}, frequency:"100%", criticality:"Critique" },
+      { category:"dim", seqNo:20, characteristic:"Longueur totale", nominal:150.0, tolLower:-0.1, tolUpper:0.1, lowerLimit:149.9, upperLimit:150.1, methodComment:"Pied à coulisse", instrument:{name:"PAC"}, frequency:"1/10", criticality:"Majeur" },
+      { category:"aes", seqNo:30, characteristic:"Aspect filetage", expectedResult:"Pas de bavures", methodComment:"Visuel", instrument:{}, frequency:"100%", criticality:"Mineur" }
+    ]
+  };
+
+  // 2. Gamme Plasturgie (Réception)
+  const g2 = {
+    meta:{ title:"Réception Boitier", author:{name:"Qualité Fournisseur"}, gammeNo:"GM-REC-55", controlType:"reception", object:{designation:"Boitier Capteur", reference:"CPT-55", plan:"B", norms:"VDI 3400"}, createdAt:nowISO() },
+    steps:[
+      { category:"doc", seqNo:10, characteristic:"Certificat matière", expectedResult:"Présent", methodComment:"Check doc", instrument:{}, criticality:"Majeur" },
+      { category:"aes", seqNo:20, characteristic:"Aspect global", expectedResult:"Grainage homogène, pas de retassures", methodComment:"Etalon", instrument:{}, sampleSize:"AQL 1.0", criticality:"Majeur" },
+      { category:"func", seqNo:30, characteristic:"Clipsage", expectedResult:"Tenue > 50N", methodComment:"Dynamomètre", instrument:{name:"DYN-01"}, sampleSize:"5 pcs", criticality:"Critique" }
+    ]
+  };
+
+  // 3. Rapports Exemples (AVEC CATEGORIES EXPLICITES)
+  const r1 = {
+    meta: { reportNo: "RC-2023-10-01", date: "2023-10-25", object: g1.meta.object, lot: "L-9988", quantity: 500, controller: "Jean", generalComment: "RAS" },
+    gammeRef: g1.meta,
+    results: [
+      { seqNo:10, category:"dim", type:"measure", characteristic:"Diamètre portée", criteria:{nominal:25, min:24.99, max:25.01}, measuredValue:25.005, status:"OK" },
+      { seqNo:20, category:"dim", type:"measure", characteristic:"Longueur totale", criteria:{nominal:150, min:149.9, max:150.1}, measuredValue:150.05, status:"OK" },
+      { seqNo:30, category:"aes", type:"visual", characteristic:"Aspect filetage", criteria:{expectedResult:"Pas de bavures"}, measuredValue:null, status:"OK" }
+    ],
+    summary: {conclusion: "ACCEPTÉ"}
+  };
+
+  const r2 = {
+    meta: { reportNo: "RC-2023-11-12", date: "2023-11-12", object: g2.meta.object, lot: "L-PLAST-02", quantity: 2000, controller: "Sophie", generalComment: "Défaut aspect sur 2 pièces" },
+    gammeRef: g2.meta,
+    results: [
+      { seqNo:10, category:"doc", type:"visual", characteristic:"Certificat", criteria:{expectedResult:"Présent"}, status:"OK" },
+      { seqNo:20, category:"aes", type:"visual", characteristic:"Aspect global", criteria:{expectedResult:"Grainage..."}, status:"KO", comment:"Retassures zone A" },
+      { seqNo:30, category:"func", type:"functional", characteristic:"Clipsage", criteria:{expectedResult:"Tenue > 50N"}, status:"OK" }
+    ],
+    summary: {conclusion: "REFUSÉ"}
+  };
+
+  lib.gammes.push(g1, g2);
+  lib.reports.push(r1, r2);
+  saveLibrary(lib);
+}
+
+/* --- STATE --- */
+let reportGamme = null; 
+let reportResults = {}; 
+let builderSteps = []; 
+
+/* --- TABS --- */
+const tabs = [
+  {tab:$("tab-lib"), view:$("view-lib")},
+  {tab:$("tab-report"), view:$("view-report")},
+  {tab:$("tab-builder"), view:$("view-builder")},
+];
+function switchTab(targetId){
+  tabs.forEach(t => {
+    const active = (t.tab.id === targetId);
+    t.tab.setAttribute("aria-selected", String(active));
+    t.view.classList.toggle("hidden", !active);
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+tabs.forEach(t => t.tab.addEventListener("click", ()=>switchTab(t.tab.id)));
+
+/* =========================
+   MODULE 1: LIB & LISTING
+   ========================= */
+function refreshLibList(){
+  const lib = loadLibrary();
+  const listEl = $("gammeList");
+  listEl.innerHTML = "";
+  if(lib.gammes.length===0){ listEl.innerHTML="<div class='mini' style='text-align:center'>Vide</div>"; return; }
+
+  lib.gammes.forEach((g, idx) => {
+    const el = document.createElement("div");
+    el.className = "gamme-item";
+    const mode = g.meta.controlType==="reception" ? "Réception" : "Production";
+    el.innerHTML = `
+      <div class="info">
+        <strong>${escapeHtml(g.meta.gammeNo)} — ${escapeHtml(g.meta.title)}</strong>
+        <span>${escapeHtml(g.meta.object.designation)} • <span style="color:var(--accent-text); font-weight:bold;">${mode}</span></span>
+      </div>
+      <button class="btn danger btn-sm" onclick="event.stopPropagation(); deleteGamme(${idx})">X</button>
+    `;
+    el.addEventListener("click", () => loadGammeToBuilder(idx));
+    listEl.appendChild(el);
+  });
+  refreshReportGammeSelect();
+}
+
+function deleteGamme(idx){
+  if(confirm("Supprimer ?")){
+    const lib=loadLibrary(); lib.gammes.splice(idx,1); saveLibrary(lib); refreshLibList();
+  }
+}
+
+function loadGammeToBuilder(idx){
+  const lib = loadLibrary();
+  const g = lib.gammes[idx];
+  if(!g) return;
+  $("bTitle").value = g.meta.title||"";
+  $("bGammeNo").value = g.meta.gammeNo||"";
+  $("bAuthorName").value = g.meta.author?.name||"";
+  $("bControlType").value = g.meta.controlType || "production";
+  $("bDesignation").value = g.meta.object?.designation||"";
+  $("bReference").value = g.meta.object?.reference||"";
+  $("bPlan").value = g.meta.object?.plan||"";
+  $("bNorms").value = g.meta.object?.norms||"";
+  
+  builderSteps = JSON.parse(JSON.stringify(g.steps||[])).map(s => ({...s, category: s.category || "dim"}));
+  renderBuilderSections();
+  switchTab("tab-builder");
+}
+
+$("btnNewGammeLib").addEventListener("click", ()=>{
+  $("bTitle").value=""; $("bGammeNo").value=""; $("bAuthorName").value=""; 
+  $("bDesignation").value=""; $("bReference").value=""; $("bPlan").value=""; $("bNorms").value="";
+  builderSteps = [];
+  renderBuilderSections();
+  switchTab("tab-builder");
+});
+
+$("btnNewGamme").addEventListener("click", ()=>{
+   if(confirm("Tout effacer ?")){ builderSteps=[]; renderBuilderSections(); }
+});
+
+$("fileImportGamme").addEventListener("change", async (e)=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  try{
+    const t=await f.text(); const g=JSON.parse(t);
+    const lib=loadLibrary(); lib.gammes.push(g); saveLibrary(lib); refreshLibList();
+  }catch(e){alert("Erreur JSON");}
+});
+
+/* =========================
+   MODULE 3: BUILDER (4 SECTIONS)
+   ========================= */
+const CATEGORIES = [
+  { id: "doc", label: "1. Contrôle Documentaire", cols: ["seq","crit","char","exp","meth","ok"] },
+  { id: "aes", label: "2. Contrôle Esthétique", cols: ["seq","crit","char","exp","meth","freq","ok"] },
+  { id: "func", label: "3. Contrôle Fonctionnel", cols: ["seq","crit","char","exp","meth","inst","freq","ok"] },
+  { id: "dim", label: "4. Contrôle Dimensionnel", cols: ["seq","crit","char","nom","tol","lim","meth","inst","freq","ok"] }
+];
+
+function renderBuilderSections(){
+  const area = $("builderSectionsArea");
+  area.innerHTML = "";
+  const controlType = $("bControlType").value;
+  const freqLabel = controlType === "reception" ? "Taille Échantillon" : "Fréquence";
+
+  CATEGORIES.forEach(cat => {
+    const stepsInCat = builderSteps.map((s, i) => ({...s, globalIdx: i})).filter(s => s.category === cat.id);
+    
+    const wrapper = document.createElement("div");
+    wrapper.className = "section-block";
+    
+    wrapper.innerHTML = `
+      <div class="section-header">
+        <span>${cat.label}</span>
+        <button class="btn btn-sm" onclick="addStep('${cat.id}')" style="color:#000">+ Ajouter</button>
+      </div>
+    `;
+
+    if(stepsInCat.length === 0){
+      wrapper.innerHTML += `<div class="mini" style="padding:10px; border:1px dashed #ccc;">Aucune séquence.</div>`;
+    } else {
+      let thead = `<th>Seq</th><th>Crit</th><th>Caractéristique</th>`;
+      if(cat.id === "dim") {
+        thead += `<th>Nominale</th><th>Tol (-/+)</th><th>Lim (Inf/Sup)</th>`;
+      } else {
+        thead += `<th>Résultat Attendu</th>`;
+      }
+      thead += `<th>Méthode</th>`;
+      if(cat.id !== "doc" && cat.id !== "aes") thead += `<th>Moyen</th>`;
+      if(cat.id !== "doc") thead += `<th>${freqLabel}</th>`;
+      thead += `<th></th>`;
+
+      const rows = stepsInCat.map(s => {
+        const i = s.globalIdx;
+        let cells = `<td><input data-idx="${i}" class="b-seq" value="${s.seqNo||""}" style="width:40px"></td>
+                     <td><input data-idx="${i}" class="b-crit" value="${s.criticality||""}" placeholder="Min/Maj"></td>
+                     <td><input data-idx="${i}" class="b-char" value="${s.characteristic||""}"></td>`;
+        
+        if(cat.id === "dim") {
+          cells += `
+            <td><input data-idx="${i}" class="b-nom" value="${s.nominal||""}" style="width:60px" onchange="autoCalc(${i})"></td>
+            <td>
+              <input data-idx="${i}" class="b-tl" value="${s.tolLower||""}" style="width:50px; margin-bottom:2px" placeholder="-" onchange="autoCalc(${i})"><br>
+              <input data-idx="${i}" class="b-tu" value="${s.tolUpper||""}" style="width:50px" placeholder="+" onchange="autoCalc(${i})">
+            </td>
+            <td>
+              <input data-idx="${i}" class="b-min auto-calc" value="${s.lowerLimit||""}" style="width:50px; margin-bottom:2px" readonly><br>
+              <input data-idx="${i}" class="b-max auto-calc" value="${s.upperLimit||""}" style="width:50px" readonly>
+            </td>
+          `;
+        } else {
+          cells += `<td><input data-idx="${i}" class="b-exp" value="${s.expectedResult||""}"></td>`;
+        }
+
+        cells += `<td><input data-idx="${i}" class="b-meth" value="${s.methodComment||""}"></td>`;
+
+        if(cat.id !== "doc" && cat.id !== "aes") {
+           cells += `<td><input data-idx="${i}" class="b-inst" value="${s.instrument?.name||""}" placeholder="Nom"><br>
+                     <input data-idx="${i}" class="b-inst-id" value="${s.instrument?.id||""}" placeholder="ID" class="mini"></td>`;
+        }
+
+        if(cat.id !== "doc") {
+           // Si mode reception, on bind sampleSize, sinon frequency
+           const val = controlType === "reception" ? (s.sampleSize||"") : (s.frequency||"");
+           cells += `<td><input data-idx="${i}" class="b-freq" value="${val}"></td>`;
+        }
+
+        cells += `<td><button class="btn danger btn-sm" onclick="delStep(${i})">X</button></td>`;
+        return `<tr>${cells}</tr>`;
+      }).join("");
+
+      wrapper.innerHTML += `<div class="table-scroll"><table><thead><tr>${thead}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    }
+    area.appendChild(wrapper);
+  });
+  
+  // Rebind
+  area.querySelectorAll("input").forEach(el => {
+    el.addEventListener("input", e => {
+      const i = e.target.dataset.idx; const f = e.target.className; const v = e.target.value;
+      if(!builderSteps[i]) return;
+      if(f.includes("b-seq")) builderSteps[i].seqNo = v;
+      if(f.includes("b-crit")) builderSteps[i].criticality = v;
+      if(f.includes("b-char")) builderSteps[i].characteristic = v;
+      if(f.includes("b-nom")) builderSteps[i].nominal = v;
+      if(f.includes("b-tl")) builderSteps[i].tolLower = v;
+      if(f.includes("b-tu")) builderSteps[i].tolUpper = v;
+      if(f.includes("b-exp")) builderSteps[i].expectedResult = v;
+      if(f.includes("b-meth")) builderSteps[i].methodComment = v;
+      if(f.includes("b-inst")) { builderSteps[i].instrument = builderSteps[i].instrument||{}; builderSteps[i].instrument.name = v; }
+      if(f.includes("b-inst-id")) { builderSteps[i].instrument = builderSteps[i].instrument||{}; builderSteps[i].instrument.id = v; }
+      if(f.includes("b-freq")) {
+         if(controlType === "reception") builderSteps[i].sampleSize = v;
+         else builderSteps[i].frequency = v;
+      }
+    });
+  });
+}
+
+window.autoCalc = (i) => {
+  const s = builderSteps[i];
+  const n = safeParseNumber(s.nominal);
+  const tl = safeParseNumber(s.tolLower);
+  const tu = safeParseNumber(s.tolUpper);
+  if(n !== null && tl !== null) s.lowerLimit = Number((n + tl).toFixed(3));
+  if(n !== null && tu !== null) s.upperLimit = Number((n + tu).toFixed(3));
+  renderBuilderSections();
+}
+
+window.addStep = (cat) => {
+  const stepsInCat = builderSteps.filter(s => s.category === cat);
+  const lastSeq = stepsInCat.length ? Math.max(...stepsInCat.map(s => parseInt(s.seqNo)||0)) : 0;
+  builderSteps.push({ 
+    category: cat, seqNo: lastSeq + 10, 
+    type: cat === "dim" ? "measure" : (cat === "aes" || cat === "doc" ? "visual" : "functional"), 
+    characteristic: "", instrument: {} 
+  });
+  renderBuilderSections();
+}
+window.delStep = (i) => { builderSteps.splice(i,1); renderBuilderSections(); };
+
+$("bControlType").addEventListener("change", renderBuilderSections);
+
+$("btnSaveBuiltGamme").addEventListener("click", ()=>{
+  const g = {
+    meta: {
+      title: $("bTitle").value, gammeNo: $("bGammeNo").value, controlType: $("bControlType").value,
+      author: { name: $("bAuthorName").value },
+      object: { designation: $("bDesignation").value, reference: $("bReference").value, plan: $("bPlan").value, norms: $("bNorms").value },
+      createdAt: nowISO()
+    },
+    steps: builderSteps.map(s => ({...s, nominal: safeParseNumber(s.nominal), tolLower: safeParseNumber(s.tolLower), tolUpper: safeParseNumber(s.tolUpper)}))
+  };
+  if(!g.meta.gammeNo) { alert("Numéro requis"); return; }
+  const lib = loadLibrary();
+  const idx = lib.gammes.findIndex(x => x.meta.gammeNo === g.meta.gammeNo);
+  if(idx >= 0) { if(!confirm("Écraser ?")) return; lib.gammes[idx] = g; } 
+  else { lib.gammes.push(g); }
+  saveLibrary(lib); refreshLibList(); alert("Sauvegardé");
+});
+
+/* =========================
+   MODULE 2: REPORT RENDERING
+   ========================= */
+function refreshReportGammeSelect(){
+  const lib = loadLibrary(); const sel = $("reportGammeSelect"); sel.innerHTML="";
+  if(!lib.gammes.length) return;
+  lib.gammes.forEach((g,i) => {
+    const opt = document.createElement("option"); opt.value = i;
+    opt.textContent = `${g.meta.gammeNo} - ${g.meta.title}`; sel.appendChild(opt);
+  });
+}
+function refreshHistorySelect(){
+  const lib = loadLibrary(); const sel=$("reportHistorySelect"); sel.innerHTML="";
+  lib.reports.forEach((r,i)=>{
+    const opt=document.createElement("option"); opt.value=i; opt.textContent=`${r.meta.reportNo} (${r.meta.date})`; sel.appendChild(opt);
+  });
+}
+
+// View Mode (History) vs Edit Mode (New)
+function loadReportToView(rep) {
+  reportGamme = { meta: rep.gammeRef, steps: rep.results.map(r=>({
+    ...r, category: r.category || (r.type==="measure"?"dim":"visual") // fallback
+  })) }; 
+  reportResults = {};
+  rep.results.forEach((r, i) => {
+    reportResults[i] = { measuredValue: r.measuredValue, status: r.status, comment: r.comment };
+  });
+  
+  // Fill Header
+  $("reportNo").value = rep.meta.reportNo;
+  $("reportDate").value = rep.meta.date;
+  $("repDesignation").value = rep.meta.object.designation;
+  $("repReference").value = rep.meta.object.reference;
+  $("repLot").value = rep.meta.lot;
+  $("repQty").value = rep.meta.quantity;
+  $("repController").value = rep.meta.controller;
+  $("repGeneralComment").value = rep.meta.generalComment;
+
+  renderReportSections();
+  switchTab("tab-report");
+}
+
+$("btnViewReport").addEventListener("click", ()=>{
+  const idx = $("reportHistorySelect").value; if(idx==="") return;
+  const lib = loadLibrary();
+  loadReportToView(lib.reports[idx]);
+  // Disable inputs for view mode could be added here, but leaving editable for "Correction"
+  alert("Rapport chargé. Vous pouvez le modifier ou l'imprimer.");
+});
+
+$("btnResumeReport").addEventListener("click", ()=>{
+  $("btnViewReport").click(); 
+});
+
+$("btnUseGammeForReport").addEventListener("click", ()=>{
+  const idx = $("reportGammeSelect").value; if(idx==="") return;
+  const lib = loadLibrary();
+  reportGamme = lib.gammes[idx];
+  reportResults = {};
+  
+  $("repDesignation").value = reportGamme.meta.object.designation;
+  $("repReference").value = reportGamme.meta.object.reference;
+  if(!$("reportDate").value) $("reportDate").value = todayISO();
+  $("reportNo").value = `RC-${Date.now().toString().slice(-6)}`;
+  
+  renderReportSections();
+});
+
+function renderReportSections(){
+  const area = $("reportSectionsArea"); area.innerHTML = "";
+  if(!reportGamme) return;
+
+  const controlType = reportGamme.meta.controlType || "production";
+  const freqLabel = controlType === "reception" ? "Taille Échantillon" : "Fréquence";
+
+  let ok=0, ko=0, na=0;
+
+  CATEGORIES.forEach(cat => {
+    const stepsInCat = (reportGamme.steps||[]).map((s,i)=>({...s, globalIdx:i})).filter(s => (s.category||"dim") === cat.id);
+    if(stepsInCat.length === 0) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "section-block";
+    wrapper.innerHTML = `<div class="section-header"><span>${cat.label}</span></div>`;
+
+    let thead = `<th>Seq</th><th>Caractéristique</th><th>Critères</th>`;
+    if(cat.id !== "doc") thead += `<th>${freqLabel}</th>`;
+    thead += `<th>Résultat</th><th>Statut</th><th>Obs</th>`;
+
+    const rows = stepsInCat.map(s => {
+      const i = s.globalIdx;
+      const res = reportResults[i] || {};
+      
+      let st = "NA";
+      if(s.category === "dim"){
+        const v = safeParseNumber(res.measuredValue);
+        // Utiliser les limites stockées dans le step (si report rechargé) ou calculer
+        const min = s.lowerLimit !== undefined ? s.lowerLimit : (s.criteria?.min);
+        const max = s.upperLimit !== undefined ? s.upperLimit : (s.criteria?.max);
+        
+        if(v!==null && min!==null && max!==null) st = (v >= min && v <= max) ? "OK" : "KO";
+      } else {
+        st = (res.status === "OK" || res.status === "KO") ? res.status : "NA";
+      }
+      if(st==="OK") ok++; else if(st==="KO") ko++; else na++;
+
+      let crit = "";
+      if(s.category === "dim") {
+         const n = s.nominal ?? s.criteria?.nominal;
+         const min = s.lowerLimit ?? s.criteria?.min;
+         const max = s.upperLimit ?? s.criteria?.max;
+         crit = `${fmtNumber(n)} [${min}; ${max}]`;
+      } else {
+         crit = s.expectedResult ?? s.criteria?.expectedResult;
+      }
+
+      let inputHtml = "";
+      if(s.category === "dim"){
+        inputHtml = `<input data-idx="${i}" class="rep-val" value="${res.measuredValue||""}" style="width:80px; text-align:right">`;
+      } else {
+        inputHtml = `<select data-idx="${i}" class="rep-st">
+           <option value="NA" ${!res.status?"selected":""}>-</option>
+           <option value="OK" ${res.status==="OK"?"selected":""}>OK</option>
+           <option value="KO" ${res.status==="KO"?"selected":""}>KO</option>
+         </select>`;
+      }
+
+      const valFreq = controlType==="reception" ? (s.sampleSize) : (s.frequency);
+
+      return `<tr>
+        <td><b>${s.seqNo}</b></td>
+        <td>${s.characteristic}</td>
+        <td class="mini">${crit}</td>
+        ${cat.id!=="doc" ? `<td>${valFreq||""}</td>` : ""}
+        <td>${inputHtml}</td>
+        <td style="text-align:center"><span class="status ${st.toLowerCase()}">${st}</span></td>
+        <td><input data-idx="${i}" class="rep-com" value="${res.comment||""}"></td>
+      </tr>`;
+    }).join("");
+
+    wrapper.innerHTML += `<div class="table-scroll"><table><thead><tr>${thead}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    area.appendChild(wrapper);
+  });
+
+  // KPI update (on pourrait afficher ça dans des cards)
+}
+
+// Event bindings for report (delegation)
+$("reportSectionsArea").addEventListener("input", (e)=>{
+  if(e.target.classList.contains("rep-val")){
+    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
+    reportResults[i].measuredValue = e.target.value; renderReportSections();
+  }
+  if(e.target.classList.contains("rep-com")){
+    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
+    reportResults[i].comment = e.target.value; 
+  }
+});
+$("reportSectionsArea").addEventListener("change", (e)=>{
+  if(e.target.classList.contains("rep-st")){
+    const i = e.target.dataset.idx; reportResults[i] = reportResults[i]||{}; 
+    reportResults[i].status = e.target.value; renderReportSections();
+  }
+});
+
+$("btnSaveReport").addEventListener("click", ()=>{
+  const lib=loadLibrary();
+  // Map results to explicit structure
+  const results = (reportGamme.steps||[]).map((s,i) => {
+     const r = reportResults[i]||{};
+     return {
+       seqNo: s.seqNo, category: s.category, type: s.type, characteristic: s.characteristic,
+       criteria: { nominal:s.nominal, min:s.lowerLimit, max:s.upperLimit, expectedResult:s.expectedResult },
+       measuredValue: r.measuredValue, status: r.status || "NA", comment: r.comment
+     };
+  });
+
+  const rep = {
+    meta: { 
+      reportNo: $("reportNo").value, date: $("reportDate").value, 
+      object: reportGamme.meta.object, 
+      lot: $("repLot").value, quantity: $("repQty").value, controller: $("repController").value, generalComment: $("repGeneralComment").value 
+    },
+    gammeRef: reportGamme.meta,
+    results: results
+  };
+  
+  // Update or push
+  const existingIdx = lib.reports.findIndex(x=>x.meta.reportNo === rep.meta.reportNo);
+  if(existingIdx>=0 && confirm("Mettre à jour ?")) lib.reports[existingIdx] = rep;
+  else lib.reports.push(rep);
+  
+  saveLibrary(lib); refreshHistorySelect(); alert("Sauvegardé");
+});
+
+function renderReportPreview(rep){
+  const rows = rep.results.map(r => `<tr>
+    <td>${r.seqNo}</td><td>${r.characteristic}</td>
+    <td>${r.measuredValue || "-"}</td>
+    <td><strong>${r.status}</strong></td>
+    <td>${r.comment||""}</td>
+  </tr>`).join("");
+  return `
+    <div style="border-bottom:2px solid var(--primary); padding-bottom:10px; margin-bottom:20px; display:flex; justify-content:space-between">
+      <div><h2>Rapport ${rep.meta.reportNo}</h2></div>
+      <div style="text-align:right">Date: ${rep.meta.date}<br>Ctrl: ${rep.meta.controller}</div>
+    </div>
+    <div style="background:#f9f9f9; padding:15px; margin-bottom:20px">
+      <strong>${rep.meta.object.designation}</strong> (${rep.meta.object.reference}) - Lot: ${rep.meta.lot}
+    </div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+      <thead style="background:#eee"><tr><th>Seq</th><th>Quoi</th><th>Mesure</th><th>Statut</th><th>Obs</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+$("btnPreviewReport").addEventListener("click", ()=>{
+  // Quick preview logic re-using object build could go here
+  $("reportPreview").innerHTML = "<div class='mini'>Sauvegardez d'abord pour voir l'aperçu complet.</div>";
+  $("reportPreview").classList.remove("hidden");
+});
+
+/* Init */
+seedIfEmpty();
+refreshLibList();
+refreshHistorySelect();
+</script>
+</body>
+</html>
