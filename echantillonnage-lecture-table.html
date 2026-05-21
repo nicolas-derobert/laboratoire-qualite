@@ -314,9 +314,15 @@
 
         <nav class="flex border-b border-slate-200 mb-8 bg-white rounded-t-xl shadow-sm overflow-hidden flex-wrap md:flex-nowrap max-w-7xl mx-auto">
 
-            <button onclick="switchTab('course')" id="btn-tab-course" class="flex-1 py-4 text-center transition-all tab-active uppercase tracking-widest text-xs font-bold" data-i18n="tab_course">
+            <button onclick="switchTab('pdf')" id="btn-tab-pdf" class="flex-1 py-4 text-center transition-all tab-active uppercase tracking-widest text-xs font-bold" data-i18n="tab_pdf">
 
                 Cours PDF
+
+            </button>
+
+            <button onclick="switchTab('course')" id="btn-tab-course" class="flex-1 py-4 text-center transition-all text-slate-500 hover:bg-slate-50 uppercase tracking-widest text-xs font-bold" data-i18n="tab_course">
+
+                Extrait ISO 2859-1
 
             </button>
 
@@ -744,17 +750,17 @@
 
 
 
-            <!-- TAB 3: COURSE PDF -->
+            <!-- TAB PDF: COURS PDF -->
 
-            <section id="tab-course" class="h-[75vh] max-w-7xl mx-auto">
+            <section id="tab-pdf" class="h-[75vh] max-w-7xl mx-auto">
 
                 <div class="card p-6 h-full flex flex-col">
 
                     <div class="flex justify-between items-center mb-4">
 
-                        <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="course_title">Documents de Référence</h2>
+                        <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="pdf_title">Cours – Support PDF</h2>
 
-                        <a id="btn-open-pdf" href="cours.pdf" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-navy font-bold rounded-lg hover:bg-slate-200 transition-colors text-xs uppercase shadow-sm">
+                        <a href="cours.pdf" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-slate-100 text-navy font-bold rounded-lg hover:bg-slate-200 transition-colors text-xs uppercase shadow-sm">
 
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
 
@@ -764,17 +770,55 @@
 
                     </div>
 
-                    
+                    <iframe src="cours.pdf" class="w-full flex-1 rounded-xl border border-slate-200" title="Cours PDF"></iframe>
 
-                    <div class="flex gap-4 mb-4 border-b border-slate-200">
+                </div>
 
-                        <button onclick="switchSubTab('course')" id="btn-subtab-course" class="pb-2 text-sm transition-all subtab-active" data-i18n="subtab_course">Support de Cours</button>
+            </section>
+
+
+
+            <!-- TAB 3: ISO 2859-1 EXTRACT (Tables retranscrites) -->
+
+            <section id="tab-course" class="hidden max-w-7xl mx-auto">
+
+                <div class="card p-6">
+
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+
+                        <div class="flex items-center gap-3">
+
+                            <svg class="w-7 h-7 text-[#B18B47]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+
+                            <h2 class="text-2xl font-black text-navy uppercase italic" data-i18n="course_title">Tables Normatives ISO 2859-1</h2>
+
+                        </div>
+
+                        <select id="library-selector-tab" class="w-full md:w-auto min-w-[320px] px-4 py-3 border border-slate-300 rounded-xl font-bold text-navy focus:ring-2 focus:ring-[#B18B47] outline-none bg-white shadow-sm" onchange="renderLibraryTable('library-selector-tab', 'library-container-tab')">
+
+                            <optgroup label="Généralités">
+
+                                <option value="1">Tableau 1 - Lettres-codes d'effectif</option>
+
+                            </optgroup>
+
+                            <optgroup label="Échantillonnage Simple">
+
+                                <option value="2A">Tableau 2-A - Contrôle Normal</option>
+
+                                <option value="2B">Tableau 2-B - Contrôle Renforcé</option>
+
+                                <option value="2C">Tableau 2-C - Contrôle Réduit</option>
+
+                            </optgroup>
+
+                        </select>
 
                     </div>
 
+                    <p class="text-sm text-slate-500 mb-4 italic" data-i18n="course_subtitle">Tables retranscrites depuis la norme ISO 2859-1 pour consultation directe et pédagogique.</p>
 
-
-                    <iframe id="iframe-course" src="cours.pdf" class="w-full flex-1 rounded-xl border border-slate-200" title="Cours PDF"></iframe>
+                    <div id="library-container-tab" class="overflow-x-auto border border-slate-200 rounded-xl shadow-md bg-white pb-4"></div>
 
                 </div>
 
@@ -878,9 +922,15 @@
 
                 tab_quiz: "Mode Entraînement",
 
-                tab_course: "Cours PDF",
+                tab_pdf: "Cours PDF",
 
-                course_title: "Documents de Référence",
+                pdf_title: "Cours – Support PDF",
+
+                tab_course: "Extrait ISO 2859-1",
+
+                course_title: "Tables Normatives ISO 2859-1",
+
+                course_subtitle: "Tables retranscrites depuis la norme ISO 2859-1 pour consultation directe et pédagogique.",
 
                 subtab_course: "Support de Cours",
 
@@ -967,9 +1017,15 @@
 
                 tab_quiz: "Training Mode",
 
-                tab_course: "PDF Course",
+                tab_pdf: "PDF Course",
 
-                course_title: "Reference Documents",
+                pdf_title: "Course – PDF Material",
+
+                tab_course: "ISO 2859-1 Extract",
+
+                course_title: "ISO 2859-1 Reference Tables",
+
+                course_subtitle: "Tables transcribed from the ISO 2859-1 standard for direct, pedagogical consultation.",
 
                 subtab_course: "Course Material",
 
@@ -1082,6 +1138,8 @@
 
             if(!document.getElementById('library-modal').classList.contains('hidden')) renderLibraryTable();
 
+            if(!document.getElementById('tab-course').classList.contains('hidden')) renderLibraryTable('library-selector-tab', 'library-container-tab');
+
             if(!document.getElementById('visu-section').classList.contains('hidden') && visuSteps.length > 0) {
 
                 initVisualizer(true);
@@ -1139,108 +1197,74 @@
         const N_SINGLE_REDUCED = {'A':2,'B':2,'C':2,'D':3,'E':5,'F':8,'G':13,'H':20,'J':32,'K':50,'L':80,'M':125,'N':200,'P':315,'Q':500,'R':800};
         const AQL_VALUES = ['0.065','0.10','0.15','0.25','0.40','0.65','1.0','1.5','2.5','4.0','6.5','10'];
 
-        // Tables 2-A, 2-B et 2-C : points d'ancrage Ac/Re relevés dans l'extrait ISO 2859-1 fourni.
-        // Les flèches sont générées à partir de ces points d'ancrage : au-dessus du premier plan disponible = ↓ ;
-        // au-dessous du dernier plan disponible = ↑ ; entre deux plans disponibles = plan le plus proche, conformément à la lecture des flèches ISO.
-        const PLAN_ANCHORS_NORMAL = {
-            '0.065': [['L',0,1], ['P',1,2], ['Q',2,3], ['R',3,4]],
-            '0.10':  [['K',0,1], ['N',1,2], ['P',2,3], ['Q',3,4], ['R',5,6]],
-            '0.15':  [['J',0,1], ['M',1,2], ['N',2,3], ['P',3,4], ['Q',5,6], ['R',7,8]],
-            '0.25':  [['H',0,1], ['L',1,2], ['M',2,3], ['N',3,4], ['P',5,6], ['Q',7,8], ['R',10,11]],
-            '0.40':  [['G',0,1], ['K',1,2], ['L',2,3], ['M',3,4], ['N',5,6], ['P',7,8], ['Q',10,11], ['R',14,15]],
-            '0.65':  [['F',0,1], ['J',1,2], ['K',2,3], ['L',3,4], ['M',5,6], ['N',7,8], ['P',10,11], ['Q',14,15], ['R',21,22]],
-            '1.0':   [['E',0,1], ['H',1,2], ['J',2,3], ['K',3,4], ['L',5,6], ['M',7,8], ['N',10,11], ['P',14,15], ['Q',21,22]],
-            '1.5':   [['D',0,1], ['G',1,2], ['H',2,3], ['J',3,4], ['K',5,6], ['L',7,8], ['M',10,11], ['N',14,15], ['P',21,22]],
-            '2.5':   [['C',0,1], ['F',1,2], ['G',2,3], ['H',3,4], ['J',5,6], ['K',7,8], ['L',10,11], ['M',14,15], ['N',21,22]],
-            '4.0':   [['B',0,1], ['E',1,2], ['F',2,3], ['G',3,4], ['H',5,6], ['J',7,8], ['K',10,11], ['L',14,15], ['M',21,22]],
-            '6.5':   [['A',0,1], ['D',1,2], ['E',2,3], ['F',3,4], ['G',5,6], ['H',7,8], ['J',10,11], ['K',14,15], ['L',21,22]],
-            '10':    [['C',1,2], ['D',2,3], ['E',3,4], ['F',5,6], ['G',7,8], ['H',10,11], ['J',14,15], ['K',21,22]]
+        // Tables 2-A, 2-B et 2-C : reconstruction EXACTE selon la norme ISO 2859-1:1999.
+        //
+        // Principe : chaque ligne (lettre-code) contient une cellule pivot "0 1" placée à un AQL donné.
+        // À partir de cette cellule pivot, la séquence des valeurs Ac/Re est strictement définie par la norme.
+        // Avant la cellule pivot (AQL plus faibles) : flèches ↓ "Utiliser le plan figurant sous la flèche".
+        // Après la cellule pivot : séquence spécifique de flèches puis de valeurs numériques, puis flèches ↑.
+        //
+        // Différence clé : la table 2-C (Réduit) contient DEUX flèches ↓ après le pivot (au lieu d'une en 2-A/2-B),
+        // ce qui décale la séquence des valeurs numériques d'un cran vers la droite. La table 2-B (Renforcé) a
+        // sa diagonale de pivots décalée d'un AQL vers la droite par rapport à 2-A.
+
+        // Position (index dans AQL_VALUES) du pivot "0 1" pour chaque lettre, selon la table.
+        // Une valeur négative signifie que le pivot est situé en-dehors de la zone affichée (AQL < 0,065).
+        const AQL_INDEX_01_NORMAL = {
+            A:10, B:9, C:8, D:7, E:6, F:5, G:4, H:3, J:2, K:1, L:0,
+            M:-1, N:-2, P:-3, Q:-4, R:-5
+        };
+        const AQL_INDEX_01_TIGHTENED = {
+            A:11, B:10, C:9, D:8, E:7, F:6, G:5, H:4, J:3, K:2, L:1, M:0,
+            N:-1, P:-2, Q:-3, R:-4
+        };
+        const AQL_INDEX_01_REDUCED = {
+            A:10, B:9, C:8, D:7, E:6, F:5, G:4, H:3, J:2, K:1, L:0,
+            M:-1, N:-2, P:-3, Q:-4, R:-5
         };
 
-        const PLAN_ANCHORS_TIGHTENED = {
-            '0.065': [['M',0,1], ['Q',1,2], ['R',2,3]],
-            '0.10':  [['L',0,1], ['P',1,2], ['Q',2,3], ['R',3,4]],
-            '0.15':  [['K',0,1], ['N',1,2], ['P',2,3], ['Q',3,4], ['R',5,6]],
-            '0.25':  [['J',0,1], ['M',1,2], ['N',2,3], ['P',3,4], ['Q',5,6], ['R',8,9]],
-            '0.40':  [['H',0,1], ['L',1,2], ['M',2,3], ['N',3,4], ['P',5,6], ['Q',8,9], ['R',12,13]],
-            '0.65':  [['G',0,1], ['K',1,2], ['L',2,3], ['M',3,4], ['N',5,6], ['P',8,9], ['Q',12,13], ['R',18,19]],
-            '1.0':   [['F',0,1], ['J',1,2], ['K',2,3], ['L',3,4], ['M',5,6], ['N',8,9], ['P',12,13], ['Q',18,19]],
-            '1.5':   [['E',0,1], ['H',1,2], ['J',2,3], ['K',3,4], ['L',5,6], ['M',8,9], ['N',12,13], ['P',18,19]],
-            '2.5':   [['D',0,1], ['G',1,2], ['H',2,3], ['J',3,4], ['K',5,6], ['L',8,9], ['M',12,13], ['N',18,19]],
-            '4.0':   [['C',0,1], ['F',1,2], ['G',2,3], ['H',3,4], ['J',5,6], ['K',8,9], ['L',12,13], ['M',18,19]],
-            '6.5':   [['B',0,1], ['E',1,2], ['F',2,3], ['G',3,4], ['H',5,6], ['J',8,9], ['K',12,13], ['L',18,19]],
-            '10':    [['A',0,1], ['D',1,2], ['E',2,3], ['F',3,4], ['G',5,6], ['H',8,9], ['J',12,13], ['K',18,19]]
-        };
+        // Séquence officielle à partir du pivot "0 1" (position 0).
+        // Chaque entrée est soit [Ac, Re] (valeur numérique), soit 'U' (flèche ↑), soit 'D' (flèche ↓).
+        const SEQUENCE_NORMAL = [
+            [0,1], 'U', 'D',
+            [1,2], [2,3], [3,4], [5,6], [7,8], [10,11], [14,15], [21,22],
+            [30,31], [44,45]
+        ];
+        const SEQUENCE_TIGHTENED = [
+            [0,1], 'U', 'D',
+            [1,2], [2,3], [3,4], [5,6], [8,9], [12,13], [18,19],
+            [27,28], [41,42]
+        ];
+        const SEQUENCE_REDUCED = [
+            [0,1], 'U', 'D', 'D',
+            [1,2], [2,3], [3,4], [5,6], [6,7], [8,9], [10,11]
+        ];
 
-        const PLAN_ANCHORS_REDUCED = {
-            '0.065': [['L',0,1], ['Q',1,2], ['R',2,3]],
-            '0.10':  [['K',0,1], ['P',1,2], ['Q',2,3], ['R',3,4]],
-            '0.15':  [['J',0,1], ['N',1,2], ['P',2,3], ['Q',3,4], ['R',5,6]],
-            '0.25':  [['H',0,1], ['M',1,2], ['N',2,3], ['P',3,4], ['Q',5,6], ['R',6,7]],
-            '0.40':  [['G',0,1], ['L',1,2], ['M',2,3], ['N',3,4], ['P',5,6], ['Q',6,7], ['R',8,9]],
-            '0.65':  [['F',0,1], ['K',1,2], ['L',2,3], ['M',3,4], ['N',5,6], ['P',6,7], ['Q',8,9], ['R',10,11]],
-            '1.0':   [['E',0,1], ['J',1,2], ['K',2,3], ['L',3,4], ['M',5,6], ['N',6,7], ['P',8,9], ['Q',10,11]],
-            '1.5':   [['D',0,1], ['H',1,2], ['J',2,3], ['K',3,4], ['L',5,6], ['M',6,7], ['N',8,9], ['P',10,11]],
-            '2.5':   [['C',0,1], ['G',1,2], ['H',2,3], ['J',3,4], ['K',5,6], ['L',6,7], ['M',8,9], ['N',10,11]],
-            '4.0':   [['B',0,1], ['F',1,2], ['G',2,3], ['H',3,4], ['J',5,6], ['K',6,7], ['L',8,9], ['M',10,11]],
-            '6.5':   [['A',0,1], ['E',1,2], ['F',2,3], ['G',3,4], ['H',5,6], ['J',6,7], ['K',8,9], ['L',10,11]],
-            '10':    [['D',1,2], ['E',2,3], ['F',3,4], ['G',5,6], ['H',6,7], ['J',8,9], ['K',10,11]]
-        };
-
-        function buildPlanMatrix(sampleSizes, anchors) {
+        function buildPlanMatrix(sampleSizes, indexMap, sequence) {
             const matrix = {};
             LETTER_ORDER.forEach(letter => {
                 matrix[letter] = { n: sampleSizes[letter], aql: {} };
-            });
-
-            AQL_VALUES.forEach(aql => {
-                const entries = (anchors[aql] || [])
-                    .map(([letter, ac, re]) => ({ letter, idx: LETTER_ORDER.indexOf(letter), value: [ac, re] }))
-                    .filter(e => e.idx >= 0)
-                    .sort((a, b) => a.idx - b.idx);
-
-                LETTER_ORDER.forEach((letter, idx) => {
-                    const exact = entries.find(e => e.idx === idx);
-                    if (exact) {
-                        matrix[letter].aql[aql] = exact.value;
-                        return;
-                    }
-
-                    if (!entries.length) {
-                        matrix[letter].aql[aql] = null;
-                        return;
-                    }
-
-                    if (idx < entries[0].idx) {
+                const idx01 = indexMap[letter];
+                AQL_VALUES.forEach((aql, i) => {
+                    const pos = i - idx01;
+                    if (pos < 0) {
+                        // En-dessous de la diagonale dans la ligne → flèche ↓
                         matrix[letter].aql[aql] = 'D';
-                        return;
-                    }
-
-                    if (idx > entries[entries.length - 1].idx) {
+                    } else if (pos < sequence.length) {
+                        const v = sequence[pos];
+                        matrix[letter].aql[aql] = Array.isArray(v) ? [v[0], v[1]] : v;
+                    } else {
+                        // Au-delà des valeurs disponibles → flèche ↑
                         matrix[letter].aql[aql] = 'U';
-                        return;
                     }
-
-                    let previous = entries[0];
-                    let next = entries[entries.length - 1];
-                    for (let i = 0; i < entries.length - 1; i++) {
-                        if (idx > entries[i].idx && idx < entries[i + 1].idx) {
-                            previous = entries[i];
-                            next = entries[i + 1];
-                            break;
-                        }
-                    }
-
-                    matrix[letter].aql[aql] = (idx - previous.idx <= next.idx - idx) ? 'U' : 'D';
                 });
             });
-
             return matrix;
         }
 
-        const PLAN_NORMAL = buildPlanMatrix(N_SINGLE_NORMAL, PLAN_ANCHORS_NORMAL);
-        const PLAN_TIGHTENED = buildPlanMatrix(N_SINGLE_NORMAL, PLAN_ANCHORS_TIGHTENED);
-        const PLAN_REDUCED = buildPlanMatrix(N_SINGLE_REDUCED, PLAN_ANCHORS_REDUCED);
+        const PLAN_NORMAL = buildPlanMatrix(N_SINGLE_NORMAL, AQL_INDEX_01_NORMAL, SEQUENCE_NORMAL);
+        const PLAN_TIGHTENED = buildPlanMatrix(N_SINGLE_NORMAL, AQL_INDEX_01_TIGHTENED, SEQUENCE_TIGHTENED);
+        const PLAN_REDUCED = buildPlanMatrix(N_SINGLE_REDUCED, AQL_INDEX_01_REDUCED, SEQUENCE_REDUCED);
 
 
         let lastSim = null;
@@ -1310,7 +1334,7 @@
 
         function switchTab(tab) {
 
-            ['calc', 'quiz', 'course'].forEach(t => {
+            ['pdf', 'calc', 'quiz', 'course'].forEach(t => {
 
                 const el = document.getElementById('tab-' + t);
 
@@ -1329,6 +1353,12 @@
                 }
 
             });
+
+            if (tab === 'course') {
+
+                renderLibraryTable('library-selector-tab', 'library-container-tab');
+
+            }
 
         }
 
@@ -1457,11 +1487,19 @@
 
         // --- DYNAMIC LIBRARY LOGIC (ALL ISO TABLES) ---
 
-        function renderLibraryTable() {
+        function renderLibraryTable(selectorId, containerId) {
 
-            const val = document.getElementById('library-selector').value;
+            selectorId = selectorId || 'library-selector';
 
-            const container = document.getElementById('library-container');
+            containerId = containerId || 'library-container';
+
+            const selectorEl = document.getElementById(selectorId);
+
+            const container = document.getElementById(containerId);
+
+            if (!selectorEl || !container) return;
+
+            const val = selectorEl.value;
 
             
 
@@ -2178,6 +2216,8 @@
         setLang('fr');
 
         generateScenario();
+
+        renderLibraryTable('library-selector-tab', 'library-container-tab');
 
     </script>
 
